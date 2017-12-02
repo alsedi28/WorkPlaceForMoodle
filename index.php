@@ -35,7 +35,7 @@ $ADMIN = 2; // kaf id hardcode
 
 echo $OUTPUT->header();
 
-$content;
+$content = '';
 
 // Page kafedra
 if($USER->profile['isTeacher'] === "666"){
@@ -75,15 +75,7 @@ if($USER->profile['isTeacher'] === "666"){
                 $content .= $rs[$work_id]->lastname." ".$rs[$work_id]->firstname;
                 $content .= html_writer::end_tag('p');
 
-                $content .= html_writer::start_tag('p', array('class' => 'single_work_teacher'));
-                $content .= html_writer::tag('span', 'Студент: ', array('class' => 'single_work_teacher_title'));
-                $content .= $rs_student->lastname." ".$rs_student->firstname;
-                $content .= html_writer::end_tag('p');
-
-                $content .= html_writer::start_tag('p', array('class' => 'single_work_teacher'));
-                $content .= html_writer::tag('span', 'Группа: ', array('class' => 'single_work_teacher_title'));
-                $content .= $rs_student->data;
-                $content .= html_writer::end_tag('p');
+                $content .= render_student_info($rs_student);
 
                 $content .= html_writer::start_tag('div', array('class' => 'tabs'));
 
@@ -116,64 +108,80 @@ if($USER->profile['isTeacher'] === "666"){
             }
             
         }
-        else{
-            echo "<h1>Научно-исследовательские работы</h1>";
-            
-            echo "<p class='single_work_teacher'><span class='single_work_teacher_title'>Студент: </span>";
-            echo $rs_student->lastname." ".$rs_student->firstname."</p>";
-            
-            echo "<p class='single_work_teacher'><span class='single_work_teacher_title'>Группа: ";
-            echo "</span>".$rs_student->data."</p>";
-            echo "<br/>";
+        else{ // List of student's works
+            $content .= html_writer::tag('h1', 'Научно-исследовательские работы');
+
+            $content .= render_student_info($rs_student);
             
             $sql_works = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_user.firstname, mdl_user.lastname FROM mdl_nir, mdl_user WHERE mdl_nir.user_id=".$student_id." AND  mdl_user.id=mdl_nir.teacher_id";
             $works = $DB->get_records_sql($sql_works);
         
             foreach ($works as $wk){
-                echo "<a href='/nir/index.php?std=".$student_id."&id=".$wk->id."'><div class='work_block";
-                if($wk->is_closed == 1)
-                {
-                    echo " work_block_closed";
-                }
-                echo "'>";
-                echo "<p class='work_title'><span class='work_title_title'>Научный руководитель: </span>".$wk->lastname." ".$wk->firstname."</p>";
-                echo "<p class='work_teacher'><span class='work_teacher_title'>Описание: </span></br>".$wk->title."</p>";
-                echo "</div></a>";
+                $url = "/nir/index.php?std=".$student_id."&id=".$wk->id;
+
+                $content .= html_writer::start_tag('a', array('href' => $url));
+                $content .= html_writer::start_tag('div', array('class' => $wk->is_closed == 1 ? 'work_block work_block_closed' : 'work_block'));
+
+                $content .= html_writer::start_tag('p', array('class' => 'work_title'));
+                $content .= html_writer::tag('span', 'Научный руководитель: ', array('class' => 'work_title_title'));
+                $content .= $wk->lastname." ".$wk->firstname;
+                $content .= html_writer::end_tag('p');
+
+                $content .= html_writer::start_tag('p', array('class' => 'work_teacher'));
+                $content .= html_writer::tag('span', 'Описание: ', array('class' => 'work_teacher_title'));
+                $content .= $wk->title;
+                $content .= html_writer::end_tag('p');
+
+                $content .= html_writer::end_tag('div');
+                $content .= html_writer::end_tag('a');
             }
         }
     }
     else{ // Main page kafedra with list of students
-        echo "<h1>Научно-исследовательская работа</h1>";
+        $content .= html_writer::tag('h1', 'Научно-исследовательская работа');
         
         $sql_groups = "SELECT DISTINCT data FROM mdl_user_info_data WHERE fieldid=3  AND data!='' ORDER BY data";
         $rs = $DB->get_records_sql($sql_groups);
-            
-        echo "<div id='cssmenu'>";
-        echo "<ul>";
-        
+
+        $content .= html_writer::start_tag('div', array('id' => 'cssmenu'));
+        $content .= html_writer::start_tag('ul');
+
         foreach($rs as $grp){
-            echo "<li class='has-sub'><a href='#'><span>".$grp->data."</span></a>";
-            echo "<ul>";
-            
+            $content .= html_writer::start_tag('li', array('class' => 'has-sub'));
+            $content .= html_writer::start_tag('a', array('href' => '#'));
+            $content .= html_writer::tag('span', $grp->data);
+            $content .= html_writer::end_tag('a');
+
+            $content .= html_writer::start_tag('ul');
+
             $sql_users_groups = "SELECT mdl_user.firstname, mdl_user.lastname, mdl_user.id FROM mdl_user, mdl_user_info_data WHERE mdl_user.id=mdl_user_info_data.userid AND mdl_user_info_data.data='".$grp->data."'";
             $users_group = $DB->get_records_sql($sql_users_groups);
             
             foreach($users_group as $u){
                 $sql_users_count_files = "SELECT COUNT(mdl_nir_files.id) as count FROM mdl_nir, mdl_nir_files WHERE mdl_nir.user_id=".$u->id." AND mdl_nir_files.nir_id=mdl_nir.id AND mdl_nir_files.is_sign_teacher=1 AND mdl_nir_files.is_sign_kaf=0";
                 $count = $DB->get_record_sql($sql_users_count_files);
-                echo "<li><a href='/nir/index.php?std=".$u->id."'><span>".$u->lastname." ".$u->firstname."</span>";
+
+                $url = "/nir/index.php?std=".$u->id;
+
+                $content .= html_writer::start_tag('li');
+                $content .= html_writer::start_tag('a', array('href' => $url));
+                $content .= html_writer::tag('span', $u->lastname." ".$u->firstname);
+
                 if($count->count > 0){
-                    echo "<div class='sign_files_kaf_icon'><img title='Добавлен новый документ' src='img/report-3-xxl.png' height='25px'/></div>";
+                    $content .= html_writer::start_tag('div', array('class' => 'sign_files_kaf_icon'));
+                    $content .= html_writer::empty_tag('img', array('src' => 'img/report-3-xxl.png', 'height' => '25px', 'title' => 'Добавлен новый документ'));
+                    $content .= html_writer::end_tag('div');
                 }
-                echo "</a></li>";
+                $content .= html_writer::end_tag('a');
+                $content .= html_writer::end_tag('li');
             }
-            
-            echo "</ul>";
-            echo "</li>";
+
+            $content .= html_writer::end_tag('ul');
+            $content .= html_writer::end_tag('li');
         }
-        
-        echo "</ul>";
-        echo "</div>";
+
+        $content .= html_writer::end_tag('ul');
+        $content .= html_writer::end_tag('div');
     }
 
 }
@@ -683,6 +691,21 @@ else{
 
 }
 echo $OUTPUT->footer();
+
+function render_student_info($student){
+    $header = '';
+    $header .= html_writer::start_tag('p', array('class' => 'single_work_teacher'));
+    $header .= html_writer::tag('span', 'Студент: ', array('class' => 'single_work_teacher_title'));
+    $header .= $student->lastname." ".$student->firstname;
+    $header .= html_writer::end_tag('p');
+
+    $header .= html_writer::start_tag('p', array('class' => 'single_work_teacher'));
+    $header .= html_writer::tag('span', 'Группа: ', array('class' => 'single_work_teacher_title'));
+    $header .= $student->data;
+    $header .= html_writer::end_tag('p');
+
+    return $header;
+}
 
 function render_kafedra_tab($file, $messages, $result, $work_id, $need_review = false){
     $tab_content = '';
