@@ -104,7 +104,6 @@ if($USER->profile['isTeacher'] === "666"){
                 $content .= html_writer::end_tag('div');
 
                 $content .= html_writer::end_tag('div');
-                echo $content;
             }
             
         }
@@ -122,15 +121,7 @@ if($USER->profile['isTeacher'] === "666"){
                 $content .= html_writer::start_tag('a', array('href' => $url));
                 $content .= html_writer::start_tag('div', array('class' => $wk->is_closed == 1 ? 'work_block work_block_closed' : 'work_block'));
 
-                $content .= html_writer::start_tag('p', array('class' => 'work_title'));
-                $content .= html_writer::tag('span', 'Научный руководитель: ', array('class' => 'work_title_title'));
-                $content .= $wk->lastname." ".$wk->firstname;
-                $content .= html_writer::end_tag('p');
-
-                $content .= html_writer::start_tag('p', array('class' => 'work_teacher'));
-                $content .= html_writer::tag('span', 'Описание: ', array('class' => 'work_teacher_title'));
-                $content .= $wk->title;
-                $content .= html_writer::end_tag('p');
+                $content .= render_header_work_block($wk);
 
                 $content .= html_writer::end_tag('div');
                 $content .= html_writer::end_tag('a');
@@ -185,7 +176,7 @@ if($USER->profile['isTeacher'] === "666"){
     }
 
 }
-else if(isset($_GET["id"])){
+else if(isset($_GET["id"])){ // Page work for teacher and student
     $work_id = (int) $_GET["id"];
     
     if(isset($_GET["std"])){
@@ -563,10 +554,10 @@ else if(isset($_GET["id"])){
         }
     }
 }
-else if($USER->profile['isTeacher'] === "1"){
+else if($USER->profile['isTeacher'] === "1"){ // Main page for teacher
     //Доступ в дополнительным полям, в данном случае к группе
     //echo $USER->profile['isTeacher']; 
-    if(isset($_GET["std"])){
+    if(isset($_GET["std"])){ // List of student's works for the current teacher
         $student_id = (int) $_GET["std"];
         
         $sql_works = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_user.firstname, mdl_user.lastname, mdl_user.id as student_id FROM mdl_nir, mdl_user WHERE mdl_nir.user_id=".$student_id." AND mdl_nir.teacher_id=".$USER->id." AND  mdl_user.id=mdl_nir.user_id";
@@ -577,120 +568,155 @@ else if($USER->profile['isTeacher'] === "1"){
         foreach ($works as $wk){
             $sql_new_files_amount = "SELECT COUNT(*) as count FROM mdl_nir_files WHERE nir_id=".$wk->id." AND user_id!=".$USER->id." AND is_new=1";
             $count_new_file = $DB->get_record_sql($sql_new_files_amount);
-            
-            echo "<a href='/nir/index.php?std=".$wk->student_id."&id=".$wk->id."'><div class='work_block";
-            if($wk->is_closed == 1)
-            {
-                echo " work_block_closed";
-            }
-            echo "'>";
-            echo "<p class='work_title'><span class='work_title_title'>Студент: </span>".$wk->lastname." ".$wk->firstname."</p>";
-            echo "<p class='work_teacher'><span class='work_teacher_title'>Описание: </span></br>".$wk->title."</p>";
-            if ($count_new_file->count > 0){
-                $title_file_m=" новых файлов";
-                if($count_new_file->count==1){
-                    $title_file_m=" новый файл";
-                }
-                else if($count_new_file->count>1 && $count_new_file->count<5){
-                    $title_file_m=" новых файла";
-                }
-                echo "<p class='new_file_message'>Добавлено ".$count_new_file->count.$title_file_m."</p>";
-            }
-            echo "</div></a>";
+
+            $url = '/nir/index.php?std='.$wk->student_id.'&id='.$wk->id;
+
+            $content .= html_writer::start_tag('a', array('href' => $url));
+            $content .= html_writer::start_tag('div', array('class' => $wk->is_closed == 1 ? 'work_block work_block_closed' : 'work_block'));
+
+            $content .= render_header_work_block($wk, true);
+            $content .= render_work_block_title_new_files($count_new_file);
+
+            $content .= html_writer::end_tag('div');
+            $content .= html_writer::end_tag('a');
         }
     
     }
-    else{
+    else{ // List of teacher's students
         $sql_users_of_teacher = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname, mdl_user_info_data.data FROM mdl_nir, mdl_user, mdl_user_info_data WHERE mdl_nir.teacher_id=".$USER->id." AND mdl_user.id=mdl_nir.user_id AND mdl_user_info_data.userid=mdl_nir.user_id AND mdl_user_info_data.fieldid=3";
         $users_of_teacher = $DB->get_records_sql($sql_users_of_teacher); 
-        
-        echo "<h1>Студенты</h1>";
+
+        $content .= html_writer::tag('h1', 'Студенты');
         
         foreach ($users_of_teacher as $us){
             $sql_count_n_f = "SELECT COUNT(*) as count FROM mdl_nir_files, mdl_nir WHERE mdl_nir_files.user_id=".$us->id." AND mdl_nir.teacher_id=".$USER->id." AND mdl_nir_files.is_new=1 AND mdl_nir_files.nir_id=mdl_nir.id";
             $count_n_f = $DB->get_record_sql($sql_count_n_f);
-            echo "<a href='index.php?std=".$us->id."'><div class='users_list_el'>";
-            echo "<span style='float: left'>".$us->lastname." ".$us->firstname."</span>";
-            echo $us->data;
+
+            $url = '/nir/index.php?std='.$us->id;
+
+            $content .= html_writer::start_tag('a', array('href' => $url));
+            $content .= html_writer::start_tag('div', array('class' => 'users_list_el'));
+            $content .= html_writer::tag('span', $us->lastname." ".$us->firstname, array('style' => 'float:left'));
+            $content .= $us->data;
+
             if($count_n_f->count > 0){
-                echo " <img title='Добавлен новый документ' src='img/report-3-xxl.png' height='25px'/>";
+                $content .= html_writer::empty_tag('img', array('src' => 'img/report-3-xxl.png', 'height' => '25px', 'title' => 'Добавлен новый документ'));
             }
-            echo "</div></a>";
+
+            $content .= html_writer::end_tag('div');
+            $content .= html_writer::end_tag('a');
         }
     }
 }
-else{
+else{ // Main page for student with list of his works
     $sql = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname FROM mdl_user, mdl_user_info_data WHERE mdl_user.deleted=0 AND mdl_user_info_data.userid=mdl_user.id AND mdl_user_info_data.fieldid=2 AND mdl_user_info_data.data=1";
     $rs = $DB->get_records_sql($sql);
     
     $sql_works = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_user.firstname, mdl_user.lastname FROM mdl_nir, mdl_user WHERE mdl_nir.user_id=".$USER->id." AND mdl_user.id=mdl_nir.teacher_id";
     $works = $DB->get_records_sql($sql_works);
-    
-    
-    echo "<h1>Научно-исследовательские работы</h1>";
+
+    $content .= html_writer::tag('h1', 'Научно-исследовательские работы');
     
     $count_open_works = 0;
     
     foreach ($works as $wk){
         $sql_new_files_amount = "SELECT COUNT(*) as count FROM mdl_nir_files WHERE nir_id=".$wk->id." AND user_id!=".$USER->id." AND is_new=1";
         $count_new_file = $DB->get_record_sql($sql_new_files_amount);
-        
-        echo "<a href='/nir/index.php?id=".$wk->id."'><div class='work_block";
-        if($wk->is_closed == 1)
-        {
-            echo " work_block_closed";
-        }
-        else{
+
+        $url = '/nir/index.php?id='.$wk->id;
+
+        $content .= html_writer::start_tag('a', array('href' => $url));
+        $content .= html_writer::start_tag('div', array('class' => $wk->is_closed == 1 ? 'work_block work_block_closed' : 'work_block'));
+
+        if($wk->is_closed != 1)
             $count_open_works++;
-        }
-        echo "'>";
-        echo "<p class='work_title'><span class='work_title_title'>Научный руководитель: </span>".$wk->lastname." ".$wk->firstname."</p>";
-        echo "<p class='work_teacher'><span class='work_teacher_title'>Описание: </span></br>".$wk->title."</p>";
-        if ($count_new_file->count > 0){
-            $title_file_m=" новых файлов";
-            if($count_new_file->count==1){
-                $title_file_m=" новый файл";
-            }
-            else if($count_new_file->count>1 && $count_new_file->count<5){
-                $title_file_m=" новых файла";
-            }
-            echo "<p class='new_file_message'>Добавлено ".$count_new_file->count.$title_file_m."</p>";
-        }
-        echo "</div></a>";
+
+        $content .= render_header_work_block($wk);
+        $content .= render_work_block_title_new_files($count_new_file);
+
+        $content .= html_writer::end_tag('div');
+        $content .= html_writer::end_tag('a');
     }
-    
-    echo "<div style='clear:both;'></div>";
-    echo "</br>";
+
+    $content .= html_writer::empty_tag('div', array('style' => 'clear:both;'));
+    $content .= html_writer::tag('br');
     
     if($count_open_works === 0)
     {
-        // NEW Modal window for create NIR
-        echo "<a href='#win1'><div id='button_create_nir'>Создать НИР</div></a>";
-        
-        echo "<a href='#x' class='overlay' id='win1'></a>";
-        echo "<div class='popup'>";
-            echo "<div>";
-        		echo "<h2 style='text-align:center'>Создание НИР</h2>";
-        		echo "<form id='form_create_nir' method='post' action='create_work.php'>";
-                	echo "<p id='modal_d_teacher'>Выберите научного руководителя:</p>";
-                    echo "<p><select name='teacher' required>";
-                    	       foreach ($rs as $teacher){
-                    	           echo "<option value='".$teacher->id."'>".$teacher->lastname." ".$teacher->firstname."</option>";
-                    	       }
-                    echo "</select></p>";
-                    echo "<p id='modal_d_title'>Введите название научно-исследовательской работы:</p>";
-                    echo "<textarea rows='3' cols='55' name='title' required style='resize: none;'></textarea>";
-                    echo "<input type='hidden' name='user' value='".$USER->id."'>";
-                    echo "<br/>";
-                    echo "<input type='submit' value='Создать' id='submit_modal_form'>";
-                echo "</form>";
-        	echo "</div>";
-        echo "</div>";
-        // end
+        // Modal window for create work
+        $content = render_modal_dialog_create_work($rs, $USER->id);
+    }
+}
+
+echo $content;
+echo $OUTPUT->footer();
+
+function render_modal_dialog_create_work($teachers, $user_id){
+    $dialog = '';
+    $dialog .= html_writer::start_tag('a', array('href' => '#win1'));
+    $dialog .= html_writer::tag('div', 'Создать НИР', array('id' => 'button_create_nir'));
+    $dialog .= html_writer::end_tag('a');
+
+    $dialog .= html_writer::tag('a', array('href' => '#x', 'class' => 'overlay', 'id' => 'win1'));
+
+    $dialog .= html_writer::start_tag('div', array('class' => 'popup'));
+    $dialog .= html_writer::start_tag('div');
+    $dialog .= html_writer::tag('h2', 'Создание НИР', array('style' => 'text-align:center'));
+
+    $dialog .= html_writer::start_tag('form', array('id' => 'form_create_nir', 'method' => 'post', 'action' => 'create_work.php'));
+    $dialog .= html_writer::tag('p', 'Выберите научного руководителя:', array('id' => 'modal_d_teacher'));
+
+    $dialog .= html_writer::start_tag('p');
+    $dialog .= html_writer::start_tag('select', array('name' => 'teacher', 'required' => true));
+
+    foreach ($teachers as $teacher) {
+        $dialog .= html_writer::tag('option', $teacher->lastname . " " . $teacher->firstname, array('value' => $teacher->id));
     }
 
+    $dialog .= html_writer::end_tag('select');
+    $dialog .= html_writer::end_tag('p');
+
+    $dialog .= html_writer::tag('p', 'Введите название научно-исследовательской работы:', array('id' => 'modal_d_title'));
+    $dialog .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'cols', 'required' => true, 'style' => 'resize: none;', 'cols' => '55'));
+    $dialog .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'user', 'value' => $user_id));
+    $dialog .= html_writer::tag('br');
+    $dialog .= html_writer::empty_tag('input', array('type' => 'submit', 'id' => 'submit_modal_form', 'value' => 'Создать'));
+
+    $dialog .= html_writer::end_tag('form');
+    $dialog .= html_writer::end_tag('div');
+    $dialog .= html_writer::end_tag('div');
+
+    return $dialog;
 }
-echo $OUTPUT->footer();
+
+function render_work_block_title_new_files($count_new_file){
+    if ($count_new_file->count > 0){
+        $title_file_m=" новых файлов";
+        if($count_new_file->count==1){
+            $title_file_m=" новый файл";
+        }
+        else if($count_new_file->count>1 && $count_new_file->count<5){
+            $title_file_m=" новых файла";
+        }
+
+        return html_writer::tag('p', 'Добавлено '.$count_new_file->count.$title_file_m, array('class' => 'new_file_message'));
+    }
+}
+
+function render_header_work_block($work, $is_student = false){
+    $header = '';
+    $header .= html_writer::start_tag('p', array('class' => 'work_title'));
+    $header .= html_writer::tag('span', $is_student ? 'Студент: ' : 'Научный руководитель: ', array('class' => 'work_title_title'));
+    $header .= $work->lastname." ".$work->firstname;
+    $header .= html_writer::end_tag('p');
+
+    $header .= html_writer::start_tag('p', array('class' => 'work_teacher'));
+    $header .= html_writer::tag('span', 'Описание: ', array('class' => 'work_teacher_title'));
+    $header .= $work->title;
+    $header .= html_writer::end_tag('p');
+
+    return $header;
+}
 
 function render_student_info($student){
     $header = '';
