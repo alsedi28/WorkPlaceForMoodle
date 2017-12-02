@@ -35,201 +35,84 @@ $ADMIN = 2; // kaf id hardcode
 
 echo $OUTPUT->header();
 
+$content;
+
+// Page kafedra
 if($USER->profile['isTeacher'] === "666"){
     
-    
+    // Page kafedra select student
     if(isset($_GET["std"])){
         $student_id = (int) $_GET["std"];
         
         $sql_student = "SELECT mdl_user.firstname, mdl_user.lastname, mdl_user.id, mdl_user_info_data.data FROM mdl_user, mdl_user_info_data WHERE mdl_user.id=".$student_id." AND mdl_user_info_data.userid=mdl_user.id AND mdl_user_info_data.fieldid='3'";
         $rs_student = $DB->get_record_sql($sql_student);
             
-        
+        // Student's work
         if(isset($_GET["id"])){
-            echo "<h1>Научно-исследовательская работа</h1>";
             $work_id = (int) $_GET["id"];
-            
+
             $sql_work = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_nir.review, mdl_nir.mark, mdl_user.firstname, mdl_user.lastname FROM mdl_nir, mdl_user WHERE mdl_nir.user_id=".$student_id." AND mdl_user.id=mdl_nir.teacher_id AND mdl_nir.id=".$work_id;
             $rs = $DB->get_records_sql($sql_work);
 
+            $content .= html_writer::tag('h1', 'Научно-исследовательская работа');
+
             if(count($rs) == 0){
-                echo "404 NOT FOUND";
+                $content .= html_writer::tag('h3', '404 NOT FOUND');
             }
             else{
                 $sql_file_type_z = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.date, mdl_nir_files.is_new, mdl_nir_files.is_sign_kaf, mdl_user.firstname, mdl_user.lastname FROM mdl_nir_files, mdl_nir, mdl_user WHERE mdl_nir.id=".$work_id." AND mdl_nir_files.nir_id=".$work_id." AND mdl_nir_files.type='Z' AND mdl_user.id=mdl_nir_files.user_id AND mdl_nir_files.is_sign_teacher=1";
                 $file_type_z = $DB->get_record_sql($sql_file_type_z);
                 $sql_messages_type_z = "SELECT mdl_nir_messages.id, mdl_nir_messages.text, mdl_nir_messages.date FROM mdl_nir_messages WHERE mdl_nir_messages.nir_id=".$work_id." AND mdl_nir_messages.user_id=".$USER->id." AND mdl_nir_messages.nir_type='Z' ORDER BY mdl_nir_messages.date";
                 $messages_type_z = $DB->get_records_sql($sql_messages_type_z);
-                
+
                 $sql_file_type_o = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.date, mdl_nir_files.is_new, mdl_nir_files.is_sign_kaf, mdl_user.firstname, mdl_user.lastname FROM mdl_nir_files, mdl_nir, mdl_user WHERE mdl_nir.id=".$work_id." AND mdl_nir_files.nir_id=".$work_id." AND mdl_nir_files.type='O' AND mdl_user.id=mdl_nir_files.user_id AND mdl_nir_files.is_sign_teacher=1";
                 $file_type_o = $DB->get_record_sql($sql_file_type_o);
                 $sql_messages_type_o = "SELECT mdl_nir_messages.id, mdl_nir_messages.text, mdl_nir_messages.date FROM mdl_nir_messages WHERE mdl_nir_messages.nir_id=".$work_id." AND mdl_nir_messages.user_id=".$USER->id." AND mdl_nir_messages.nir_type='O' ORDER BY mdl_nir_messages.date";
                 $messages_type_o = $DB->get_records_sql($sql_messages_type_o);
-        
-        
-                echo "<p class='single_work_teacher'><span class='single_work_teacher_title'>Научный руководитель: </span>";
-                echo $rs[$work_id]->lastname." ".$rs[$work_id]->firstname."</p>";
-                
-                echo "<p class='single_work_teacher'><span class='single_work_teacher_title'>Студент: </span>";
-                echo $rs_student->lastname." ".$rs_student->firstname."</p>";
-                
-                echo "<p class='single_work_teacher'><span class='single_work_teacher_title'>Группа: ";
-                echo "</span>".$rs_student->data."</p>";
-                echo "<br/>";
-                
-                
-                echo "<div class='tabs'>";
-                    echo "<ul class='tab-links'>";
-                        echo "<li class='active'><a href='#tab1'>Задание на НИР</a></li>";
-                        echo "<li><a href='#tab2'>Отчет</a></li>";
-                    echo "</ul>";
-         
-                    echo "<div class='tab-content'>";
-                        echo "<div id='tab1' class='tab active'>";
-                            echo "<div id='content'>";
-                                echo "<div class='block_files_kaf'>";
-                                if($file_type_z){
-                                    echo "<a href='".$file_type_z->filename."' target='_blank' class='a_file_block a_file_block_kaf'>";
-                                        echo "<div class='block_file_prev_kaf'>";
-                                            echo "<img src='img/Filetype-Docs-icon.png' height='110px' class='img_files_prev'/>";
-                                            echo "<p class='file_date'><span style='font-weight: bold'>Дата загрузки: </span>".$file_type_z->date."</p>";
-                                            echo "<p class='file_date'><span style='font-weight: bold'>Добавил: </span>".$file_type_z->lastname." ".$file_type_z->firstname."</p>";
-                                            echo "<input type='hidden' name='file_id' id='file_id' value='".$file_type_z->id."'>";
-                                        echo "</div>";
-                                    echo "</a>";
-                                }
-                                else{
-                                    echo "<p class='work_not_load'>Работа еще не была загружена.</p>";
-                                }
-                                    echo "<div style='clear:both;'></div>";
-                                echo "</div>";
-                                
-                                if($file_type_z){
-                                    echo "<div class='block_files_sign_kaf'>";
-                                        echo "<div class='sign_kaf_button";
-                                        if($file_type_z->is_sign_kaf == 1){
-                                            echo " sign_kaf_button_not_active";
-                                        }
-                                        echo "' >Подписать</div>";
-                                        echo "<div class='cancel_kaf_button' >Отклонить</div>";
-                                    echo "</div>";
-                                    echo "<br/>";
-                                }
-                                
-                                echo "<input type='hidden' name='h_work' id='h_work' value='".$work_id."'>";
-                                echo "<input type='hidden' name='h_work_type' id='h_work_type' value='Z'>";
-                                
-                                if(count($messages_type_z) == 0 && $rs[$work_id]->is_closed == 1){
-                                }
-                                else
-                                {
-                                    echo "<div class='messages' >";
-                                    
-                                    foreach ($messages_type_z as $mz){
-                                        echo "<div class='message'>";
-                                            echo "<div class='header_message'>";
-                                                echo "<p class='header_message_name'>Кафедра</p>";
-                                                echo "<p class='header_message_date'>".$mz->date."</p>";
-                                                echo "<div style='clear:both;'></div>";
-                                            echo "</div>";
-                                            echo "<p class='message_text'>".$mz->text."</p>";
-                                        echo "</div>";
-                                    }
-                                    
-                                    if($rs[$work_id]->is_closed != 1){
-                                        echo "<div class='textar_message_new'>";
-                                            echo "<textarea rows='3' name='message' required style='resize: none;' class='send_block_message' id='message_textarea_tab1'></textarea>";
-                                            echo "<button class='send_message_button' id='send_message_tab1'>";
-                                                echo "<img class='send_icon' src='img/send_icon.png' width='50px'/>";
-                                            echo "</button>";
-                                        echo "</div>";
-                                    }
-                                    echo "</div>";
-                                }
-                                
-                            echo "</div>";
-                        echo "</div>";
-                 
-                        echo "<div id='tab2' class='tab'>";
-                            echo "<div id='content'>";
-                                echo "<div class='block_files_kaf'>";
-                                
-                                if($file_type_o){
-                                    echo "<a href='".$file_type_o->filename."' target='_blank' class='a_file_block a_file_block_kaf'>";
-                                        echo "<div class='block_file_prev_kaf'>";
-                                            echo "<img src='img/Filetype-Docs-icon.png' height='110px' class='img_files_prev'/>";
-                                            echo "<p class='file_date'><span style='font-weight: bold'>Дата загрузки: </span>".$file_type_o->date."</p>";
-                                            echo "<p class='file_date'><span style='font-weight: bold'>Добавил: </span>".$file_type_o->lastname." ".$file_type_o->firstname."</p>";
-                                            echo "<input type='hidden' name='file_id' id='file_id' value='".$file_type_o->id."'>";
-                                        echo "</div>";
-                                    echo "</a>";
-                                }   
-                                else{
-                                    echo "<p class='work_not_load'>Работа еще не была загружена.</p>";
-                                }
-                                    echo "<div style='clear:both;'></div>";
-                                echo "</div>";
-                                
-                                if($file_type_o){
-                                    echo "<div class='block_files_sign_kaf'>";
-                                        echo "<div class='sign_kaf_button";
-                                        if($file_type_o->is_sign_kaf == 1){
-                                            echo " sign_kaf_button_not_active";
-                                        }
-                                        echo "' >Подписать</div>";
-                                        echo "<div class='cancel_kaf_button' >Отклонить</div>";
-                                    echo "</div>";
-                                    echo "<br/>";
-                                }
-                                
-                                echo "<input type='hidden' name='h_work' id='h_work_2' value='".$work_id."'>";
-                                echo "<input type='hidden' name='h_work_type' id='h_work_type_2' value='O'>";
-                                
-                                echo "<input type='hidden' name='h_work' id='h_work_3' value='".$work_id."'>";
-                                echo "<input type='hidden' name='h_work_type' id='h_work_type_3' value='O'>";
-                                
-                                if($rs[$work_id]->review != "" && $rs[$work_id]->mark != null){
-                                    echo "<div id='review_block_header'>";
-                                        echo "<p class='review_header_title'>Отзыв научного руководителя</p>";
-                                    echo "</div>";
-                                    echo "<div id='review_block' style='height: auto' >";
-                                        echo "<p class='ex_review_title'>Отзыв</p>";
-                                        echo "<p class= 'ex_review_text'>".$rs[$work_id]->review."</p>";
-                                        echo "<p class='ex_mark'>Оценка (по 5-ти балльной шкале): <span>".$rs[$work_id]->mark."</span></p>";
-                                    echo "</div>";   
-                                }
-                                
-                                if(count($messages_type_o) == 0 && $rs[$work_id]->is_closed == 1){
-                                }
-                                else
-                                {
-                                    echo "<div class='messages' >";
-                                        foreach ($messages_type_o as $mo){
-                                            echo "<div class='message'>";
-                                                echo "<div class='header_message'>";
-                                                    echo "<p class='header_message_name'>Кафедра</p>";
-                                                    echo "<p class='header_message_date'>".$mo->date."</p>";
-                                                    echo "<div style='clear:both;'></div>";
-                                                echo "</div>";
-                                                echo "<p class='message_text'>".$mo->text."</p>";
-                                            echo "</div>";
-                                        }
-                                        
-                                        if($rs[$work_id]->is_closed != 1){
-                                            echo "<div class='textar_message_new'>";
-                                                echo "<textarea rows='3' name='message' required style='resize: none;' class='send_block_message' id='message_textarea_tab2'></textarea>";
-                                                echo "<button class='send_message_button' id='send_message_tab2'>";
-                                                    echo "<img class='send_icon' src='img/send_icon.png' width='50px'/>";
-                                                echo "</button>";
-                                            echo "</div>";
-                                        }
-                                    echo "</div>";
-                                }
-                            echo "</div>";
-                        echo "</div>";
-                 
-                    echo "</div>";
-                echo "</div>";
+
+                $content .= html_writer::start_tag('p', array('class' => 'single_work_teacher'));
+                $content .= html_writer::tag('span', 'Научный руководитель: ', array('class' => 'single_work_teacher_title'));
+                $content .= $rs[$work_id]->lastname." ".$rs[$work_id]->firstname;
+                $content .= html_writer::end_tag('p');
+
+                $content .= html_writer::start_tag('p', array('class' => 'single_work_teacher'));
+                $content .= html_writer::tag('span', 'Студент: ', array('class' => 'single_work_teacher_title'));
+                $content .= $rs_student->lastname." ".$rs_student->firstname;
+                $content .= html_writer::end_tag('p');
+
+                $content .= html_writer::start_tag('p', array('class' => 'single_work_teacher'));
+                $content .= html_writer::tag('span', 'Группа: ', array('class' => 'single_work_teacher_title'));
+                $content .= $rs_student->data;
+                $content .= html_writer::end_tag('p');
+
+                $content .= html_writer::start_tag('div', array('class' => 'tabs'));
+
+                $content .= html_writer::start_tag('ul', array('class' => 'tab-links'));
+                $content .= html_writer::start_tag('li', array('class' => 'active'));
+                $content .= html_writer::tag('a', 'Задание на НИР', array('href' => '#tab1'));
+                $content .= html_writer::end_tag('li');
+                $content .= html_writer::start_tag('li');
+                $content .= html_writer::tag('a', 'Отчет', array('href' => '#tab2'));
+                $content .= html_writer::end_tag('li');
+                $content .= html_writer::end_tag('ul');
+
+                $content .= html_writer::start_tag('div', array('class' => 'tab-content'));
+                $content .= html_writer::start_tag('div', array('class' => 'tab active', 'id' => 'tab1'));
+
+                $content .= render_kafedra_tab($file_type_z, $messages_type_z, $work_id, $rs);
+
+                $content .= html_writer::end_tag('div');
+                $content .= html_writer::end_tag('div');
+
+                $content .= html_writer::start_tag('div', array('class' => 'tab', 'id' => 'tab2'));
+
+                $content .= render_kafedra_tab($file_type_o, $messages_type_o, $work_id, $rs, true);
+
+                $content .= html_writer::end_tag('div');
+                $content .= html_writer::end_tag('div');
+
+                $content .= html_writer::end_tag('div');
+                echo $content;
             }
             
         }
@@ -259,7 +142,7 @@ if($USER->profile['isTeacher'] === "666"){
             }
         }
     }
-    else{
+    else{ // Main page kafedra with list of students
         echo "<h1>Научно-исследовательская работа</h1>";
         
         $sql_groups = "SELECT DISTINCT data FROM mdl_user_info_data WHERE fieldid=3  AND data!='' ORDER BY data";
@@ -800,6 +683,98 @@ else{
 
 }
 echo $OUTPUT->footer();
+
+function render_kafedra_tab($file, $messages, $result, $work_id, $need_review = false){
+    $tab_content = '';
+    $tab_content .= html_writer::start_tag('div', array('id' => 'content'));
+    $tab_content .= html_writer::start_tag('div', array('class' => 'block_files_kaf'));
+
+    if($file){
+        $tab_content .= html_writer::start_tag('a', array('class' => 'a_file_block a_file_block_kaf', 'target' => '_blank', 'href' => $file->filename));
+        $tab_content .= html_writer::start_tag('div', array('class' => 'block_file_prev_kaf'));
+
+        $tab_content .= html_writer::empty_tag('img', array('src' => 'img/Filetype-Docs-icon.png', 'height' => '110px', 'class' => 'img_files_prev'));
+        $tab_content .= html_writer::start_tag('p', array('class' => 'file_date'));
+        $tab_content .= html_writer::tag('span', 'Дата загрузки: ', array('style' => 'font-weight: bold'));
+        $tab_content .= $file->date;
+        $tab_content .= html_writer::end_tag('p');
+
+        $tab_content .= html_writer::start_tag('p', array('class' => 'file_date'));
+        $tab_content .= html_writer::tag('span', 'Добавил: ', array('style' => 'font-weight: bold'));
+        $tab_content .= $file->lastname." ".$file->firstname;
+        $tab_content .= html_writer::end_tag('p');
+
+        $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'file_id', 'id' => 'file_id', 'value' => $file->id));
+
+        $tab_content .= html_writer::end_tag('div');
+        $tab_content .= html_writer::end_tag('a');
+    }
+    else{
+        $tab_content .= html_writer::tag('p', 'Работа еще не была загружена.', array('class' => 'work_not_load'));
+    }
+
+    $tab_content .= html_writer::empty_tag('div', array('style' => 'clear:both;'));
+    $tab_content .= html_writer::end_tag('div');
+
+    if($file){
+        $tab_content .= html_writer::start_tag('div', array('class' => 'block_files_sign_kaf'));
+        $tab_content .= html_writer::tag('div', 'Подписать', array('class' => $file->is_sign_kaf == 1 ? 'sign_kaf_button sign_kaf_button_not_active' : 'sign_kaf_button'));
+        $tab_content .= html_writer::tag('div', 'Отклонить', array('class' => 'cancel_kaf_button'));
+        $tab_content .= html_writer::end_tag('div');
+        $tab_content .= html_writer::tag('br');
+    }
+
+    $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => $need_review ? 'h_work_2' : 'h_work', 'value' => $work_id));
+    $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work_type', 'id' => $need_review ? 'h_work_type_2' : 'h_work_type', 'value' => $need_review ? 'O' : 'Z'));
+
+    if($need_review){ //need delete (failed js when try get *_3)
+        $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => 'h_work_3', 'value' => $work_id));
+        $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work_type', 'id' => 'h_work_type_3', 'value' => 'O'));
+    }
+
+    if($result[$work_id]->review != "" && $result[$work_id]->mark != null){
+        $tab_content .= html_writer::start_tag('div', array('id' => 'review_block_header'));
+        $tab_content .= html_writer::tag('p', 'Отзыв научного руководителя', array('class' => 'review_header_title'));
+        $tab_content .= html_writer::end_tag('div');
+
+        $tab_content .= html_writer::start_tag('div', array('id' => 'review_block', 'style' => 'height: auto'));
+        $tab_content .= html_writer::tag('p', 'Отзыв', array('class' => 'ex_review_title'));
+        $tab_content .= html_writer::tag('p', $result[$work_id]->review, array('class' => 'ex_review_text'));
+        $tab_content .= html_writer::start_tag('p', array('class' => 'ex_mark'));
+        $tab_content .= 'Оценка (по 5-ти балльной шкале): ';
+        $tab_content .= html_writer::tag('span', $result[$work_id]->mark);
+        $tab_content .= html_writer::end_tag('div');
+    }
+
+    if(!(count($messages) == 0 && $result[$work_id]->is_closed == 1)){
+        $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
+
+        foreach ($messages as $mz){
+            $tab_content .= html_writer::start_tag('div', array('class' => 'message'));
+            $tab_content .= html_writer::start_tag('div', array('class' => 'header_message'));
+            $tab_content .= html_writer::tag('p', 'Кафедра', array('class' => 'header_message_name'));
+            $tab_content .= html_writer::tag('p', $mz->date, array('class' => 'header_message_date'));
+            $tab_content .= html_writer::empty_tag('div', array('style' => 'clear:both;'));
+            $tab_content .= html_writer::end_tag('div');
+            $tab_content .= html_writer::tag('p', $mz->text, array('class' => 'message_text'));
+            $tab_content .= html_writer::end_tag('div');
+        }
+
+        if($result[$work_id]->is_closed != 1){
+            $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
+            $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => $need_review ? 'message_textarea_tab2' : 'message_textarea_tab1', 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));
+            $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => $need_review ? 'send_message_tab2' : 'send_message_tab1'));
+            $tab_content .= html_writer::empty_tag('img', array('class' => 'send_icon', 'src' => 'img/send_icon.png', 'width' => '50px'));
+            $tab_content .= html_writer::end_tag('button');
+            $tab_content .= html_writer::end_tag('div');
+        }
+
+        $tab_content .= html_writer::end_tag('div');
+    }
+
+    $tab_content .= html_writer::end_tag('div');
+    return $tab_content;
+}
 ?>
 <script>
 
@@ -832,3 +807,4 @@ echo $OUTPUT->footer();
     
     
 </script>
+
