@@ -176,7 +176,7 @@ if($USER->profile['isTeacher'] === "666"){
     }
 
 }
-else if(isset($_GET["id"])){ // Page work for teacher and student
+else if(isset($_GET["id"])){ // Page of work for teacher and student
     $work_id = (int) $_GET["id"];
     
     if(isset($_GET["std"])){
@@ -190,7 +190,7 @@ else if(isset($_GET["id"])){ // Page work for teacher and student
     }
 
     if(count($rs) == 0){
-        echo "404 NOT FOUND";
+        $content .= html_writer::tag('h3', '404 NOT FOUND');
     }
     else{
         require_once($CFG->dirroot.'/nir/ajax_remove_file.php');
@@ -211,346 +211,58 @@ else if(isset($_GET["id"])){ // Page work for teacher and student
         $sql_messages_type_p = "SELECT mdl_nir_messages.id, mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname FROM mdl_nir_messages, mdl_user WHERE mdl_nir_messages.nir_id=".$work_id." AND mdl_user.id=mdl_nir_messages.user_id AND mdl_nir_messages.nir_type='P' ORDER BY mdl_nir_messages.date";
         $messages_type_p = $DB->get_records_sql($sql_messages_type_p);
 
-        echo "<h1>Научно-исследовательская работа</h1>";
-        echo "<p class='single_work_title'><span class='single_work_title_title'>Описание: </span>".$rs[$work_id]->title."</p>";
-        echo "<p class='single_work_teacher'><span class='single_work_teacher_title'>";
-        
+        $content .= html_writer::tag('h1', 'Научно-исследовательская работа');
+
+        $content .= html_writer::start_tag('p', array('class' => 'single_work_title'));
+        $content .= html_writer::tag('span', 'Описание: ', array('class' => 'single_work_title_title'));
+        $content .= $rs[$work_id]->title;
+        $content .= html_writer::end_tag('p');
+
         if(isset($_GET["std"])){
-            echo "Студент: ";
+            $content .= render_student_info($rs[$work_id]);
         }
         else{
-            echo "Научный руководитель: ";
+            $content .= html_writer::start_tag('p', array('class' => 'single_work_teacher'));
+            $content .= html_writer::tag('span', 'Научный руководитель: ', array('class' => 'single_work_teacher_title'));
+            $content .= $rs[$work_id]->lastname." ".$rs[$work_id]->firstname;
+            $content .= html_writer::end_tag('p');
         }
-        
-        echo "</span>".$rs[$work_id]->lastname." ".$rs[$work_id]->firstname."</p>";
-        
-        if(isset($_GET["std"])){
-            echo "<p class='single_work_teacher'><span class='single_work_teacher_title'>Группа: ";
-            echo "</span>".$rs[$work_id]->data."</p>";
-        }
-        
-        echo "<div class='tabs'>";
-            echo "<ul class='tab-links'>";
-                echo "<li class='active'><a href='#tab1'>Задание на НИР</a></li>";
-                echo "<li><a href='#tab2'>Отчет</a></li>";
-                echo "<li><a href='#tab3'>Презентация</a></li>";
-            echo "</ul>";
- 
-            echo "<div class='tab-content'>";
-                echo "<div id='tab1' class='tab active'>";
-                    echo "<div id='content'>";
-                        echo "<div class='block_files'>";
-                        
-                            $i = 1;
-                            $total = count($files_type_z);
-                            $flag = true;
-                            
-                            foreach ($files_type_z as $file){
-                                
-                                    echo "<div class='block_file_prev'";
-                                    if($rs[$work_id]->is_closed == 0 && (($total == $i || $file->is_sign_teacher == 1) && $USER->profile['isTeacher'] === "1" && $flag)  || ($file->is_sign_teacher == 1 && $USER->profile['isTeacher'] !== "1" && $USER->profile['isTeacher'] !== "666")){
-                                        echo " style='height:340px'";
-                                    }
-                                    echo ">";
-                                    echo "<a href='".$file->filename."' target='_blank' class='a_file_block'>";
-                                        echo "<img src='img/Filetype-Docs-icon.png' height='110px' class='img_files_prev'/>";
-                                        echo "<p class='file_name'>Задание ".$i."</p>";
-                                        echo "<p class='file_date'><span style='font-weight: bold'>Дата загрузки: </span>".$file->date."</p>";
-                                        echo "<p class='file_date'><span style='font-weight: bold'>Добавил: </span>".$file->lastname." ".$file->firstname."</p>";
-                                        echo "<input type='hidden' name='file_id' id='file_id' value='".$file->id."'>";
-                                        if($file->is_new != 0 && $file->user_id != $USER->id){
-                                            echo "<img src='img/new.gif' height='30px' class='img_new'/>";
-                                        }
-                                        
-                                        if($file->is_sign_teacher == 1 && $USER->profile['isTeacher'] !== "1" && $USER->profile['isTeacher'] !== "666"){
-                                            echo "<br/>";
-                                            echo "<br/>";
-                                            echo "<p class='file_date'>Файл подписан научным руководителем. Ожидает подтверждения от кафедры.</p>";
-                                        }
-                                    echo "</a>";
-                                    if($rs[$work_id]->is_closed == 0 && ($total == $i || $file->is_sign_teacher == 1) && $USER->profile['isTeacher'] === "1" && $flag)  
-                                    {
-                                        if($total != $i)
-                                            $flag = false;
-                                            
-                                        echo "<div class='block_files_sign_teacher'>";
-                                            echo "<div class='sign_button_teacher";
-                                            if($file->is_sign_teacher == 1){
-                                                echo " sign_teacher_button_not_active";
-                                            }
-                                            echo "' >Подписать</div>";
-                                            echo "<div class='cancel_button_teacher";
-                                            if($file->is_sign_teacher == 0){
-                                                echo " sign_teacher_button_not_active";
-                                            }
-                                            echo "' >Отклонить</div>";
-                                        echo "</div>";
-                                    }
-                                    
-                                    echo "</div>";
-                                
-                                $i++;
-                            }
-                            
-                            echo "<div style='clear:both;'></div>";
-                        echo "</div>";
-                        
-                        if($rs[$work_id]->is_closed != 1){
-                            echo "<input type='file' name='files[]' id='filer_input2'>";
-                        }
-                        
-                        echo "<input type='hidden' name='h_work' id='h_work' value='".$work_id."'>";
-                        echo "<input type='hidden' name='h_work_type' id='h_work_type' value='Z'>";
-                        
-                        if(count($messages_type_z) == 0 && $rs[$work_id]->is_closed == 1){
-                        }
-                        else
-                        {
-                            echo "<div class='messages' >";
-                            
-                            foreach ($messages_type_z as $mz){
-                                echo "<div class='message'>";
-                                    echo "<div class='header_message";
-                                    if($mz->user_id == $ADMIN){
-                                        echo " header_message_kaf";
-                                    }
-                                    echo "'>";
-                                    if($mz->user_id == $ADMIN){
-                                        echo "<p class='header_message_name'>Кафедра</p>";
-                                    }
-                                    else{
-                                        echo "<p class='header_message_name'>".$mz->lastname." ".$mz->firstname."</p>";
-                                    }
-                                        echo "<p class='header_message_date'>".$mz->date."</p>";
-                                        echo "<div style='clear:both;'></div>";
-                                    echo "</div>";
-                                    echo "<p class='message_text'>".$mz->text."</p>";
-                                echo "</div>";
-                            }
-                            
-                            if($rs[$work_id]->is_closed != 1){
-                                echo "<div class='textar_message_new'>";
-                                    echo "<textarea rows='3' name='message' required style='resize: none;' class='send_block_message' id='message_textarea_tab1'></textarea>";
-                                    echo "<button class='send_message_button' id='send_message_tab1'>";
-                                        echo "<img class='send_icon' src='img/send_icon.png' width='50px'/>";
-                                    echo "</button>";
-                                echo "</div>";
-                            }
-                            echo "</div>";
-                        }
-                        
-                    echo "</div>";
-                echo "</div>";
-         
-                echo "<div id='tab2' class='tab'>";
-                    echo "<div id='content'>";
-                        echo "<div class='block_files'>";
-                        
-                            $m = 1;
-                            $total_o = count($files_type_o);
-                            $flag = true;
-                            
-                            foreach ($files_type_o as $file){
-                                
-                                    echo "<div class='block_file_prev'";
-                                    if($rs[$work_id]->is_closed == 0 && (($total_o == $m || $file->is_sign_teacher == 1) && $USER->profile['isTeacher'] === "1" && $flag)  || ($file->is_sign_teacher == 1 && $USER->profile['isTeacher'] !== "1" && $USER->profile['isTeacher'] !== "666")){
-                                        echo " style='height:340px'";
-                                    }
-                                    echo ">";
-                                    echo "<a href='".$file->filename."' target='_blank' class='a_file_block'>";
-                                        echo "<img src='img/Filetype-Docs-icon.png' height='110px' class='img_files_prev'/>";
-                                        echo "<p class='file_name'>Отчет ".$m."</p>";
-                                        echo "<p class='file_date'><span style='font-weight: bold'>Дата загрузки: </span>".$file->date."</p>";
-                                        echo "<p class='file_date'><span style='font-weight: bold'>Добавил: </span>".$file->lastname." ".$file->firstname."</p>";
-                                        echo "<input type='hidden' name='file_id' id='file_id' value='".$file->id."'>";
-                                        if($file->is_new != 0 && $file->user_id != $USER->id){
-                                            echo "<img src='img/new.gif' height='30px' class='img_new'/>";
-                                        }
-                                        
-                                        if($file->is_sign_teacher == 1 && $USER->profile['isTeacher'] !== "1" && $USER->profile['isTeacher'] !== "666"){
-                                            echo "<br/>";
-                                            echo "<br/>";
-                                            echo "<p class='file_date'>Файл подписан научным руководителем. Ожидает подтверждения от кафедры.</p>";
-                                        }
-                                    echo "</a>";
-                                    if($rs[$work_id]->is_closed == 0 && ($total_o == $m || $file->is_sign_teacher == 1) && $USER->profile['isTeacher'] === "1" && $flag)  
-                                    {
-                                        if($total_o != $m)
-                                            $flag = false;
-                                            
-                                        echo "<div class='block_files_sign_teacher'>";
-                                            echo "<div class='sign_button_teacher";
-                                            if($file->is_sign_teacher == 1 || $rs[$work_id]->review == "" || $rs[$work_id]->mark == ""){
-                                                echo " sign_teacher_button_not_active";
-                                            }
-                                            echo "' ";
-                                            if($rs[$work_id]->review == "" || $rs[$work_id]->mark == ""){
-                                                echo "title='Необходимо добавить отзыв'";
-                                            }
-                                            echo ">Подписать</div>";
-                                            echo "<div class='cancel_button_teacher";
-                                            if($file->is_sign_teacher == 0){
-                                                echo " sign_teacher_button_not_active";
-                                            }
-                                            echo "' >Отклонить</div>";
-                                        echo "</div>";
-                                    }
-                                    
-                                    echo "</div>";
-                                
-                                $m++;
-                            }
-                            
-                            
-                            echo "<div style='clear:both;'></div>";
-                        echo "</div>";
-                        
-                        if($rs[$work_id]->is_closed != 1){
-                            echo "<input type='file' name='files[]' id='filer_input1'>";
-                        }
-                        echo "<input type='hidden' name='h_work' id='h_work_2' value='".$work_id."'>";
-                        echo "<input type='hidden' name='h_work_type' id='h_work_type_2' value='O'>";
-                        
-                        if($USER->profile['isTeacher'] === "1"){
-                            echo "<div id='review_block_header'>";
-                                echo "<p class='review_header_title'>Отзыв научного руководителя</p>";
-                            echo "</div>";
-                            echo "<div id='review_block'";
-                             if($rs[$work_id]->review != "" && $rs[$work_id]->mark != ""){
-                                echo " style='height: auto'";
-                            }
-                            echo ">";
-                            
-                            if($rs[$work_id]->review == "" || $rs[$work_id]->mark == ""){
-                                echo "<p class='review_title'>Отзыв</p>";
-                                echo "<textarea placeholder='Введите отзыв...' rows='4' name='review' required style='resize: none;' id='review_area'></textarea>";
-                                echo "<br/>";
-                                echo "<span class='mark_title'>Оценка (по 5-ти балльной шкале)</span>";
-                                echo "<input type='number' min='1' max='5' size='3' value='4' id='mark_input'/>";
-                                echo "<br/>";
-                                echo "<p id='send_review'>Отправить</p>";
-                            }
-                            else{
-                                echo "<p class='ex_review_title'>Отзыв</p>";
-                                echo "<p class= 'ex_review_text'>".$rs[$work_id]->review."</p>";
-                                echo "<p class='ex_mark'>Оценка (по 5-ти балльной шкале): <span>".$rs[$work_id]->mark."</span></p>";
-                            }
-                            
-                            echo "</div>";
-                        }
-                        
-                        if(count($messages_type_o) == 0 && $rs[$work_id]->is_closed == 1){
-                        }
-                        else
-                        {
-                            echo "<div class='messages' >";
-                                foreach ($messages_type_o as $mo){
-                                    echo "<div class='message'>";
-                                    echo "<div class='header_message";
-                                    if($mo->user_id == $ADMIN){
-                                        echo " header_message_kaf";
-                                    }
-                                    echo "'>";
-                                            if($mo->user_id == $ADMIN){
-                                                echo "<p class='header_message_name'>Кафедра</p>";
-                                            }
-                                            else{
-                                                echo "<p class='header_message_name'>".$mo->lastname." ".$mo->firstname."</p>";
-                                            }
-                                            echo "<p class='header_message_date'>".$mo->date."</p>";
-                                            echo "<div style='clear:both;'></div>";
-                                        echo "</div>";
-                                        echo "<p class='message_text'>".$mo->text."</p>";
-                                    echo "</div>";
-                                }
-                                
-                                if($rs[$work_id]->is_closed != 1){
-                                    echo "<div class='textar_message_new'>";
-                                        echo "<textarea rows='3' name='message' required style='resize: none;' class='send_block_message' id='message_textarea_tab2'></textarea>";
-                                        echo "<button class='send_message_button' id='send_message_tab2'>";
-                                            echo "<img class='send_icon' src='img/send_icon.png' width='50px'/>";
-                                        echo "</button>";
-                                    echo "</div>";
-                                }
-                            echo "</div>";
-                        }
-                    echo "</div>";
-                echo "</div>";
-         
-                echo "<div id='tab3' class='tab'>";
-                    echo "<div id='content'>";
-                        echo "<div class='block_files'>";
-                        
-                            $n = 1;
-                            $total_p = count($files_type_p);
-                            $flag = true;
-                            
-                            foreach ($files_type_p as $file){
-                                
-                                    echo "<div class='block_file_prev'";
 
-                                    echo ">";
-                                    echo "<a href='".$file->filename."' target='_blank' class='a_file_block'>";
-                                        echo "<img src='img/Filetype-Docs-icon.png' height='110px' class='img_files_prev'/>";
-                                        echo "<p class='file_name'>Презентация ".$n."</p>";
-                                        echo "<p class='file_date'><span style='font-weight: bold'>Дата загрузки: </span>".$file->date."</p>";
-                                        echo "<p class='file_date'><span style='font-weight: bold'>Добавил: </span>".$file->lastname." ".$file->firstname."</p>";
-                                        echo "<input type='hidden' name='file_id' id='file_id' value='".$file->id."'>";
-                                        if($file->is_new != 0 && $file->user_id != $USER->id){
-                                            echo "<img src='img/new.gif' height='30px' class='img_new'/>";
-                                        }
-                                        
-                                    echo "</a>";
-                                    
-                                    echo "</div>";
-                                
-                                $n++;
-                            }
-                            
-                            echo "<div style='clear:both;'></div>";
-                        echo "</div>";
-                        
-                        if($rs[$work_id]->is_closed != 1){
-                            echo "<input type='file' name='files[]' id='filer_input3'>"; 
-                        }
-                        
-                        echo "<input type='hidden' name='h_work' id='h_work_3' value='".$work_id."'>";
-                        echo "<input type='hidden' name='h_work_type' id='h_work_type_3' value='P'>";
-                        
-                        if(count($messages_type_p) == 0 && $rs[$work_id]->is_closed == 1){
-                        }
-                        else
-                        {
-                            echo "<div class='messages' >";
-                                foreach ($messages_type_p as $mp){
-                                    echo "<div class='message'>";
-                                        echo "<div class='header_message'>";
-                                            echo "<p class='header_message_name'>".$mp->lastname." ".$mp->firstname."</p>";
-                                            echo "<p class='header_message_date'>".$mp->date."</p>";
-                                            echo "<div style='clear:both;'></div>";
-                                        echo "</div>";
-                                        echo "<p class='message_text'>".$mp->text."</p>";
-                                    echo "</div>";
-                                }
-                                
-                                if($rs[$work_id]->is_closed != 1){
-                                    echo "<div class='textar_message_new'>";
-                                        echo "<textarea rows='3' name='message' required style='resize: none;' class='send_block_message' id='message_textarea_tab3'></textarea>";
-                                        echo "<button class='send_message_button' id='send_message_tab3'>";
-                                            echo "<img class='send_icon' src='img/send_icon.png' width='50px'/>";
-                                        echo "</button>";
-                                    echo "</div>";
-                                }
-                            echo "</div>";
-                        }
-                    echo "</div>";
-                echo "</div>";
-            echo "</div>";
-        echo "</div>";
+        $content .= html_writer::start_tag('div', array('class' => 'tabs'));
+
+        $content .= html_writer::start_tag('ul', array('class' => 'tab-links'));
+        $content .= html_writer::start_tag('li', array('class' => 'active'));
+        $content .= html_writer::tag('a', 'Задание на НИР', array('href' => '#tab1'));
+        $content .= html_writer::end_tag('li');
+        $content .= html_writer::start_tag('li');
+        $content .= html_writer::tag('a', 'Отчет', array('href' => '#tab2'));
+        $content .= html_writer::end_tag('li');
+        $content .= html_writer::start_tag('li');
+        $content .= html_writer::tag('a', 'Презентация', array('href' => '#tab3'));
+        $content .= html_writer::end_tag('li');
+        $content .= html_writer::end_tag('ul');
+
+        $content .= html_writer::start_tag('div', array('class' => 'tab-content'));
+
+        $content .= render_tab($files_type_z, $messages_type_z, $rs, $USER, $work_id, array ('tab_id' => 'tab1', 'tab_number' => 1, 'image_path' => 'img/Filetype-Docs-icon.png',
+            'file_type_name' => 'Задание', 'filer_input_id' => 'filer_input2', 'work_input_id' => 'h_work', 'work_input_type' => 'h_work_type', 'work_type' => 'Z',
+            'message_textarea_id' => 'message_textarea_tab1', 'send_message_id' => 'send_message_tab1'));
+
+        $content .= render_tab($files_type_o, $messages_type_o, $rs, $USER, $work_id, array ('tab_id' => 'tab2', 'tab_number' => 2, 'image_path' => 'img/Filetype-Docs-icon.png',
+            'file_type_name' => 'Отчет', 'filer_input_id' => 'filer_input1', 'work_input_id' => 'h_work_2', 'work_input_type' => 'h_work_type_2', 'work_type' => 'O',
+            'message_textarea_id' => 'message_textarea_tab2', 'send_message_id' => 'send_message_tab2'));
+
+        $content .= render_tab($files_type_p, $messages_type_p, $rs, $USER, $work_id, array ('tab_id' => 'tab3', 'tab_number' => 3, 'image_path' => 'img/Filetype-Docs-icon.png',
+            'file_type_name' => 'Презентация', 'filer_input_id' => 'filer_input3', 'work_input_id' => 'h_work_3', 'work_input_type' => 'h_work_type_3', 'work_type' => 'P',
+            'message_textarea_id' => 'message_textarea_tab3', 'send_message_id' => 'send_message_tab3'));
+
+
+        $content .= html_writer::end_tag('div');
+        $content .= html_writer::end_tag('div');
         
         if ($USER->profile['isTeacher'] === "1" && $rs[$work_id]->is_closed == 0){
-            echo "<p class='finish_work_button'>Завершить работу</p>";   
-            echo "<input type='hidden' name='work_f' id='work_f' value='".$work_id."'>";
+            $content .= html_writer::tag('p', 'Завершить работу', array('class' => 'finish_work_button'));
+            $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'work_f', 'id' => 'work_f', 'value' => $work_id));
         }
     }
 }
@@ -562,8 +274,8 @@ else if($USER->profile['isTeacher'] === "1"){ // Main page for teacher
         
         $sql_works = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_user.firstname, mdl_user.lastname, mdl_user.id as student_id FROM mdl_nir, mdl_user WHERE mdl_nir.user_id=".$student_id." AND mdl_nir.teacher_id=".$USER->id." AND  mdl_user.id=mdl_nir.user_id";
         $works = $DB->get_records_sql($sql_works);
-        
-        echo "<h1>Научно-исследовательские работы</h1>";
+
+        $content .= html_writer::tag('h1', 'Научно-исследовательские работы');
     
         foreach ($works as $wk){
             $sql_new_files_amount = "SELECT COUNT(*) as count FROM mdl_nir_files WHERE nir_id=".$wk->id." AND user_id!=".$USER->id." AND is_new=1";
@@ -822,6 +534,145 @@ function render_kafedra_tab($file, $messages, $result, $work_id, $need_review = 
     }
 
     $tab_content .= html_writer::end_tag('div');
+    return $tab_content;
+}
+
+function render_tab($files, $messages, $result, $user, $work_id, $options){
+    $ADMIN = 2;
+    $tab_content = '';
+    $tab_content .= html_writer::start_tag('div', array('class' => 'tab active', 'id' => $options["tab_id"]));//tab1 tab2
+
+    $tab_content .= html_writer::start_tag('div', array('id' => 'content'));
+    $tab_content .= html_writer::start_tag('div', array('class' => 'block_files'));
+
+    $i = 1;
+    $total = count($files);
+    $flag = true;
+
+    foreach ($files as $file){
+        $height_block = '';
+        if($options["tab_number"] !== 3 && $result[$work_id]->is_closed == 0 && (($total == $i || $file->is_sign_teacher == 1) && $user->profile['isTeacher'] === "1" && $flag)  || ($file->is_sign_teacher == 1 && $user->profile['isTeacher'] !== "1" && $user->profile['isTeacher'] !== "666")){
+            $height_block = 'height:340px';
+        }
+        $tab_content .= html_writer::start_tag('div', array('class' => 'block_file_prev', 'style' => $height_block));
+        $tab_content .= html_writer::start_tag('a', array('class' => 'a_file_block', 'target' => '_blank', 'href' => $file->filename));
+        $tab_content .= html_writer::empty_tag('img', array('src' => $options["image_path"], 'height' => '110px', 'class' => 'img_files_prev'));//img/Filetype-Docs-icon.png
+        $tab_content .= html_writer::tag('p', $options["file_type_name"].' '.$i, array('class' => 'file_name'));//Задание Отчет Презентация
+
+        $tab_content .= html_writer::start_tag('p', array('class' => 'file_date'));
+        $tab_content .= html_writer::tag('span', 'Дата загрузки: ', array('style' => 'font-weight: bold'));
+        $tab_content .= $file->date;
+        $tab_content .= html_writer::end_tag('p');
+
+        $tab_content .= html_writer::start_tag('p', array('class' => 'file_date'));
+        $tab_content .= html_writer::tag('span', 'Добавил: ', array('style' => 'font-weight: bold'));
+        $tab_content .= $file->lastname." ".$file->firstname;
+        $tab_content .= html_writer::end_tag('p');
+
+        $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'file_id', 'id' => 'file_id', 'value' => $file->id));
+
+        if($file->is_new != 0 && $file->user_id != $user->id){
+            $tab_content .= html_writer::empty_tag('img', array('src' => 'img/new.gif', 'height' => '30px', 'class' => 'img_new'));
+        }
+
+        if($options["tab_number"] !== 3 && $file->is_sign_teacher == 1 && $user->profile['isTeacher'] !== "1" && $user->profile['isTeacher'] !== "666"){
+            $tab_content .= html_writer::tag('br');
+            $tab_content .= html_writer::tag('br');
+            $tab_content .= html_writer::tag('p', 'Файл подписан научным руководителем. Ожидает подтверждения от кафедры.', array('class' => 'file_date'));
+        }
+
+        $tab_content .= html_writer::end_tag('a');
+
+        if($options["tab_number"] !== 3 && $result[$work_id]->is_closed == 0 && ($total == $i || $file->is_sign_teacher == 1) && $user->profile['isTeacher'] === "1" && $flag)
+        {
+            if($total != $i)
+                $flag = false;
+
+            $tab_content .= html_writer::start_tag('div', array('class' => 'block_files_sign_teacher'));
+            $tab_content .= html_writer::tag('div', 'Подписать', array('class' => ($file->is_sign_teacher == 1 || ($options["tab_number"] === 2 && ($result[$work_id]->review == "" || $result[$work_id]->mark == "")))? 'sign_button_teacher sign_teacher_button_not_active' : 'sign_button_teacher'));
+            $tab_content .= html_writer::tag('div', 'Отклонить', array('class' => $file->is_sign_teacher == 0 ? 'cancel_button_teacher sign_teacher_button_not_active' : 'cancel_button_teacher'));
+            $tab_content .= html_writer::end_tag('div');
+        }
+
+        $tab_content .= html_writer::end_tag('div');
+
+        $i++;
+    }
+
+    $tab_content .= html_writer::empty_tag('div', array('style' => 'clear:both;'));
+    $tab_content .= html_writer::end_tag('div');
+
+    if($result[$work_id]->is_closed != 1){
+        $tab_content .= html_writer::empty_tag('input', array('type' => 'file', 'name' => 'files[]', 'id' => $options["filer_input_id"]));//filer_input2 filer_input1 filer_input3
+    }
+
+    $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => $options["work_input_id"], 'value' => $work_id)); // h_work h_work_2 h_work_3
+    $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work_type', 'id' => $options["work_input_type"], 'value' => $options["work_type"]));// h_work_type h_work_type_2 h_work_type_3 Z O P
+
+    if($options["tab_number"] === 2){
+        if($user->profile['isTeacher'] === "1"){
+            $tab_content .= html_writer::start_tag('div', array('id' => 'review_block_header'));
+            $tab_content .= html_writer::tag('p', 'Отзыв научного руководителя', array('class' => 'review_header_title'));
+            $tab_content .= html_writer::end_tag('div');
+
+            $height_review_block = '';
+            if($result[$work_id]->review != "" && $result[$work_id]->mark != ""){
+                $height_review_block = 'height:auto';
+            }
+            $tab_content .= html_writer::start_tag('div', array('id' => 'review_block', 'style' => $height_review_block));
+
+            if($result[$work_id]->review == "" || $result[$work_id]->mark == ""){
+                $tab_content .= html_writer::tag('p', 'Отзыв', array('class' => 'review_title'));
+                $tab_content .= html_writer::tag('textarea', '', array('rows' => '4', 'name' => 'review', 'id' => 'review_area', 'placeholder' => 'Введите отзыв...', 'style' => 'resize: none;', 'required' => true));
+                $tab_content .= html_writer::tag('br');
+                $tab_content .= html_writer::tag('span', 'Оценка (по 5-ти балльной шкале)', array('class' => 'mark_title'));
+                $tab_content .= html_writer::empty_tag('input', array('type' => 'number', 'value' => '4', 'min' => '1', 'max' => '5', 'size' => '3', 'id' => 'mark_input'));
+                $tab_content .= html_writer::tag('br');
+                $tab_content .= html_writer::tag('p', 'Отправить', array('id' => 'send_review'));
+            }
+            else{
+                $tab_content .= html_writer::tag('p', 'Отзыв', array('class' => 'ex_review_title'));
+                $tab_content .= html_writer::tag('p', $result[$work_id]->review, array('class' => 'ex_review_text'));
+
+                $tab_content .= html_writer::start_tag('p', array('class' => 'ex_mark'));
+                $tab_content .= 'Оценка (по 5-ти балльной шкале): ';
+                $tab_content .= html_writer::tag('span', $result[$work_id]->mark);
+                $tab_content .= html_writer::end_tag('p');
+            }
+
+            $tab_content .= html_writer::end_tag('div');
+        }
+    }
+
+    if(!(count($messages) == 0 && $result[$work_id]->is_closed == 1)){
+        $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
+
+        foreach ($messages as $mz){
+            $tab_content .= html_writer::start_tag('div', array('class' => 'message'));
+            $tab_content .= html_writer::start_tag('div', array('class' => $mz->user_id == $ADMIN ? 'header_message header_message_kaf' :'header_message'));
+            $tab_content .= html_writer::tag('p', $mz->user_id == $ADMIN ? 'Кафедра' : $mz->lastname." ".$mz->firstname, array('class' => 'header_message_name'));
+            $tab_content .= html_writer::tag('p', $mz->date, array('class' => 'header_message_date'));
+            $tab_content .= html_writer::empty_tag('div', array('style' => 'clear:both;'));
+            $tab_content .= html_writer::end_tag('div');
+            $tab_content .= html_writer::tag('p', $mz->text, array('class' => 'message_text'));
+            $tab_content .= html_writer::end_tag('div');
+        }
+
+        if($result[$work_id]->is_closed != 1){
+            $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
+            $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => $options["message_textarea_id"], 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));//message_textarea_tab1 message_textarea_tab2 message_textarea_tab3
+            $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => $options["send_message_id"]));//send_message_tab1 send_message_tab2 send_message_tab3
+            $tab_content .= html_writer::empty_tag('img', array('class' => 'send_icon', 'src' => 'img/send_icon.png', 'width' => '50px'));
+            $tab_content .= html_writer::end_tag('button');
+            $tab_content .= html_writer::end_tag('div');
+        }
+
+        $tab_content .= html_writer::end_tag('div');
+    }
+
+    $tab_content .= html_writer::end_tag('div');
+    $tab_content .= html_writer::end_tag('div');
+
     return $tab_content;
 }
 ?>
