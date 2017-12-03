@@ -214,7 +214,6 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
 
         if($options["tab_number"] !== 3 && $file->is_sign_teacher == 1 && $user->profile['isTeacher'] !== "1" && $user->profile['isTeacher'] !== "666"){
             $tab_content .= html_writer::tag('br');
-            $tab_content .= html_writer::tag('br');
             $tab_content .= html_writer::tag('p', 'Файл подписан научным руководителем. Ожидает подтверждения от кафедры.', array('class' => 'file_date'));
         }
 
