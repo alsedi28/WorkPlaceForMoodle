@@ -50,11 +50,11 @@ $(document).ready(function(){
     }
     
     if($("#tab1 .sign_kaf_button").is('.sign_kaf_button') && !document.querySelector('#tab1 .sign_kaf_button').classList.contains("sign_kaf_button_not_active")){
-        $("#tab1 .sign_kaf_button").on("click", sign_nir);
+        $("#tab1 .sign_kaf_button").on("click", sign_nir_kaf);
     }
     
     if($("#tab2 .sign_kaf_button").is('.sign_kaf_button') && !document.querySelector('#tab2 .sign_kaf_button').classList.contains("sign_kaf_button_not_active")){
-        $("#tab2 .sign_kaf_button").on("click", sign_nir_tab2);
+        $("#tab2 .sign_kaf_button").on("click", sign_nir_kaf);
     }
     
     if($("#tab1 .sign_button_teacher").is('.sign_button_teacher') && !document.querySelector('#tab1 .sign_button_teacher').classList.contains("sign_teacher_button_not_active")){
@@ -62,119 +62,128 @@ $(document).ready(function(){
     }
     
     if($("#tab2 .sign_button_teacher").is('.sign_button_teacher') && !document.querySelector('#tab2 .sign_button_teacher').classList.contains("sign_teacher_button_not_active")){
-        $("#tab2 .sign_button_teacher").on("click", sign_nir_teacher_tab2);
+        $("#tab2 .sign_button_teacher").on("click", sign_nir_teacher);
     }
-    
-/*    if($("#tab3 .sign_button_teacher").is('.sign_button_teacher') && !document.querySelector('#tab3 .sign_button_teacher').classList.contains("sign_teacher_button_not_active")){
-        $("#tab3 .sign_button_teacher").on("click", sign_nir_teacher_tab3);
-    }*/
-    
-    
-    function sign_nir_teacher(){
+
+    $("#tab1 .cancel_kaf_button").on("click", cancel_sign_nir_kaf);
+
+    $("#tab2 .cancel_kaf_button").on("click", cancel_sign_nir_kaf);
+
+    if($("#tab1 .cancel_button_teacher").is('.cancel_button_teacher') && !document.querySelector('#tab1 .cancel_button_teacher').classList.contains("sign_teacher_button_not_active")){
+        $("#tab1 .cancel_button_teacher").on("click", cancel_sign_nir_teacher);
+    }
+
+    if($("#tab2 .cancel_button_teacher").is('.cancel_button_teacher') && !document.querySelector('#tab2 .cancel_button_teacher').classList.contains("sign_teacher_button_not_active")){
+        $("#tab2 .cancel_button_teacher").on("click", cancel_sign_nir_teacher);
+    }
+
+    function sign_nir_teacher(event){
+        var tabs = $(event.target).closest('.tab');
+        var current_tab_id = tabs[0].id;
+
         var isSignYes = confirm("Вы действительно хотите подписать работу?");
-        
+
         if(isSignYes){
-            var id = $('#tab1 .sign_button_teacher').parent().parent().find("#file_id").val();
-            
+            var file_id = $('#' + current_tab_id + ' .sign_button_teacher').parent().parent().find("#file_id").val();
+
             $.ajax({
-            url: 'sign_file_teacher.php',
-            type: 'POST',
-            data: {'id': id},
-            success: function(data){
+                url: 'sign_file_teacher.php',
+                type: 'POST',
+                data: {'id': file_id},
+                success: function(data){
                     if(data === "Ok"){
                         alert("Документ подписан");
-                        document.querySelector('#tab1 .sign_button_teacher').classList.add("sign_teacher_button_not_active");
-                        document.querySelector('#tab1 .cancel_button_teacher').classList.remove("sign_teacher_button_not_active");
-                        $("#tab1 .sign_button_teacher").off();
-                        $("#tab1 .cancel_button_teacher").on("click", cancel_sign_nir_teacher);
+                        document.querySelector('#' + current_tab_id + ' .sign_button_teacher').classList.add("sign_teacher_button_not_active");
+                        document.querySelector('#' + current_tab_id + ' .cancel_button_teacher').classList.remove("sign_teacher_button_not_active");
+                        $('#' + current_tab_id + ' .sign_button_teacher').off();
+                        $('#' + current_tab_id + ' .cancel_button_teacher').on("click", cancel_sign_nir_teacher);
                     }
                 }
             });
         }
     }
-    
-    function sign_nir_teacher_tab2(){
-        var isSignYes = confirm("Вы действительно хотите подписать работу?");
-        
-        if(isSignYes){
-            var id = $('#tab2 .sign_button_teacher').parent().parent().find("#file_id").val();
-            
+
+    function cancel_sign_nir_teacher(event){
+        var isCancelSignYes = confirm("Вы действительно хотите отменить подпись?");
+
+        if(isCancelSignYes){
+            var tabs = $(event.target).closest('.tab');
+            var current_tab_id = tabs[0].id;
+
+            var file_id = $('#' + current_tab_id + ' .cancel_button_teacher').parent().parent().find("#file_id").val();
+
             $.ajax({
-            url: 'sign_file_teacher.php',
-            type: 'POST',
-            data: {'id': id},
-            success: function(data){
+                url: 'cancel_sign_file_teacher.php',
+                type: 'POST',
+                data: {'id': file_id},
+                success: function(data){
                     if(data === "Ok"){
-                        alert("Документ подписан");
-                        document.querySelector('#tab2 .sign_button_teacher').classList.add("sign_teacher_button_not_active");
-                        document.querySelector('#tab2 .cancel_button_teacher').classList.remove("sign_teacher_button_not_active");
-                        $("#tab2 .sign_button_teacher").off();
-                        $("#tab2 .cancel_button_teacher").on("click", cancel_sign_nir_teacher_tab2);
+                        alert("Подпись отменена");
+                        document.querySelector('#' + current_tab_id + ' .sign_button_teacher').classList.remove("sign_teacher_button_not_active");
+                        document.querySelector('#' + current_tab_id + ' .cancel_button_teacher').classList.add("sign_teacher_button_not_active");
+                        $('#' + current_tab_id + ' .sign_button_teacher').on("click", sign_nir_teacher);
+                        $('#' + current_tab_id + ' .cancel_button_teacher').off();
                     }
                 }
             });
         }
     }
-    
-/*    function sign_nir_teacher_tab3(){
+
+    function sign_nir_kaf(event){
         var isSignYes = confirm("Вы действительно хотите подписать работу?");
         
         if(isSignYes){
-            var id = $('#tab3 .sign_button_teacher').parent().parent().find("#file_id").val();
-            
-            $.ajax({
-            url: 'sign_file_teacher.php',
-            type: 'POST',
-            data: {'id': id},
-            success: function(data){
-                    if(data === "Ok"){
-                        alert("Документ подписан");
-                        document.querySelector('#tab3 .sign_button_teacher').classList.add("sign_teacher_button_not_active");
-                        document.querySelector('#tab3 .cancel_button_teacher').classList.remove("sign_teacher_button_not_active");
-                        $("#tab3 .sign_button_teacher").off();
-                        $("#tab3 .cancel_button_teacher").on("click", cancel_sign_nir_teacher_tab3);
-                    }
-                }
-            });
-        }
-    }*/
-    
-    function sign_nir(){
-        var isSignYes = confirm("Вы действительно хотите подписать работу?");
-        
-        if(isSignYes){
-            var id = document.querySelector('#tab1 #file_id').value;
+            var tabs = $(event.target).closest('.tab');
+            var current_tab_id = tabs[0].id;
+
+            var file_id = document.querySelector('#' + current_tab_id + ' #file_id').value;
             
             $.ajax({
             url: 'sign_file.php',
             type: 'POST',
-            data: {'id': id},
+            data: {'id': file_id},
             success: function(data){
                     if(data === "Ok"){
                         alert("Документ подписан");
-                        document.querySelector('#tab1 .sign_kaf_button').classList.add("sign_kaf_button_not_active");
-                        $("#tab1 .sign_kaf_button").off();
+                        document.querySelector('#' + current_tab_id + ' .sign_kaf_button').classList.add("sign_kaf_button_not_active");
+                        $('#' + current_tab_id + ' .sign_kaf_button').off();
                     }
                 }
             });
         }
     }
-    
-    function sign_nir_tab2(){
-        var isSignYes = confirm("Вы действительно хотите подписать работу?");
-        
-        if(isSignYes){
-            var id = document.querySelector('#tab2 #file_id').value;
-            
+
+    function cancel_sign_nir_kaf(event){
+        var message = "Вы действительно хотите отклонить работу?";
+        var tabs = $(event.target).closest('.tab');
+        var current_tab_id = tabs[0].id;
+
+        if(document.querySelector('#' + current_tab_id + ' .sign_kaf_button').classList.contains('sign_kaf_button_not_active')){
+            message = "Вы действительно хотите отменить подпись?";
+        }
+
+        var isCancelSignYes = confirm(message);
+
+        if(isCancelSignYes){
+            var file_id = document.querySelector('#tab1 #file_id').value;
+
             $.ajax({
-            url: 'sign_file.php',
-            type: 'POST',
-            data: {'id': id},
-            success: function(data){
-                    if(data === "Ok"){
-                        alert("Документ подписан");
-                        document.querySelector('#tab2 .sign_kaf_button').classList.add("sign_kaf_button_not_active");
-                        $("#tab2 .sign_kaf_button").off();
+                url: 'cancel_sign_file.php',
+                type: 'POST',
+                data: {'id': file_id},
+                success: function(data){
+                    if(data === "Ok cancel sign document"){
+                        alert("Подпись отменена");
+                        document.querySelector('#' + current_tab_id + ' .sign_kaf_button').classList.remove('sign_kaf_button_not_active');
+                        $('#' + current_tab_id + ' .sign_kaf_button').on("click", sign_nir_kaf);
+                    }
+                    else if(data === "Ok cancel document"){
+                        alert("Документ отклонен");
+                        $('#' + current_tab_id + ' .sign_kaf_button').remove();
+                        $('#' + current_tab_id + ' .cancel_kaf_button').remove();
+                        $('#' + current_tab_id + ' .block_files_sign_kaf').remove();
+                        $('#' + current_tab_id + ' .block_files_kaf').empty();
+                        $('#' + current_tab_id + ' .block_files_kaf').append("<p class='work_not_load'>Работа еще не была загружена.</p>");
                     }
                 }
             });
@@ -203,7 +212,7 @@ $(document).ready(function(){
                     alert("Отзыв добавлен.");
                     
                     document.querySelector('#tab2 .sign_button_teacher').classList.remove("sign_teacher_button_not_active");
-                    $("#tab2 .sign_button_teacher").on("click", sign_nir_teacher_tab2);
+                    $("#tab2 .sign_button_teacher").on("click", sign_nir_teacher);
                     
                     $("#review_block").empty();
                     $("#review_block").append("<p class='ex_review_title'>Отзыв</p><p class= 'ex_review_text'>" + review + "</p><p class='ex_mark'>Оценка (по 5-ти балльной шкале): <span>" + mark + "</span></p>" );
@@ -215,168 +224,7 @@ $(document).ready(function(){
             }
         });
     }
-    
-    $("#tab1 .cancel_kaf_button").on("click", cancel_sign_nir);
-    
-    $("#tab2 .cancel_kaf_button").on("click", cancel_sign_nir_tab2);
-    
-    if($("#tab1 .cancel_button_teacher").is('.cancel_button_teacher') && !document.querySelector('#tab1 .cancel_button_teacher').classList.contains("sign_teacher_button_not_active")){
-        $("#tab1 .cancel_button_teacher").on("click", cancel_sign_nir_teacher);
-    }
-    
-    if($("#tab2 .cancel_button_teacher").is('.cancel_button_teacher') && !document.querySelector('#tab2 .cancel_button_teacher').classList.contains("sign_teacher_button_not_active")){
-        $("#tab2 .cancel_button_teacher").on("click", cancel_sign_nir_teacher_tab2);
-    }
-    
-/*    if($("#tab3 .cancel_button_teacher").is('.cancel_button_teacher') && !document.querySelector('#tab3 .cancel_button_teacher').classList.contains("sign_teacher_button_not_active")){
-        $("#tab3 .cancel_button_teacher").on("click", cancel_sign_nir_teacher_tab3);
-    }*/
-    
-    function cancel_sign_nir_teacher(){
-        var message = "Вы действительно хотите отменить подпись?";
-        
-        var isCancelSignYes = confirm(message);
-        
-        if(isCancelSignYes){
-            var id = $('#tab1 .cancel_button_teacher').parent().parent().find("#file_id").val();
-            
-            $.ajax({
-            url: 'cancel_sign_file_teacher.php',
-            type: 'POST',
-            data: {'id': id},
-            success: function(data){
-                    if(data === "Ok"){
-                        alert("Подпись отменена");
-                        document.querySelector('#tab1 .sign_button_teacher').classList.remove("sign_teacher_button_not_active");
-                        document.querySelector('#tab1 .cancel_button_teacher').classList.add("sign_teacher_button_not_active");
-                        $("#tab1 .sign_button_teacher").on("click", sign_nir_teacher);
-                        $("#tab1 .cancel_button_teacher").off();
-                    }
-                }
-            });
-        }
-    }
-    
-    function cancel_sign_nir_teacher_tab2(){
-        var message = "Вы действительно хотите отменить подпись?";
-        
-        var isCancelSignYes = confirm(message);
-        
-        if(isCancelSignYes){
-            var id = $('#tab2 .cancel_button_teacher').parent().parent().find("#file_id").val();
-            
-            $.ajax({
-            url: 'cancel_sign_file_teacher.php',
-            type: 'POST',
-            data: {'id': id},
-            success: function(data){
-                    if(data === "Ok"){
-                        alert("Подпись отменена");
-                        document.querySelector('#tab2 .sign_button_teacher').classList.remove("sign_teacher_button_not_active");
-                        document.querySelector('#tab2 .cancel_button_teacher').classList.add("sign_teacher_button_not_active");
-                        $("#tab2 .sign_button_teacher").on("click", sign_nir_teacher_tab2);
-                        $("#tab2 .cancel_button_teacher").off();
-                    }
-                }
-            });
-        }
-    }
-    
-/*    function cancel_sign_nir_teacher_tab3(){
-        var message = "Вы действительно хотите отменить подпись?";
-        
-        var isCancelSignYes = confirm(message);
-        
-        if(isCancelSignYes){
-            var id = $('#tab3 .cancel_button_teacher').parent().parent().find("#file_id").val();
-            
-            $.ajax({
-            url: 'cancel_sign_file_teacher.php',
-            type: 'POST',
-            data: {'id': id},
-            success: function(data){
-                    if(data === "Ok"){
-                        alert("Подпись отменена");
-                        document.querySelector('#tab3 .sign_button_teacher').classList.remove("sign_teacher_button_not_active");
-                        document.querySelector('#tab3 .cancel_button_teacher').classList.add("sign_teacher_button_not_active");
-                        $("#tab3 .sign_button_teacher").on("click", sign_nir_teacher_tab3);
-                        $("#tab3 .cancel_button_teacher").off();
-                    }
-                }
-            });
-        }
-    }*/
-    
-    function cancel_sign_nir(){
-        var message = "Вы действительно хотите отклонить работу?";
-        
-        if(document.querySelector('#tab1 .sign_kaf_button').classList.contains("sign_kaf_button_not_active")){
-            message = "Вы действительно хотите отменить подпись?";
-        }
-        
-        var isCancelSignYes = confirm(message);
-        
-        if(isCancelSignYes){
-            var id = document.querySelector('#tab1 #file_id').value;
-            
-            $.ajax({
-            url: 'cancel_sign_file.php',
-            type: 'POST',
-            data: {'id': id},
-            success: function(data){
-                    if(data === "Ok cancel sign document"){
-                        alert("Подпись отменена");
-                        document.querySelector('#tab1 .sign_kaf_button').classList.remove("sign_kaf_button_not_active");
-                        $("#tab1 .sign_kaf_button").on("click", sign_nir);
-                    }
-                    else if(data === "Ok cancel document"){
-                        alert("Документ отклонен");
-                        $("#tab1 .sign_kaf_button").remove();
-                        $("#tab1 .cancel_kaf_button").remove(); 
-                        $("#tab1 .block_files_sign_kaf").remove();
-                        $("#tab1 .block_files_kaf").empty();
-                        $("#tab1 .block_files_kaf").append("<p class='work_not_load'>Работа еще не была загружена.</p>");
-                    }
-                }
-            });
-        }
-    }
-    
-    function cancel_sign_nir_tab2(){
-        var message = "Вы действительно хотите отклонить работу?";
-        
-        if(document.querySelector('#tab2 .sign_kaf_button').classList.contains("sign_kaf_button_not_active")){
-            message = "Вы действительно хотите отменить подпись?";
-        }
-        
-        var isCancelSignYes = confirm(message);
-        
-        if(isCancelSignYes){
-            var id = document.querySelector('#tab2 #file_id').value;
-            
-            $.ajax({
-            url: 'cancel_sign_file.php',
-            type: 'POST',
-            data: {'id': id},
-            success: function(data){
-                    if(data === "Ok cancel sign document"){
-                        alert("Подпись отменена");
-                        document.querySelector('#tab2 .sign_kaf_button').classList.remove("sign_kaf_button_not_active");
-                        $("#tab2 .sign_kaf_button").on("click", sign_nir_tab2);
-                    }
-                    else if(data === "Ok cancel document"){
-                        alert("Документ отклонен");
-                        $("#tab2 .sign_kaf_button").remove();
-                        $("#tab2 .cancel_kaf_button").remove(); 
-                        $("#tab2 .block_files_sign_kaf").remove();
-                        $("#tab2 .block_files_kaf").empty();
-                        $("#tab2 .block_files_kaf").append("<p class='work_not_load'>Работа еще не была загружена.</p>");
-                    }
-                }
-            });
-        }
-    }
-    
+
     $("#send_message_tab2").click( function(){
         var nir_id = document.getElementById("h_work_2").value;
         var type = document.getElementById("h_work_type_2").value;

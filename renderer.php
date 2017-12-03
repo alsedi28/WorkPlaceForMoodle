@@ -260,10 +260,10 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
             if($result[$work_id]->review == "" || $result[$work_id]->mark == ""){
                 $tab_content .= html_writer::tag('p', 'Отзыв', array('class' => 'review_title'));
                 $tab_content .= html_writer::tag('textarea', '', array('rows' => '4', 'name' => 'review', 'id' => 'review_area', 'placeholder' => 'Введите отзыв...', 'style' => 'resize: none;', 'required' => true));
-                $tab_content .= html_writer::tag('br');
+                $tab_content .= html_writer::empty_tag('br');
                 $tab_content .= html_writer::tag('span', 'Оценка (по 5-ти балльной шкале)', array('class' => 'mark_title'));
                 $tab_content .= html_writer::empty_tag('input', array('type' => 'number', 'value' => '4', 'min' => '1', 'max' => '5', 'size' => '3', 'id' => 'mark_input'));
-                $tab_content .= html_writer::tag('br');
+                $tab_content .= html_writer::empty_tag('br');
                 $tab_content .= html_writer::tag('p', 'Отправить', array('id' => 'send_review'));
             }
             else{
