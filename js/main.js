@@ -225,101 +225,47 @@ $(document).ready(function(){
         });
     }
 
-    $("#send_message_tab2").click( function(){
-        var nir_id = document.getElementById("h_work_2").value;
-        var type = document.getElementById("h_work_type_2").value;
-        var text = document.getElementById("message_textarea_tab2").value;
+    function send_comment(event){
+        var tabs = $(event.target).closest('.tab');
+        var current_tab_id = tabs[0].id;
+
+
+        var nir_id = document.querySelector("#" + current_tab_id + " [name='h_work']").value;
+        var type = document.querySelector("#" + current_tab_id + " [name='h_work_type']").value;
+        var text = document.querySelector("#" + current_tab_id + " [name='message']").value;
         var date = "0";
-        
-        var date_lst = $("#tab2 .message .header_message_date");
+
+        var date_lst = $("#" + current_tab_id + " .message .header_message_date");
         if (date_lst.length !== 0){
             date = date_lst[date_lst.length - 1].innerText;
         }
-        
+
         if (text === ""){
             alert("Сообщение не должно быть пустым!");
             return;
         }
-        
-        $("#send_message_tab2").attr("disabled", true);
-        $("#message_textarea_tab2").attr("disabled", true);
-        
+
+        $("#" + current_tab_id + " .send_message_button").attr("disabled", true);
+        $("#" + current_tab_id + " [name='message']").attr("disabled", true);
+
         $.ajax({
             url: 'create_message.php',
             type: 'POST',
             data: {'nir': nir_id, 'type': type, 'text': text, 'date': date},
             success: function(data){
-                    document.getElementById("message_textarea_tab2").value = "";
-                    $("#send_message_tab2").attr("disabled", false);
-                    $("#message_textarea_tab2").attr("disabled", false);
-                    $("#tab2 .textar_message_new").before(data);
-                }
+                document.querySelector("#" + current_tab_id + " [name='message']").value = "";
+                $("#" + current_tab_id + " .send_message_button").attr("disabled", false);
+                $("#" + current_tab_id + " [name='message']").attr("disabled", false);
+                $("#" + current_tab_id + " .textar_message_new").before(data);
+            }
         });
-    });
+    }
+
+    $("#send_message_tab2").click(send_comment);
     
-     $("#send_message_tab1").click( function(){
-        var nir_id = document.getElementById("h_work").value;
-        var type = document.getElementById("h_work_type").value;
-        var text = document.getElementById("message_textarea_tab1").value;
-        var date = "0";
-        
-        var date_lst = $("#tab1 .message .header_message_date");
-        if (date_lst.length !== 0){
-            date = date_lst[date_lst.length - 1].innerText;
-        }
-        
-        if (text === ""){
-            alert("Сообщение не должно быть пустым!");
-            return;
-        }
-        
-        $("#send_message_tab1").attr("disabled", true);
-        $("#message_textarea_tab1").attr("disabled", true);
-        
-        $.ajax({
-            url: 'create_message.php',
-            type: 'POST',
-            data: {'nir': nir_id, 'type': type, 'text': text, 'date': date},
-            success: function(data){
-                    document.getElementById("message_textarea_tab1").value = "";
-                    $("#send_message_tab1").attr("disabled", false);
-                    $("#message_textarea_tab1").attr("disabled", false);
-                    $("#tab1 .textar_message_new").before(data);
-                }
-        });
-    });
+    $("#send_message_tab1").click(send_comment);
     
-    $("#send_message_tab3").click( function(){
-        var nir_id = document.getElementById("h_work_3").value;
-        var type = document.getElementById("h_work_type_3").value;
-        var text = document.getElementById("message_textarea_tab3").value;
-        var date = "0";
-        
-        var date_lst = $("#tab3 .message .header_message_date");
-        if (date_lst.length !== 0){
-            date = date_lst[date_lst.length - 1].innerText;
-        }
-        
-        if (text === ""){
-            alert("Сообщение не должно быть пустым!");
-            return;
-        }
-        
-        $("#send_message_tab3").attr("disabled", true);
-        $("#message_textarea_tab3").attr("disabled", true);
-        
-        $.ajax({
-            url: 'create_message.php',
-            type: 'POST',
-            data: {'nir': nir_id, 'type': type, 'text': text, 'date': date},
-            success: function(data){
-                    document.getElementById("message_textarea_tab3").value = "";
-                    $("#send_message_tab3").attr("disabled", false);
-                    $("#message_textarea_tab3").attr("disabled", false);
-                    $("#tab3 .textar_message_new").before(data);
-                }
-        });
-    });
+    $("#send_message_tab3").click( send_comment);
     
     function finish_work(){
         var isSignYes = confirm("Вы действительно хотите завершить работу?");
@@ -355,6 +301,7 @@ $(document).ready(function(){
  
         e.preventDefault();
     });
+
 	//Example 2
 	$("#filer_input2").filer({
 		limit: 1,
