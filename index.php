@@ -92,13 +92,13 @@ if($USER->profile['isTeacher'] === "666"){
                 $content .= html_writer::start_tag('div', array('class' => 'tab-content'));
                 $content .= html_writer::start_tag('div', array('class' => 'tab active', 'id' => 'tab1'));
 
-                $content .= render_kafedra_tab($file_type_z, $messages_type_z, $work_id, $rs);
+                $content .= render_kafedra_tab($file_type_z, $messages_type_z, $rs, $work_id);
 
                 $content .= html_writer::end_tag('div');
 
                 $content .= html_writer::start_tag('div', array('class' => 'tab', 'id' => 'tab2'));
 
-                $content .= render_kafedra_tab($file_type_o, $messages_type_o, $work_id, $rs, true);
+                $content .= render_kafedra_tab($file_type_o, $messages_type_o, $rs, $work_id, true);
 
                 $content .= html_writer::end_tag('div');
 

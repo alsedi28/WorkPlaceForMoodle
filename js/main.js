@@ -85,18 +85,25 @@ $(document).ready(function(){
 
         if(isSignYes){
             var file_id = $('#' + current_tab_id + ' .sign_button_teacher').parent().parent().find("#file_id").val();
+            var date = "0";
+
+            var date_lst = $("#" + current_tab_id + " .message .header_message_date");
+            if (date_lst.length !== 0){
+                date = date_lst[date_lst.length - 1].innerText;
+            }
 
             $.ajax({
                 url: 'sign_file_teacher.php',
                 type: 'POST',
-                data: {'id': file_id},
+                data: {'id': file_id, 'date': date},
                 success: function(data){
-                    if(data === "Ok"){
+                    if(data !== "Error"){
                         alert("Документ подписан");
                         document.querySelector('#' + current_tab_id + ' .sign_button_teacher').classList.add("sign_teacher_button_not_active");
                         document.querySelector('#' + current_tab_id + ' .cancel_button_teacher').classList.remove("sign_teacher_button_not_active");
                         $('#' + current_tab_id + ' .sign_button_teacher').off();
                         $('#' + current_tab_id + ' .cancel_button_teacher').on("click", cancel_sign_nir_teacher);
+                        $("#" + current_tab_id + " .textar_message_new").before(data);
                     }
                 }
             });
@@ -112,17 +119,25 @@ $(document).ready(function(){
 
             var file_id = $('#' + current_tab_id + ' .cancel_button_teacher').parent().parent().find("#file_id").val();
 
+            var date = "0";
+
+            var date_lst = $("#" + current_tab_id + " .message .header_message_date");
+            if (date_lst.length !== 0){
+                date = date_lst[date_lst.length - 1].innerText;
+            }
+
             $.ajax({
                 url: 'cancel_sign_file_teacher.php',
                 type: 'POST',
-                data: {'id': file_id},
+                data: {'id': file_id, 'date': date},
                 success: function(data){
-                    if(data === "Ok"){
+                    if(data !== "Error"){
                         alert("Подпись отменена");
                         document.querySelector('#' + current_tab_id + ' .sign_button_teacher').classList.remove("sign_teacher_button_not_active");
                         document.querySelector('#' + current_tab_id + ' .cancel_button_teacher').classList.add("sign_teacher_button_not_active");
                         $('#' + current_tab_id + ' .sign_button_teacher').on("click", sign_nir_teacher);
                         $('#' + current_tab_id + ' .cancel_button_teacher').off();
+                        $("#" + current_tab_id + " .textar_message_new").before(data);
                     }
                 }
             });
@@ -137,16 +152,24 @@ $(document).ready(function(){
             var current_tab_id = tabs[0].id;
 
             var file_id = document.querySelector('#' + current_tab_id + ' #file_id').value;
+
+            var date = "0";
+
+            var date_lst = $("#" + current_tab_id + " .message .header_message_date");
+            if (date_lst.length !== 0){
+                date = date_lst[date_lst.length - 1].innerText;
+            }
             
             $.ajax({
             url: 'sign_file.php',
             type: 'POST',
-            data: {'id': file_id},
+            data: {'id': file_id, 'date': date},
             success: function(data){
-                    if(data === "Ok"){
+                    if(data !== "Error"){
                         alert("Документ подписан");
                         document.querySelector('#' + current_tab_id + ' .sign_kaf_button').classList.add("sign_kaf_button_not_active");
                         $('#' + current_tab_id + ' .sign_kaf_button').off();
+                        $("#" + current_tab_id + " .textar_message_new").before(data);
                     }
                 }
             });
@@ -167,17 +190,24 @@ $(document).ready(function(){
         if(isCancelSignYes){
             var file_id = document.querySelector('#tab1 #file_id').value;
 
+            var date = "0";
+
+            var date_lst = $("#" + current_tab_id + " .message .header_message_date");
+            if (date_lst.length !== 0){
+                date = date_lst[date_lst.length - 1].innerText;
+            }
+
             $.ajax({
                 url: 'cancel_sign_file.php',
                 type: 'POST',
-                data: {'id': file_id},
-                success: function(data){
-                    if(data === "Ok cancel sign document"){
+                data: {'id': file_id, 'date': date},
+                success: function(result){
+                    if(result.status === "Ok cancel sign document"){
                         alert("Подпись отменена");
                         document.querySelector('#' + current_tab_id + ' .sign_kaf_button').classList.remove('sign_kaf_button_not_active');
                         $('#' + current_tab_id + ' .sign_kaf_button').on("click", sign_nir_kaf);
                     }
-                    else if(data === "Ok cancel document"){
+                    else if(result.status === "Ok cancel document"){
                         alert("Документ отклонен");
                         $('#' + current_tab_id + ' .sign_kaf_button').remove();
                         $('#' + current_tab_id + ' .cancel_kaf_button').remove();
@@ -185,6 +215,8 @@ $(document).ready(function(){
                         $('#' + current_tab_id + ' .block_files_kaf').empty();
                         $('#' + current_tab_id + ' .block_files_kaf').append("<p class='work_not_load'>Работа еще не была загружена.</p>");
                     }
+
+                    $("#" + current_tab_id + " .textar_message_new").before(result.data);
                 }
             });
         }
@@ -302,17 +334,17 @@ $(document).ready(function(){
         e.preventDefault();
     });
 
-	//Example 2
-	$("#filer_input2").filer({
-		limit: 1,
-		maxSize: null,
-		extensions: ['txt', 'doc', 'docx', 'docm', 'odt', 'pages'],
-		changeInput: '<div class="jFiler-input-dragDrop"><div class="jFiler-input-inner"><div class="jFiler-input-icon"><i id="icon_cloud" class="icon-jfi-cloud-up-o"></i></div><div class="jFiler-input-text"><h3 id="dragdrop_title">Перетащите файл сюда</h3> <span style="display:inline-block; margin: 15px 0">или</span></div><a class="jFiler-input-choose-btn blue">Выберите файл</a></div></div>',
-		showThumbs: true,
-		theme: "dragdropbox",
-		templates: {
-			box: '<ul class="jFiler-items-list jFiler-items-grid" id="ul_file_block"></ul>',
-			item: '<li class="jFiler-item">\
+    function get_obj_settings_download_file(data, extensions){
+        return {
+            limit: 1,
+            maxSize: null,
+            extensions: extensions, //['txt', 'doc', 'docx', 'docm', 'odt', 'pages'],
+            changeInput: '<div class="jFiler-input-dragDrop"><div class="jFiler-input-inner"><div class="jFiler-input-icon"><i id="icon_cloud" class="icon-jfi-cloud-up-o"></i></div><div class="jFiler-input-text"><h3 id="dragdrop_title">Перетащите файл сюда</h3> <span style="display:inline-block; margin: 15px 0">или</span></div><a class="jFiler-input-choose-btn blue">Выберите файл</a></div></div>',
+            showThumbs: true,
+            theme: "dragdropbox",
+            templates: {
+                box: '<ul class="jFiler-items-list jFiler-items-grid" id="ul_file_block"></ul>',
+                item: '<li class="jFiler-item">\
 						<div class="jFiler-item-container">\
 							<div class="jFiler-item-inner">\
 								<div class="jFiler-item-thumb">\
@@ -338,7 +370,7 @@ $(document).ready(function(){
 							</div>\
 						</div>\
 					</li>',
-			itemAppend: '<li class="jFiler-item">\
+                itemAppend: '<li class="jFiler-item">\
 							<div class="jFiler-item-container">\
 								<div class="jFiler-item-inner">\
 									<div class="jFiler-item-thumb">\
@@ -364,414 +396,95 @@ $(document).ready(function(){
 								</div>\
 							</div>\
 						</li>',
-			progressBar: '<div class="bar"></div>',
-			itemAppendToEnd: false,
-			canvasImage: true,
-			removeConfirmation: true,
-			_selectors: {
-				list: '.jFiler-items-list',
-				item: '.jFiler-item',
-				progressBar: '.bar',
-				remove: '.jFiler-item-trash-action'
-			}
-		},
-		dragDrop: {
-			dragEnter: null,
-			dragLeave: null,
-			drop: null,
-			dragContainer: null,
-		},
-		uploadFile: {
-			url: "ajax_upload_file.php",
-			data: dataObj,
-			type: 'POST',
-			enctype: 'multipart/form-data',
-			synchron: true,
-			beforeSend: function(){},
-			success: function(data, itemEl, listEl, boxEl, newInputEl, inputEl, id){
-				var parent = itemEl.find(".jFiler-jProgressBar").parent(),
-					new_file_name = JSON.parse(data),
-					filerKit = inputEl.prop("jFiler");
+                progressBar: '<div class="bar"></div>',
+                itemAppendToEnd: false,
+                canvasImage: true,
+                removeConfirmation: true,
+                _selectors: {
+                    list: '.jFiler-items-list',
+                    item: '.jFiler-item',
+                    progressBar: '.bar',
+                    remove: '.jFiler-item-trash-action'
+                }
+            },
+            dragDrop: {
+                dragEnter: null,
+                dragLeave: null,
+                drop: null,
+                dragContainer: null,
+            },
+            uploadFile: {
+                url: "ajax_upload_file.php",
+                data: data,
+                type: 'POST',
+                enctype: 'multipart/form-data',
+                synchron: true,
+                beforeSend: function(){},
+                success: function(data, itemEl, listEl, boxEl, newInputEl, inputEl, id){
+                    var parent = itemEl.find(".jFiler-jProgressBar").parent(),
+                        new_file_name = JSON.parse(data),
+                        filerKit = inputEl.prop("jFiler");
 
-        		filerKit.files_list[id].name = new_file_name;
+                    filerKit.files_list[id].name = new_file_name;
 
-				itemEl.find(".jFiler-jProgressBar").fadeOut("slow", function(){
-					$("<div class=\"jFiler-item-others text-success\"><i class=\"icon-jfi-check-circle\"></i> Файл загружен</div>").hide().appendTo(parent).fadeIn("slow");
-				});
-			},
-			error: function(el){
-				var parent = el.find(".jFiler-jProgressBar").parent();
-				el.find(".jFiler-jProgressBar").fadeOut("slow", function(){
-					$("<div class=\"jFiler-item-others text-error\"><i class=\"icon-jfi-minus-circle\"></i> Ошибка</div>").hide().appendTo(parent).fadeIn("slow");
-				});
-			},
-			statusCode: null,
-			onProgress: null,
-			onComplete: null
-		},
-		files: null,
-		addMore: false,
-		allowDuplicates: true,
-		clipBoardPaste: true,
-		excludeName: null,
-		beforeRender: null,
-		afterRender: null,
-		beforeShow: null,
-		beforeSelect: null,
-		onSelect: null,
-		afterShow: null,
-		onRemove: function(itemEl, file, id, listEl, boxEl, newInputEl, inputEl){
-			var filerKit = inputEl.prop("jFiler"),
-		        file_name = filerKit.files_list[id].name;
+                    itemEl.find(".jFiler-jProgressBar").fadeOut("slow", function(){
+                        $("<div class=\"jFiler-item-others text-success\"><i class=\"icon-jfi-check-circle\"></i> Файл загружен</div>").hide().appendTo(parent).fadeIn("slow");
+                    });
+                },
+                error: function(el){
+                    var parent = el.find(".jFiler-jProgressBar").parent();
+                    el.find(".jFiler-jProgressBar").fadeOut("slow", function(){
+                        $("<div class=\"jFiler-item-others text-error\"><i class=\"icon-jfi-minus-circle\"></i> Ошибка</div>").hide().appendTo(parent).fadeIn("slow");
+                    });
+                },
+                statusCode: null,
+                onProgress: null,
+                onComplete: null
+            },
+            files: null,
+            addMore: false,
+            allowDuplicates: true,
+            clipBoardPaste: true,
+            excludeName: null,
+            beforeRender: null,
+            afterRender: null,
+            beforeShow: null,
+            beforeSelect: null,
+            onSelect: null,
+            afterShow: null,
+            onRemove: function(itemEl, file, id, listEl, boxEl, newInputEl, inputEl){
+                var filerKit = inputEl.prop("jFiler"),
+                    file_name = filerKit.files_list[id].name;
 
-		    $.post('ajax_remove_file.php', {file: file_name});
-		},
-		onEmpty: null,
-		options: null,
-		dialogs: {
-			alert: function(text) {
-				return alert(text);
-			},
-			confirm: function (text, callback) {
-				confirm(text) ? callback() : null;
-			}
-		},
-		captions: {
-			button: "Выберите файл",
-			feedback: "Выберите файлы для загрузки",
-			feedback2: "файлы выбраны",
-			drop: "Перетащите файл сюда, чтобы загрузить",
-			removeConfirmation: "Вы уверены, что хотите удалить этот файл?",
-			errors: {
-				filesLimit: "Только {{fi-limit}} файл может быть загружен.",
-				filesType: "Могут быть загружены только файлы с расширениями '.doc','.docx', '.docm.', '.txt', '.odt', '.pages'.",
-				filesSize: "Файл {{fi-name}} слишком большой! Загрузите файл размером до {{fi-maxSize}} MB.",
-				filesSizeAll: "Файлы, которые вы выбрали, слишком большие! Загрузите файлы размером до {{fi-maxSize}} MB."
-			}
-		}
-	});
-	
-	
-	$("#filer_input1").filer({
-		limit: 1,
-		maxSize: null,
-		extensions: ['txt', 'doc', 'docx', 'docm', 'odt', 'pages'],
-		changeInput: '<div class="jFiler-input-dragDrop"><div class="jFiler-input-inner"><div class="jFiler-input-icon"><i id="icon_cloud" class="icon-jfi-cloud-up-o"></i></div><div class="jFiler-input-text"><h3 id="dragdrop_title">Перетащите файл сюда</h3> <span style="display:inline-block; margin: 15px 0">или</span></div><a class="jFiler-input-choose-btn blue">Выберите файл</a></div></div>',
-		showThumbs: true,
-		theme: "dragdropbox",
-		templates: {
-			box: '<ul class="jFiler-items-list jFiler-items-grid" id="ul_file_block"></ul>',
-			item: '<li class="jFiler-item">\
-						<div class="jFiler-item-container">\
-							<div class="jFiler-item-inner">\
-								<div class="jFiler-item-thumb">\
-									<div class="jFiler-item-status"></div>\
-									<div class="jFiler-item-thumb-overlay">\
-										<div class="jFiler-item-info">\
-											<div style="display:table-cell;vertical-align: middle;">\
-												<span class="jFiler-item-title"><b title="{{fi-name}}">{{fi-name}}</b></span>\
-												<span class="jFiler-item-others">{{fi-size2}}</span>\
-											</div>\
-										</div>\
-									</div>\
-									{{fi-image}}\
-								</div>\
-								<div class="jFiler-item-assets jFiler-row">\
-									<ul class="list-inline pull-left">\
-										<li>{{fi-progressBar}}</li>\
-									</ul>\
-									<ul class="list-inline pull-right">\
-										<li><a class="icon-jfi-trash jFiler-item-trash-action"></a></li>\
-									</ul>\
-								</div>\
-							</div>\
-						</div>\
-					</li>',
-			itemAppend: '<li class="jFiler-item">\
-							<div class="jFiler-item-container">\
-								<div class="jFiler-item-inner">\
-									<div class="jFiler-item-thumb">\
-										<div class="jFiler-item-status"></div>\
-										<div class="jFiler-item-thumb-overlay">\
-											<div class="jFiler-item-info">\
-												<div style="display:table-cell;vertical-align: middle;">\
-													<span class="jFiler-item-title"><b title="{{fi-name}}">{{fi-name}}</b></span>\
-													<span class="jFiler-item-others">{{fi-size2}}</span>\
-												</div>\
-											</div>\
-										</div>\
-										{{fi-image}}\
-									</div>\
-									<div class="jFiler-item-assets jFiler-row">\
-										<ul class="list-inline pull-left">\
-											<li><span class="jFiler-item-others">{{fi-icon}}</span></li>\
-										</ul>\
-										<ul class="list-inline pull-right">\
-											<li><a class="icon-jfi-trash jFiler-item-trash-action"></a></li>\
-										</ul>\
-									</div>\
-								</div>\
-							</div>\
-						</li>',
-			progressBar: '<div class="bar"></div>',
-			itemAppendToEnd: false,
-			canvasImage: true,
-			removeConfirmation: true,
-			_selectors: {
-				list: '.jFiler-items-list',
-				item: '.jFiler-item',
-				progressBar: '.bar',
-				remove: '.jFiler-item-trash-action'
-			}
-		},
-		dragDrop: {
-			dragEnter: null,
-			dragLeave: null,
-			drop: null,
-			dragContainer: null,
-		},
-		uploadFile: {
-			url: "ajax_upload_file.php",
-			data: dataObj2,
-			type: 'POST',
-			enctype: 'multipart/form-data',
-			synchron: true,
-			beforeSend: function(){},
-			success: function(data, itemEl, listEl, boxEl, newInputEl, inputEl, id){
-				var parent = itemEl.find(".jFiler-jProgressBar").parent(),
-					new_file_name = JSON.parse(data),
-					filerKit = inputEl.prop("jFiler");
-
-        		filerKit.files_list[id].name = new_file_name;
-
-				itemEl.find(".jFiler-jProgressBar").fadeOut("slow", function(){
-					$("<div class=\"jFiler-item-others text-success\"><i class=\"icon-jfi-check-circle\"></i> Файл загружен</div>").hide().appendTo(parent).fadeIn("slow");
-				});
-			},
-			error: function(el){
-				var parent = el.find(".jFiler-jProgressBar").parent();
-				el.find(".jFiler-jProgressBar").fadeOut("slow", function(){
-					$("<div class=\"jFiler-item-others text-error\"><i class=\"icon-jfi-minus-circle\"></i> Ошибка</div>").hide().appendTo(parent).fadeIn("slow");
-				});
-			},
-			statusCode: null,
-			onProgress: null,
-			onComplete: null
-		},
-		files: null,
-		addMore: false,
-		allowDuplicates: true,
-		clipBoardPaste: true,
-		excludeName: null,
-		beforeRender: null,
-		afterRender: null,
-		beforeShow: null,
-		beforeSelect: null,
-		onSelect: null,
-		afterShow: null,
-		onRemove: function(itemEl, file, id, listEl, boxEl, newInputEl, inputEl){
-			var filerKit = inputEl.prop("jFiler"),
-		        file_name = filerKit.files_list[id].name;
-
-		    $.post('ajax_remove_file.php', {file: file_name});
-		},
-		onEmpty: null,
-		options: null,
-		dialogs: {
-			alert: function(text) {
-				return alert(text);
-			},
-			confirm: function (text, callback) {
-				confirm(text) ? callback() : null;
-			}
-		},
-		captions: {
-			button: "Выберите файл",
-			feedback: "Выберите файлы для загрузки",
-			feedback2: "файлы выбраны",
-			drop: "Перетащите файл сюда, чтобы загрузить",
-			removeConfirmation: "Вы уверены, что хотите удалить этот файл?",
-			errors: {
-				filesLimit: "Только {{fi-limit}} файл может быть загружен.",
-				filesType: "Могут быть загружены только файлы с расширениями '.doc','.docx', '.docm.', '.txt', '.odt', '.pages'.",
-				filesSize: "Файл {{fi-name}} слишком большой! Загрузите файл размером до {{fi-maxSize}} MB.",
-				filesSizeAll: "Файлы, которые вы выбрали, слишком большие! Загрузите файлы размером до {{fi-maxSize}} MB."
-			}
-		}
-	});
-	
-	$("#filer_input3").filer({
-		limit: 1,
-		maxSize: null,
-		extensions: ['pdf', 'ppt', 'pptx', 'key'],
-		changeInput: '<div class="jFiler-input-dragDrop"><div class="jFiler-input-inner"><div class="jFiler-input-icon"><i id="icon_cloud" class="icon-jfi-cloud-up-o"></i></div><div class="jFiler-input-text"><h3 id="dragdrop_title">Перетащите файл сюда</h3> <span style="display:inline-block; margin: 15px 0">или</span></div><a class="jFiler-input-choose-btn blue">Выберите файл</a></div></div>',
-		showThumbs: true,
-		theme: "dragdropbox",
-		templates: {
-			box: '<ul class="jFiler-items-list jFiler-items-grid" id="ul_file_block"></ul>',
-			item: '<li class="jFiler-item">\
-						<div class="jFiler-item-container">\
-							<div class="jFiler-item-inner">\
-								<div class="jFiler-item-thumb">\
-									<div class="jFiler-item-status"></div>\
-									<div class="jFiler-item-thumb-overlay">\
-										<div class="jFiler-item-info">\
-											<div style="display:table-cell;vertical-align: middle;">\
-												<span class="jFiler-item-title"><b title="{{fi-name}}">{{fi-name}}</b></span>\
-												<span class="jFiler-item-others">{{fi-size2}}</span>\
-											</div>\
-										</div>\
-									</div>\
-									{{fi-image}}\
-								</div>\
-								<div class="jFiler-item-assets jFiler-row">\
-									<ul class="list-inline pull-left">\
-										<li>{{fi-progressBar}}</li>\
-									</ul>\
-									<ul class="list-inline pull-right">\
-										<li><a class="icon-jfi-trash jFiler-item-trash-action"></a></li>\
-									</ul>\
-								</div>\
-							</div>\
-						</div>\
-					</li>',
-			itemAppend: '<li class="jFiler-item">\
-							<div class="jFiler-item-container">\
-								<div class="jFiler-item-inner">\
-									<div class="jFiler-item-thumb">\
-										<div class="jFiler-item-status"></div>\
-										<div class="jFiler-item-thumb-overlay">\
-											<div class="jFiler-item-info">\
-												<div style="display:table-cell;vertical-align: middle;">\
-													<span class="jFiler-item-title"><b title="{{fi-name}}">{{fi-name}}</b></span>\
-													<span class="jFiler-item-others">{{fi-size2}}</span>\
-												</div>\
-											</div>\
-										</div>\
-										{{fi-image}}\
-									</div>\
-									<div class="jFiler-item-assets jFiler-row">\
-										<ul class="list-inline pull-left">\
-											<li><span class="jFiler-item-others">{{fi-icon}}</span></li>\
-										</ul>\
-										<ul class="list-inline pull-right">\
-											<li><a class="icon-jfi-trash jFiler-item-trash-action"></a></li>\
-										</ul>\
-									</div>\
-								</div>\
-							</div>\
-						</li>',
-			progressBar: '<div class="bar"></div>',
-			itemAppendToEnd: false,
-			canvasImage: true,
-			removeConfirmation: true,
-			_selectors: {
-				list: '.jFiler-items-list',
-				item: '.jFiler-item',
-				progressBar: '.bar',
-				remove: '.jFiler-item-trash-action'
-			}
-		},
-		dragDrop: {
-			dragEnter: null,
-			dragLeave: null,
-			drop: null,
-			dragContainer: null,
-		},
-		uploadFile: {
-			url: "ajax_upload_file.php",
-			data: dataObj3,
-			type: 'POST',
-			enctype: 'multipart/form-data',
-			synchron: true,
-			beforeSend: function(){},
-			success: function(data, itemEl, listEl, boxEl, newInputEl, inputEl, id){
-				var parent = itemEl.find(".jFiler-jProgressBar").parent(),
-					new_file_name = JSON.parse(data),
-					filerKit = inputEl.prop("jFiler");
-
-        		filerKit.files_list[id].name = new_file_name;
-
-				itemEl.find(".jFiler-jProgressBar").fadeOut("slow", function(){
-					$("<div class=\"jFiler-item-others text-success\"><i class=\"icon-jfi-check-circle\"></i> Файл загружен</div>").hide().appendTo(parent).fadeIn("slow");
-				});
-			},
-			error: function(el){
-				var parent = el.find(".jFiler-jProgressBar").parent();
-				el.find(".jFiler-jProgressBar").fadeOut("slow", function(){
-					$("<div class=\"jFiler-item-others text-error\"><i class=\"icon-jfi-minus-circle\"></i> Ошибка</div>").hide().appendTo(parent).fadeIn("slow");
-				});
-			},
-			statusCode: null,
-			onProgress: null,
-			onComplete: null
-		},
-		files: null,
-		addMore: false,
-		allowDuplicates: true,
-		clipBoardPaste: true,
-		excludeName: null,
-		beforeRender: null,
-		afterRender: null,
-		beforeShow: null,
-		beforeSelect: null,
-		onSelect: null,
-		afterShow: null,
-		onRemove: function(itemEl, file, id, listEl, boxEl, newInputEl, inputEl){
-			var filerKit = inputEl.prop("jFiler"),
-		        file_name = filerKit.files_list[id].name;
-
-		    $.post('ajax_remove_file.php', {file: file_name});
-		},
-		onEmpty: null,
-		options: null,
-		dialogs: {
-			alert: function(text) {
-				return alert(text);
-			},
-			confirm: function (text, callback) {
-				confirm(text) ? callback() : null;
-			}
-		},
-		captions: {
-			button: "Выберите файл",
-			feedback: "Выберите файлы для загрузки",
-			feedback2: "файлы выбраны",
-			drop: "Перетащите файл сюда, чтобы загрузить",
-			removeConfirmation: "Вы уверены, что хотите удалить этот файл?",
-			errors: {
-				filesLimit: "Только {{fi-limit}} файл может быть загружен.",
-				filesType: "Могут быть загружены только файлы с расширениями '.pdf','.ppt','.pptx', '.key'.",
-				filesSize: "Файл {{fi-name}} слишком большой! Загрузите файл размером до {{fi-maxSize}} MB.",
-				filesSizeAll: "Файлы, которые вы выбрали, слишком большие! Загрузите файлы размером до {{fi-maxSize}} MB."
-			}
-		}
-	});
-	
-/*	// kaf navigate
-	$('#cssmenu > ul > li ul').each(function(index, e){
-        var count = $(e).find('li').length;
-        var content = '<span class=\"cnt\">' + count + '</span>';
-        $(e).closest('li').children('a').append(content);
-    });
-    $('#cssmenu ul ul li:odd').addClass('odd');
-    $('#cssmenu ul ul li:even').addClass('even');
-    $('#cssmenu > ul > li > a').click(function() {
-        $('#cssmenu li').removeClass('active');
-        $(this).closest('li').addClass('active');   
-        var checkElement = $(this).next();
-        if((checkElement.is('ul')) && (checkElement.is(':visible'))) {
-            $(this).closest('li').removeClass('active');
-            checkElement.slideUp('normal');
+                $.post('ajax_remove_file.php', {file: file_name});
+            },
+            onEmpty: null,
+            options: null,
+            dialogs: {
+                alert: function(text) {
+                    return alert(text);
+                },
+                confirm: function (text, callback) {
+                    confirm(text) ? callback() : null;
+                }
+            },
+            captions: {
+                button: "Выберите файл",
+                feedback: "Выберите файлы для загрузки",
+                feedback2: "файлы выбраны",
+                drop: "Перетащите файл сюда, чтобы загрузить",
+                removeConfirmation: "Вы уверены, что хотите удалить этот файл?",
+                errors: {
+                    filesLimit: "Только {{fi-limit}} файл может быть загружен.",
+                    filesType: "Могут быть загружены только файлы с расширениями " + extensions.join(', ') + ".",
+                    filesSize: "Файл {{fi-name}} слишком большой! Загрузите файл размером до {{fi-maxSize}} MB.",
+                    filesSizeAll: "Файлы, которые вы выбрали, слишком большие! Загрузите файлы размером до {{fi-maxSize}} MB."
+                }
+            }
         }
-        if((checkElement.is('ul')) && (!checkElement.is(':visible'))) {
-            $('#cssmenu ul ul:visible').slideUp('normal');
-            checkElement.slideDown('normal');
-        }
-        if($(this).closest('li').find('ul').children().length == 0) {
-            return true;
-        } else {
-            return false;
-        }
-    });*/
+    }
+
+    $("#filer_input2").filer(get_obj_settings_download_file(dataObj, ['txt', 'doc', 'docx', 'docm', 'odt', 'pages']));
+    $("#filer_input1").filer(get_obj_settings_download_file(dataObj2, ['txt', 'doc', 'docx', 'docm', 'odt', 'pages']));
+    $("#filer_input3").filer(get_obj_settings_download_file(dataObj3, ['pdf', 'ppt', 'pptx', 'key']));
 })

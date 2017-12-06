@@ -5,7 +5,6 @@ require_once(dirname(__FILE__) . '/../config.php');
 
 global $USER;
 
-
 $ADMIN = 2;
 
 $nir = isset($_POST['nir']) ? $_POST['nir'] : 0;
@@ -69,5 +68,4 @@ foreach ($messages as $m){
     echo "</div>";
 }
 
-//print_r($messages);
 ?>
