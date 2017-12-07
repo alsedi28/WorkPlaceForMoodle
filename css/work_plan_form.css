@@ -1,0 +1,42 @@
+.form_work_plan{
+    width: 800px;
+    margin: auto;
+}
+
+.executor_block{
+    width: 400px;
+    float:left;
+}
+
+.teacher_block{
+    width: 400px;
+    float:right;
+}
+
+.form_work_plan .header_block{
+    text-align: center;
+}
+
+.label_block{
+    width: 180px;
+    float:left;
+    font-size:17px;
+    margin-left:20px;
+    margin-top:5px;
+}
+
+.input_block{
+    width: 200px;
+    float:right
+}
+
+.work_info_block{
+    width: 600px;
+    margin: auto;
+}
+
+.textarea_block{
+    width: 385px;
+    float:right;
+    resize: none;
+}

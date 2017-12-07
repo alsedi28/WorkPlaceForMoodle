@@ -20,6 +20,7 @@ $PAGE->requires->css('/nirtest/css/tabs.css');
 $PAGE->requires->css('/nirtest/css/main.css');
 $PAGE->requires->css('/nirtest/material/jquery.filer.css');
 $PAGE->requires->css('/nirtest/material/jquery.filer-dragdropbox-theme.css');
+$PAGE->requires->css('/nirtest/work_plan_form.css');
 $PAGE->requires->js('/nirtest/js/jquery-3.2.0.min.js', true);
 $PAGE->requires->js('/nirtest/material/jquery.filer.min.js', true);
 $PAGE->requires->js('/nirtest/js/main.js', true);

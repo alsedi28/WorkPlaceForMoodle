@@ -312,4 +312,94 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
     return $tab_content;
 }
 
+function render_work_plan(){
+        $content = '';
+		$content .= html_writer::tag('h2', 'Задание на НИР', array('class' => '', 'style' => 'text-align: center; color: rgba(0,0,0,.54);'));
+        
+        $content .= html_writer::start_tag('form', array('class' => 'form_work_plan'));
+        
+        $content .= html_writer::start_tag('div', array('class' => 'executor_block'));
+        
+        $content .= html_writer::tag('h3', 'Исполнитель', array('class' => 'header_block'));
+
+        $content .= render_work_plan_input_block('Фамилия', 'ex_surname', true);
+        $content .= render_work_plan_input_block('Имя', 'ex_name', true);
+        $content .= render_work_plan_input_block('Отчество', 'ex_patronymic', true);
+        $content .= render_work_plan_input_block('Номер телефона', 'ex_phone_number');
+        $content .= render_work_plan_input_block('Электронная почта', 'ex_email');
+
+        $content .= html_writer::end_tag('div');//end executor_block
+        
+        $content .= html_writer::start_tag('div', array('class' => 'teacher_block'));
+        
+        $content .= html_writer::tag('h3', 'Научный руководитель', array('class' => 'header_block'));
+
+        $content .= render_work_plan_input_block('Фамилия', 'th_surname', true);
+        $content .= render_work_plan_input_block('Имя', 'th_name', true);
+        $content .= render_work_plan_input_block('Отчество', 'th_patronymic', true);
+        $content .= render_work_plan_input_block('Номер телефона', 'th_phone_number');
+        $content .= render_work_plan_input_block('Электронная почта', 'th_email');
+        
+        $content .= html_writer::end_tag('div');//end teacher_block
+        
+        $content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
+
+        $content .= html_writer::start_tag('div', array('class' => 'work_info_block'));
+        $content .= html_writer::tag('h3', 'Общие сведения о работе', array('class' => 'header_block'));
+
+        $content .=render_work_plan_textarea_block('Тема работы', 'work_theme', 2);
+        $content .=render_work_plan_textarea_block('Цель работы', 'work_goal', 2);
+        $content .=render_work_plan_textarea_block('Содержание и основные этапы работы', 'work_content', 4);
+        $content .=render_work_plan_textarea_block('Ожидаемые результаты и формы их реализации', 'work_result', 4);
+        $content .=render_work_plan_textarea_block('Основные источники информации', 'info_source', 4);
+
+        $content .= html_writer::end_tag('div');//end work_info_block
+        
+        $content .= html_writer::end_tag('form');
+		
+		return $content;
+}
+
+function render_work_plan_input_block($label, $input_name, $required = false){
+    $content = '';
+
+    $content .= html_writer::start_tag('div', array('class' => ''));
+    $content .= html_writer::start_tag('label',array('class' => 'label_block'));
+    $content .= $label;
+    if($required)
+        $content .= html_writer::tag('span', ' *', array('style' => 'color:red;'));
+    $content .= html_writer::end_tag('label');
+
+    $params = array('type' => 'text', 'name' => $input_name, 'id' => $input_name, 'class' => 'input_block');
+    if($required)
+        $params['required'] = $required;
+
+    $content .= html_writer::empty_tag('input', $params);
+    $content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
+    $content .= html_writer::end_tag('div');
+
+    return $content;
+}
+
+function render_work_plan_textarea_block($label, $textarea_name, $rows, $required = true){
+    $content = '';
+
+    $content .= html_writer::start_tag('div', array('class' => ''));
+    $content .= html_writer::start_tag('label',array('class' => 'label_block'));
+    $content .= $label;
+    if($required)
+        $content .= html_writer::tag('span', ' *', array('style' => 'color:red;'));
+    $content .= html_writer::end_tag('label');
+
+    $params = array('rows' => $rows,'name' => $textarea_name, 'id' => $textarea_name, 'class' => 'textarea_block');
+    if($required)
+        $params['required'] = $required;
+
+    $content .= html_writer::tag('textarea', '', $params);
+    $content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
+    $content .= html_writer::end_tag('div');
+
+    return $content;
+}
+
 ?>
