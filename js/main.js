@@ -40,7 +40,11 @@ $(document).ready(function(){
             $("#review_block").slideToggle("slow");
         });
     }
-    
+
+    if($("#button_add_consultant")){
+        $("#button_add_consultant").on("click", render_partial_form_consultant);
+    }
+
     if($("#send_review")){
         $("#send_review").on("click", add_review);
     }
@@ -75,6 +79,16 @@ $(document).ready(function(){
 
     if($("#tab2 .cancel_button_teacher").is('.cancel_button_teacher') && !document.querySelector('#tab2 .cancel_button_teacher').classList.contains("sign_teacher_button_not_active")){
         $("#tab2 .cancel_button_teacher").on("click", cancel_sign_nir_teacher);
+    }
+
+    function render_partial_form_consultant(){
+        $('#button_add_consultant').remove();
+        $('#consultant_block').append("<h3 class='header_block'>Консультант</h3>" +
+            "<div><label class='label_block'>Фамилия<span style='color:red'> *</span></label><input type='text' name='cn_surname' id='cn_surname' class='input_block' required /><div style='clear:both'></div></div>" +
+            "<div><label class='label_block'>Имя<span style='color:red'> *</span></label><input type='text' name='cn_name' id='cn_name' class='input_block' required /><div style='clear:both'></div></div>" +
+            "<div><label class='label_block'>Отчество<span style='color:red'> *</span></label><input type='text' name='cn_patronymic' id='cn_patronymic' class='input_block' required /><div style='clear:both'></div></div>" +
+            "<div><label class='label_block'>Номер телефона<span style='color:red'> *</span></label><input type='text' name='cn_phone_number' id='cn_phone_number' class='input_block' required /><div style='clear:both'></div></div>" +
+            "<div><label class='label_block'>Электронная почта<span style='color:red'> *</span></label><input type='text' name='cn_email' id='cn_email' class='input_block' required /><div style='clear:both'></div></div>");
     }
 
     function sign_nir_teacher(event){

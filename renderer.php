@@ -180,65 +180,69 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
     $tab_content .= html_writer::start_tag('div', array('class' => $options["tab_number"] === 1 ? 'tab active' : 'tab', 'id' => $options["tab_id"]));//tab1 tab2
 
     $tab_content .= html_writer::start_tag('div', array('id' => 'content'));
-    $tab_content .= html_writer::start_tag('div', array('class' => 'block_files'));
+    $tab_content .= html_writer::start_tag('div', array('class' => $options["tab_number"] === 1 ? 'block_work_plan' : 'block_files'));
 
-    $i = 1;
-    $total = count($files);
-    $flag = true;
+    if($options["tab_number"] === 1){
+        $tab_content .= render_work_plan();
+    }
+    else {
+        $i = 1;
+        $total = count($files);
+        $flag = true;
 
-    foreach ($files as $file){
-        $height_block = '';
-        if($options["tab_number"] !== 3 && $result[$work_id]->is_closed == 0 && (($total == $i || $file->is_sign_teacher == 1) && $user->profile['isTeacher'] === "1" && $flag)  || ($file->is_sign_teacher == 1 && $user->profile['isTeacher'] !== "1" && $user->profile['isTeacher'] !== "666")){
-            $height_block = 'height:340px';
-        }
-        $tab_content .= html_writer::start_tag('div', array('class' => 'block_file_prev', 'style' => $height_block));
-        $tab_content .= html_writer::start_tag('a', array('class' => 'a_file_block', 'target' => '_blank', 'href' => $file->filename));
-        $tab_content .= html_writer::empty_tag('img', array('src' => $options["image_path"], 'height' => '110px', 'class' => 'img_files_prev'));//img/Filetype-Docs-icon.png
-        $tab_content .= html_writer::tag('p', $options["file_type_name"].' '.$i, array('class' => 'file_name'));//Задание Отчет Презентация
+        foreach ($files as $file) {
+            $height_block = '';
+            if ($options["tab_number"] !== 3 && $result[$work_id]->is_closed == 0 && (($total == $i || $file->is_sign_teacher == 1) && $user->profile['isTeacher'] === "1" && $flag) || ($file->is_sign_teacher == 1 && $user->profile['isTeacher'] !== "1" && $user->profile['isTeacher'] !== "666")) {
+                $height_block = 'height:340px';
+            }
+            $tab_content .= html_writer::start_tag('div', array('class' => 'block_file_prev', 'style' => $height_block));
+            $tab_content .= html_writer::start_tag('a', array('class' => 'a_file_block', 'target' => '_blank', 'href' => $file->filename));
+            $tab_content .= html_writer::empty_tag('img', array('src' => $options["image_path"], 'height' => '110px', 'class' => 'img_files_prev'));//img/Filetype-Docs-icon.png
+            $tab_content .= html_writer::tag('p', $options["file_type_name"] . ' ' . $i, array('class' => 'file_name'));//Задание Отчет Презентация
 
-        $tab_content .= html_writer::start_tag('p', array('class' => 'file_date'));
-        $tab_content .= html_writer::tag('span', 'Дата загрузки: ', array('style' => 'font-weight: bold'));
-        $tab_content .= $file->date;
-        $tab_content .= html_writer::end_tag('p');
+            $tab_content .= html_writer::start_tag('p', array('class' => 'file_date'));
+            $tab_content .= html_writer::tag('span', 'Дата загрузки: ', array('style' => 'font-weight: bold'));
+            $tab_content .= $file->date;
+            $tab_content .= html_writer::end_tag('p');
 
-        $tab_content .= html_writer::start_tag('p', array('class' => 'file_date'));
-        $tab_content .= html_writer::tag('span', 'Добавил: ', array('style' => 'font-weight: bold'));
-        $tab_content .= $file->lastname." ".$file->firstname;
-        $tab_content .= html_writer::end_tag('p');
+            $tab_content .= html_writer::start_tag('p', array('class' => 'file_date'));
+            $tab_content .= html_writer::tag('span', 'Добавил: ', array('style' => 'font-weight: bold'));
+            $tab_content .= $file->lastname . " " . $file->firstname;
+            $tab_content .= html_writer::end_tag('p');
 
-        $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'file_id', 'id' => 'file_id', 'value' => $file->id));
+            $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'file_id', 'id' => 'file_id', 'value' => $file->id));
 
-        if($file->is_new != 0 && $file->user_id != $user->id){
-            $tab_content .= html_writer::empty_tag('img', array('src' => 'img/new.gif', 'height' => '30px', 'class' => 'img_new'));
-        }
+            if ($file->is_new != 0 && $file->user_id != $user->id) {
+                $tab_content .= html_writer::empty_tag('img', array('src' => 'img/new.gif', 'height' => '30px', 'class' => 'img_new'));
+            }
 
-        if($options["tab_number"] !== 3 && $file->is_sign_teacher == 1 && $user->profile['isTeacher'] !== "1" && $user->profile['isTeacher'] !== "666"){
-            $tab_content .= html_writer::tag('br');
-            $tab_content .= html_writer::tag('p', 'Файл подписан научным руководителем. Ожидает подтверждения от кафедры.', array('class' => 'file_date'));
-        }
+            if ($options["tab_number"] !== 3 && $file->is_sign_teacher == 1 && $user->profile['isTeacher'] !== "1" && $user->profile['isTeacher'] !== "666") {
+                $tab_content .= html_writer::tag('br');
+                $tab_content .= html_writer::tag('p', 'Файл подписан научным руководителем. Ожидает подтверждения от кафедры.', array('class' => 'file_date'));
+            }
 
-        $tab_content .= html_writer::end_tag('a');
+            $tab_content .= html_writer::end_tag('a');
 
-        if($options["tab_number"] !== 3 && $result[$work_id]->is_closed == 0 && ($total == $i || $file->is_sign_teacher == 1) && $user->profile['isTeacher'] === "1" && $flag)
-        {
-            if($total != $i)
-                $flag = false;
+            if ($options["tab_number"] !== 3 && $result[$work_id]->is_closed == 0 && ($total == $i || $file->is_sign_teacher == 1) && $user->profile['isTeacher'] === "1" && $flag) {
+                if ($total != $i)
+                    $flag = false;
 
-            $tab_content .= html_writer::start_tag('div', array('class' => 'block_files_sign_teacher'));
-            $tab_content .= html_writer::tag('div', 'Подписать', array('class' => ($file->is_sign_teacher == 1 || ($options["tab_number"] === 2 && ($result[$work_id]->review == "" || $result[$work_id]->mark == "")))? 'sign_button_teacher sign_teacher_button_not_active' : 'sign_button_teacher'));
-            $tab_content .= html_writer::tag('div', 'Отклонить', array('class' => $file->is_sign_teacher == 0 ? 'cancel_button_teacher sign_teacher_button_not_active' : 'cancel_button_teacher'));
+                $tab_content .= html_writer::start_tag('div', array('class' => 'block_files_sign_teacher'));
+                $tab_content .= html_writer::tag('div', 'Подписать', array('class' => ($file->is_sign_teacher == 1 || ($options["tab_number"] === 2 && ($result[$work_id]->review == "" || $result[$work_id]->mark == ""))) ? 'sign_button_teacher sign_teacher_button_not_active' : 'sign_button_teacher'));
+                $tab_content .= html_writer::tag('div', 'Отклонить', array('class' => $file->is_sign_teacher == 0 ? 'cancel_button_teacher sign_teacher_button_not_active' : 'cancel_button_teacher'));
+                $tab_content .= html_writer::end_tag('div');
+            }
+
             $tab_content .= html_writer::end_tag('div');
+
+            $i++;
         }
-
-        $tab_content .= html_writer::end_tag('div');
-
-        $i++;
     }
 
     $tab_content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
     $tab_content .= html_writer::end_tag('div');
 
-    if($result[$work_id]->is_closed != 1){
+    if($result[$work_id]->is_closed != 1 && $options["tab_number"] !== 1){
         $tab_content .= html_writer::empty_tag('input', array('type' => 'file', 'name' => 'files[]', 'id' => $options["filer_input_id"]));//filer_input2 filer_input1 filer_input3
     }
 
@@ -318,29 +322,35 @@ function render_work_plan(){
         
         $content .= html_writer::start_tag('form', array('class' => 'form_work_plan'));
         
-        $content .= html_writer::start_tag('div', array('class' => 'executor_block'));
+        $content .= html_writer::start_tag('div', array('class' => 'man_block'));
         
         $content .= html_writer::tag('h3', 'Исполнитель', array('class' => 'header_block'));
 
         $content .= render_work_plan_input_block('Фамилия', 'ex_surname', true);
         $content .= render_work_plan_input_block('Имя', 'ex_name', true);
         $content .= render_work_plan_input_block('Отчество', 'ex_patronymic', true);
-        $content .= render_work_plan_input_block('Номер телефона', 'ex_phone_number');
-        $content .= render_work_plan_input_block('Электронная почта', 'ex_email');
+        $content .= render_work_plan_input_block('Номер телефона', 'ex_phone_number', true);
+        $content .= render_work_plan_input_block('Электронная почта', 'ex_email', true);
 
         $content .= html_writer::end_tag('div');//end executor_block
         
-        $content .= html_writer::start_tag('div', array('class' => 'teacher_block'));
+        $content .= html_writer::start_tag('div', array('class' => 'man_block'));
         
         $content .= html_writer::tag('h3', 'Научный руководитель', array('class' => 'header_block'));
 
         $content .= render_work_plan_input_block('Фамилия', 'th_surname', true);
         $content .= render_work_plan_input_block('Имя', 'th_name', true);
         $content .= render_work_plan_input_block('Отчество', 'th_patronymic', true);
-        $content .= render_work_plan_input_block('Номер телефона', 'th_phone_number');
-        $content .= render_work_plan_input_block('Электронная почта', 'th_email');
+        $content .= render_work_plan_input_block('Номер телефона', 'th_phone_number', true);
+        $content .= render_work_plan_input_block('Электронная почта', 'th_email', true);
         
         $content .= html_writer::end_tag('div');//end teacher_block
+
+        $content .= html_writer::start_tag('div', array('class' => 'man_block', 'id' => 'consultant_block'));
+
+        $content .= html_writer::tag('div', 'Добавить консультанта', array('id' => 'button_add_consultant'));
+
+        $content .= html_writer::end_tag('div');//end consultant_block
         
         $content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
 

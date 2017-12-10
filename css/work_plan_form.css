@@ -1,16 +1,14 @@
 .form_work_plan{
-    width: 800px;
     margin: auto;
 }
 
-.executor_block{
-    width: 400px;
-    float:left;
+.block_work_plan{
+    margin-bottom: 30px;
 }
 
-.teacher_block{
-    width: 400px;
-    float:right;
+.man_block{
+    width: 395px;
+    float:left;
 }
 
 .form_work_plan .header_block{
@@ -18,7 +16,7 @@
 }
 
 .label_block{
-    width: 180px;
+    width: 175px;
     float:left;
     font-size:17px;
     margin-left:20px;
@@ -39,4 +37,22 @@
     width: 385px;
     float:right;
     resize: none;
+}
+
+#button_add_consultant{
+    width: 219px;
+    margin: auto;
+    text-align: center;
+    margin-top: 150px;
+    padding: 10px;
+    background-color: rgba(70,182,172, 0.35);
+    cursor: pointer;
+    font-size: 19px;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+    -moz-box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+    -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+}
+
+#button_add_consultant:hover{
+    background-color: rgba(70,182,172, 0.85);;
 }
