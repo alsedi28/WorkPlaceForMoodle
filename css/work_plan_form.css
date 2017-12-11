@@ -25,7 +25,7 @@
 
 .input_block{
     width: 200px;
-    float:right
+    float:right;
 }
 
 .work_info_block{
@@ -43,7 +43,7 @@
     width: 219px;
     margin: auto;
     text-align: center;
-    margin-top: 150px;
+    margin-top: 195px;
     padding: 10px;
     background-color: rgba(70,182,172, 0.35);
     cursor: pointer;
@@ -54,5 +54,47 @@
 }
 
 #button_add_consultant:hover{
-    background-color: rgba(70,182,172, 0.85);;
+    background-color: rgba(70,182,172, 0.85);
+}
+
+.select_block{
+    width: 200px;
+    float:right;
+}
+
+.label_select{
+    padding-top: 7px;
+}
+
+.title_many_textarea{
+    font-size: 12px;
+    color: grey;
+}
+
+.plus_input{
+    float: right;
+    width: 26px;
+    height: 26px;
+    margin-top: 13px;
+    border-radius: 30px;
+    cursor: pointer;
+    background-color: rgba(70,182,172, 0.35);
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+    -moz-box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+    -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+}
+
+.plus_input:hover{
+    background-color: rgba(70,182,172, 0.85);
+}
+
+.textarea_many_block{
+    width: 350px;
+    float:left;
+    resize: none;
+}
+
+.textarea_many_div_block{
+    width: 385px;
+    float:right;
 }
