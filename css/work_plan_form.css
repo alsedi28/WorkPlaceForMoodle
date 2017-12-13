@@ -29,14 +29,15 @@
 }
 
 .work_info_block{
-    width: 600px;
+    width: 700px;
     margin: auto;
 }
 
 .textarea_block{
-    width: 385px;
+    width: 350px;
     float:right;
     resize: none;
+    margin-right: 74px;
 }
 
 #button_add_consultant{
@@ -71,8 +72,7 @@
     color: grey;
 }
 
-.plus_input{
-    float: right;
+.plus_input, .minus_input{
     width: 26px;
     height: 26px;
     margin-top: 13px;
@@ -84,7 +84,7 @@
     -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
 }
 
-.plus_input:hover{
+.plus_input:hover, .minus_input:hover{
     background-color: rgba(70,182,172, 0.85);
 }
 
@@ -95,6 +95,35 @@
 }
 
 .textarea_many_div_block{
-    width: 385px;
+    width: 444px;
     float:right;
+}
+
+.plus_input_block{
+    width: 30px;
+    float:left;
+    padding-left: 8px;
+}
+
+.minus_input_block{
+    width: 30px;
+    float:left;
+    padding-left: 4px;
+}
+
+.number_point{
+    width: 20px;
+    float: left;
+    padding-top: 5px;
+    font-size: 17px;
+    color: grey;
+}
+
+.separate_line{
+    margin-left: 33px;
+    margin-top: 0px;
+    width: 579px;
+    margin-bottom: 11px;
+    border: 0;
+    border-top: 1px dashed #AAA;
 }

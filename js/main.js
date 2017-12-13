@@ -81,6 +81,43 @@ $(document).ready(function(){
         $("#tab2 .cancel_button_teacher").on("click", cancel_sign_nir_teacher);
     }
 
+    if($(".work_content_block .plus_input")){
+        $(".work_content_block .plus_input").click(add_point);
+    }
+
+    function add_point(event){
+        var root = $(event.target).closest('.root_block_point');
+        var count = root.find('.textarea_many_div_block').length;
+
+        if(count > 4)
+            return;
+
+        var point = root.find('.textarea_many_div_block')[count - 1];
+        var clone_element = point.cloneNode(true);
+        $(clone_element).insertAfter(root.find('.textarea_many_div_block')[count - 1]);
+        $(point).find('.plus_input')[0].remove();
+
+        if($(point).find('.minus_input').length > 0)
+            $(point).find('.minus_input')[0].remove();
+
+        $(clone_element).find('.number_point')[0].innerText = count + 1;
+
+        if(count === 4){
+            $($(clone_element).find('.plus_input')[0]).remove();
+        }
+        else{
+            $($(clone_element).find('.plus_input')[0]).click(add_point);
+        }
+
+        if($(clone_element).find('.minus_input').length > 0){
+            //add listener
+        }
+        else{
+            $($(clone_element).find('.minus_input_block')[0]).append("<div class='minus_input' title='Удалить'>" +
+                "<img src='img/PlusIcon_Small_Gray.png' height='26px'/></div>");
+        }
+    }
+
     function render_partial_form_consultant(){
         $('#button_add_consultant').remove();
         $('#consultant_block').append("<h3 class='header_block'>Консультант</h3>" +

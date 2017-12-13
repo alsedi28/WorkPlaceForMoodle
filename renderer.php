@@ -365,9 +365,12 @@ function render_work_plan(){
 
         $content .= render_work_plan_textarea_block('Тема работы', 'work_theme', 2);
         $content .= render_work_plan_textarea_block('Цель работы', 'work_goal', 2);
+        $content .= html_writer::empty_tag('hr', array('class' => 'separate_line'));
         $content .= render_work_plan_textarea_many_block('Содержание и основные этапы работы', 'work_content', 2);
+        $content .= html_writer::empty_tag('hr', array('class' => 'separate_line'));
         $content .= render_work_plan_textarea_block('Ожидаемые результаты и формы их реализации', 'work_result', 4);
         $content .= render_work_plan_textarea_block('Основные источники информации', 'info_source', 4);
+        $content .= html_writer::empty_tag('hr', array('class' => 'separate_line'));
 
         $content .= html_writer::end_tag('div');//end work_info_block
         
@@ -440,7 +443,7 @@ function render_work_plan_selected_block($label, $name, $options){
 function render_work_plan_textarea_many_block($label, $textarea_name, $rows, $required = true){
     $content = '';
 
-    $content .= html_writer::start_tag('div', array('class' => ''));
+    $content .= html_writer::start_tag('div', array('class' => $textarea_name.'_block root_block_point'));
     $content .= html_writer::start_tag('label',array('class' => 'label_block'));
     $content .= $label;
     if($required)
@@ -456,13 +459,25 @@ function render_work_plan_textarea_many_block($label, $textarea_name, $rows, $re
             $params['required'] = $required;
 
         $content .= html_writer::start_tag('div', array('class' => 'textarea_many_div_block'));
+        $content .= html_writer::tag('div', $i + 1, array('class' => 'number_point'));
         $content .= html_writer::tag('textarea', '', $params);
 
-        if($i == $count - 1){
-            $content .= html_writer::start_tag('div', array('class' => 'plus_input'));
+        $content .= html_writer::start_tag('div', array('class' => 'plus_input_block'));
+        if($i !== 4 && $i == $count - 1){
+            $content .= html_writer::start_tag('div', array('class' => 'plus_input', 'title' => 'Добавить пункт'));
             $content .= html_writer::empty_tag('img', array('src' => 'img/PlusIcon_Small_Gray.png', 'height' => '26px'));
             $content .= html_writer::end_tag('div');
         }
+        $content .= html_writer::end_tag('div');
+
+        $content .= html_writer::start_tag('div', array('class' => 'minus_input_block'));
+        if($i > 2 && $i == $count - 1){
+            $content .= html_writer::start_tag('div', array('class' => 'minus_input', 'title' => 'Удалить'));
+            $content .= html_writer::empty_tag('img', array('src' => 'img/PlusIcon_Small_Gray.png', 'height' => '26px'));
+            $content .= html_writer::end_tag('div');
+        }
+        $content .= html_writer::end_tag('div');
+        $content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
 
         $content .= html_writer::end_tag('div');
     }
