@@ -27,8 +27,8 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
     $work_content_items = array();
     $i = 0;
     while(true){
-        if(isset($_POST['work_content['.$i.']'])){
-            array_push($work_content_items, $_POST['work_content['.$i.']']);
+        if(isset($_POST['work_content'][$i])){
+            array_push($work_content_items, $_POST['work_content'][$i]);
             $i++;
         }
         else if($i < 3){
@@ -43,8 +43,8 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
     $work_result_items = array();
     $i = 0;
     while(true){
-        if(isset($_POST['work_result['.$i.']'])){
-            array_push($work_result_items, $_POST['work_result['.$i.']']);
+        if(isset($_POST['work_result'][$i])){
+            array_push($work_result_items, $_POST['work_result'][$i]);
             $i++;
         }
         else if($i < 3){
@@ -59,8 +59,8 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
     $info_source_items = array();
     $i = 0;
     while(true){
-        if(isset($_POST['info_source['.$i.']'])){
-            array_push($info_source_items, $_POST['info_source['.$i.']']);
+        if(isset($_POST['info_source'][$i])){
+            array_push($info_source_items, $_POST['info_source'][$i]);
             $i++;
         }
         else if($i < 3){
@@ -71,10 +71,79 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
             break;
         }
     }
+
+    $sql_nir = "SELECT mdl_nir.id FROM mdl_nir WHERE mdl_nir.user_id=".$USER->id." AND mdl_nir.id=".$work_id." AND mdl_nir.is_closed=0";
+    $rs = $DB->get_records_sql($sql_nir);
+
+    if(count($rs) == 0){
+        echo json_encode(array('status' => "Validation error"));
+        exit();
+    }
+
+    $sql_work_plan = "SELECT mdl_nir_work_plans.id FROM mdl_nir_work_plans WHERE mdl_nir_work_plans.nir_id=".$work_id;
+    $rs = $DB->get_records_sql($sql_work_plan);
+
+    if(count($rs) > 0){
+        echo json_encode(array('status' => "Validation error"));
+        exit();
+    }
+
+    $record = new stdClass();
+    $record->theme = $work_theme;
+    $record->goal = $work_goal;
+    $record->nir_id = $work_id;
+
+    $work_plan_id = $DB->insert_record('nir_work_plans', $record, false);
+
+    $work_content_items_records = array();
+    foreach ($work_content_items as $item){
+        $order = 1;
+        $record = new stdClass();
+        $record->text = $item;
+        $record->type = 'C';
+        $record->work_plan_id = $work_plan_id;
+        $record->order_number = $order;
+
+        array_push($work_content_items_records, $record);
+        $order++;
+    }
+
+    $DB->insert_records('nir_work_plan_items', $work_content_items_records);
+
+    $work_result_items_records = array();
+    foreach ($work_result_items as $item){
+        $order = 1;
+        $record = new stdClass();
+        $record->text = $item;
+        $record->type = 'R';
+        $record->work_plan_id = $work_plan_id;
+        $record->order_number = $order;
+
+        array_push($work_result_items_records, $record);
+        $order++;
+    }
+
+    $DB->insert_records('nir_work_plan_items', $work_result_items_records);
+
+    $info_source_items_records = array();
+    foreach ($info_source_items as $item){
+        $order = 1;
+        $record = new stdClass();
+        $record->text = $item;
+        $record->type = 'I';
+        $record->work_plan_id = $work_plan_id;
+        $record->order_number = $order;
+
+        array_push($info_source_items_records, $record);
+        $order++;
+    }
+
+    $DB->insert_records('nir_work_plan_items', $info_source_items_records);
+
+    echo json_encode(array('status' => "Ok", 'data' => ''));
 }
 else {
     echo json_encode(array('status' => "Validation error"));
-    exit();
 }
 
 

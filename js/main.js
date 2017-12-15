@@ -100,7 +100,13 @@ $(document).ready(function(){
             url: 'ajax_add_work_plan.php',
             data: msg,
             success: function (data) {
-                alert(data);
+                if(data.status == 'Ok'){
+                    alert('Задание добавлено');
+                    $('#form_plan').remove();
+                }
+                else{
+                    alert('Произошла ошибка');
+                }
             },
             error: function (xhr, str) {
                 alert('Возникла ошибка: ' + xhr.responseCode);
