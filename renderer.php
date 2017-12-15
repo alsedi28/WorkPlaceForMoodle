@@ -320,7 +320,7 @@ function render_work_plan(){
         $content = '';
 		$content .= html_writer::tag('h2', 'Задание на НИР', array('class' => '', 'style' => 'text-align: center; color: rgba(0,0,0,.54);'));
         
-        $content .= html_writer::start_tag('form', array('class' => 'form_work_plan'));
+        $content .= html_writer::start_tag('form', array('class' => 'form_work_plan', 'action' => 'javascript:void(null);', 'id' => 'form_plan'));
         
         $content .= html_writer::start_tag('div', array('class' => 'man_block'));
         
@@ -368,12 +368,15 @@ function render_work_plan(){
         $content .= html_writer::empty_tag('hr', array('class' => 'separate_line'));
         $content .= render_work_plan_textarea_many_block('Содержание и основные этапы работы', 'work_content', 2);
         $content .= html_writer::empty_tag('hr', array('class' => 'separate_line'));
-        $content .= render_work_plan_textarea_block('Ожидаемые результаты и формы их реализации', 'work_result', 4);
-        $content .= render_work_plan_textarea_block('Основные источники информации', 'info_source', 4);
+        $content .= render_work_plan_textarea_many_block('Ожидаемые результаты и формы их реализации', 'work_result', 2);
+        $content .= html_writer::empty_tag('hr', array('class' => 'separate_line'));
+        $content .= render_work_plan_textarea_many_block('Основные источники информации', 'info_source', 2);
         $content .= html_writer::empty_tag('hr', array('class' => 'separate_line'));
 
         $content .= html_writer::end_tag('div');//end work_info_block
-        
+
+        $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Отправить на согласование научному руководителю', 'id' => 'submit_button_work_plan'));
+
         $content .= html_writer::end_tag('form');
 		
 		return $content;

@@ -81,8 +81,31 @@ $(document).ready(function(){
         $("#tab2 .cancel_button_teacher").on("click", cancel_sign_nir_teacher);
     }
 
-    if($(".work_content_block .plus_input")){
-        $(".work_content_block .plus_input").click(add_point);
+    if($(".work_info_block .plus_input")){
+        $(".work_info_block .plus_input").click(add_point);
+    }
+
+    if($(".work_info_block .minus_input")){
+        $(".work_info_block .minus_input").click(remove_point);
+    }
+
+    if($("#form_plan")){
+        $("#form_plan").submit(send_form_work_plan);
+    }
+
+    function send_form_work_plan(){
+        var msg   = $('#form_plan').serialize();
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_add_work_plan.php',
+            data: msg,
+            success: function (data) {
+                alert(data);
+            },
+            error: function (xhr, str) {
+                alert('Возникла ошибка: ' + xhr.responseCode);
+            }
+        });
     }
 
     function add_point(event){
@@ -101,6 +124,10 @@ $(document).ready(function(){
             $(point).find('.minus_input')[0].remove();
 
         $(clone_element).find('.number_point')[0].innerText = count + 1;
+        var current_name = $(point).find('.textarea_many_block')[0].name;
+        var new_name = current_name.slice(0,current_name.length - 3) + '[' + count + ']';
+
+        $(clone_element).find('.textarea_many_block')[0].name = new_name;
 
         if(count === 4){
             $($(clone_element).find('.plus_input')[0]).remove();
@@ -109,13 +136,35 @@ $(document).ready(function(){
             $($(clone_element).find('.plus_input')[0]).click(add_point);
         }
 
-        if($(clone_element).find('.minus_input').length > 0){
-            //add listener
-        }
-        else{
+        if($(clone_element).find('.minus_input').length < 1){
             $($(clone_element).find('.minus_input_block')[0]).append("<div class='minus_input' title='Удалить'>" +
                 "<img src='img/PlusIcon_Small_Gray.png' height='26px'/></div>");
         }
+
+        $($(clone_element).find('.minus_input')[0]).click(remove_point);
+    }
+
+    function remove_point(event){
+        var root = $(event.target).closest('.root_block_point');
+        var count = root.find('.textarea_many_div_block').length;
+
+        if(count < 4)
+            return;
+
+        $(event.target).closest('.textarea_many_div_block').remove();
+        var prev_point = root.find('.textarea_many_div_block')[count - 2];
+
+        if(count == 5){
+            $($(prev_point).find('.minus_input_block')[0]).append("<div class='minus_input' title='Удалить'>" +
+                "<img src='img/PlusIcon_Small_Gray.png' height='26px'/></div>");
+
+            $($(prev_point).find('.minus_input')[0]).click(remove_point);
+        }
+
+        $($(prev_point).find('.plus_input_block')[0]).append("<div class='plus_input' title='Добавить пункт'>" +
+            "<img src='img/PlusIcon_Small_Gray.png' height='26px'/></div>");
+        $($(prev_point).find('.plus_input')[0]).click(add_point);
+
     }
 
     function render_partial_form_consultant(){
