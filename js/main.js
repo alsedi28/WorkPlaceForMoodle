@@ -175,11 +175,11 @@ $(document).ready(function(){
             "<div><label class='label_block'>Отчество<span style='color:red'> *</span></label><input type='text' name='cn_patronymic' id='cn_patronymic' class='input_block' required /><div style='clear:both'></div></div>" +
             "<div><label class='label_block'>Номер телефона<span style='color:red'> *</span></label><input type='text' name='cn_phone_number' id='cn_phone_number' class='input_block' required /><div style='clear:both'></div></div>" +
             "<div><label class='label_block'>Электронная почта<span style='color:red'> *</span></label><input type='text' name='cn_email' id='cn_email' class='input_block' required /><div style='clear:both'></div></div>" +
-            "<div><label class='label_block'>Место работы<span style='color:red'> *</span></label><input type='text' name='th_place_work' id='th_place_work' class='input_block' required /><div style='clear:both'></div></div>" +
-            "<div><label class='label_block'>Должность<span style='color:red'> *</span></label><input type='text' name='th_position_work' id='th_position_work' class='input_block' required/><div style='clear:both'></div></div>" +
-            "<div><label class='label_block label_select'>Учёное звание</label><select name='academic_title' class='select_block'>" +
+            "<div><label class='label_block'>Место работы<span style='color:red'> *</span></label><input type='text' name='cn_place_work' id='cn_place_work' class='input_block' required /><div style='clear:both'></div></div>" +
+            "<div><label class='label_block'>Должность<span style='color:red'> *</span></label><input type='text' name='cn_position_work' id='cn_position_work' class='input_block' required/><div style='clear:both'></div></div>" +
+            "<div><label class='label_block label_select'>Учёное звание</label><select name='cn_academic_title' class='select_block'>" +
             "<option value='not'>Нет</option><option value='docent'>Доцент</option><option value='prof'>Профессор</option><option value='oldworker'>Старший научный сотрудник</option><option value='leadworker'>Ведущий научный сотрудник</option></select><div style='clear:both'></div></div>" +
-            "<div><label class='label_block label_select'>Учёная степень</label><select name='academic_degree' class='select_block'>" +
+            "<div><label class='label_block label_select'>Учёная степень</label><select name='cn_academic_degree' class='select_block'>" +
             "<option value='not'>Нет</option><option value='ctech'>Кандидат технических наук</option><option value='dtech'>Доктор технических наук</option>" +
             "<option value='cphymath'>Кандидат физико-математических наук</option><option value='dphymath'>Доктор физико-математических наук</option></select><div style='clear:both'></div></div>");
     }

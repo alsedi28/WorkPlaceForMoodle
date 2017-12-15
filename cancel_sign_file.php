@@ -1,6 +1,7 @@
 <?php
 
 require_once(dirname(__FILE__) . '/../config.php');
+header('Content-type: application/json');
 
 $id = isset($_POST['id']) ? $_POST['id'] : 0;
 $date = isset($_POST['date']) ? $_POST['date'] : "";
