@@ -142,3 +142,28 @@
 #submit_button_work_plan:hover{
     background-color: rgba(70,182,172, 0.85);
 }
+
+.input_block_view{
+    width: 193px;
+    overflow: auto;
+    padding-top: 6px;
+    background-color: white;
+    padding-left: 5px;
+    border: 1px solid rgba(0,0,0,.2);
+}
+
+.textarea_block_view{
+    width: 450px;
+    overflow: auto;
+    padding-top: 6px;
+    background-color: white;
+    padding-left: 5px;
+    float: right;
+    border: 1px solid rgba(0,0,0,.2);
+}
+
+.separate_line_view{
+    margin: auto;
+    margin-bottom: 11px;
+    margin-top: 0px;
+}

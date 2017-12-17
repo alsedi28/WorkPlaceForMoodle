@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
+require_once(dirname(__FILE__) . '/renderer.php');
 header('Content-type: application/json');
 
 if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_patronymic'])&& isset($_POST['ex_phone_number']) && isset($_POST['ex_email']) &&
@@ -93,11 +94,11 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
     $record->goal = $work_goal;
     $record->nir_id = $work_id;
 
-    $work_plan_id = $DB->insert_record('nir_work_plans', $record, false);
+    $work_plan_id = $DB->insert_record('nir_work_plans', $record, true);
 
     $work_content_items_records = array();
+    $order = 1;
     foreach ($work_content_items as $item){
-        $order = 1;
         $record = new stdClass();
         $record->text = $item;
         $record->type = 'C';
@@ -111,8 +112,8 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
     $DB->insert_records('nir_work_plan_items', $work_content_items_records);
 
     $work_result_items_records = array();
+    $order = 1;
     foreach ($work_result_items as $item){
-        $order = 1;
         $record = new stdClass();
         $record->text = $item;
         $record->type = 'R';
@@ -126,8 +127,8 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
     $DB->insert_records('nir_work_plan_items', $work_result_items_records);
 
     $info_source_items_records = array();
+    $order = 1;
     foreach ($info_source_items as $item){
-        $order = 1;
         $record = new stdClass();
         $record->text = $item;
         $record->type = 'I';
@@ -140,7 +141,50 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
 
     $DB->insert_records('nir_work_plan_items', $info_source_items_records);
 
-    echo json_encode(array('status' => "Ok", 'data' => ''));
+    $record_user_info = new stdClass();
+    $record_user_info->user_id = $USER->id;
+    $record_user_info->work_plan_id = $work_plan_id;
+    $record_user_info->name = $ex_name;
+    $record_user_info->surname = $ex_surname;
+    $record_user_info->patronymic = $ex_patronymic;
+    $record_user_info->phone_number = $ex_phone_number;
+    $record_user_info->email = $ex_email;
+    $DB->insert_record('nir_user_info', $record_user_info, false);
+
+    $record_teacher_info = new stdClass();
+    $record_teacher_info->work_plan_id = $work_plan_id;
+    $record_teacher_info->type = 'T';
+    $record_teacher_info->name = $th_name;
+    $record_teacher_info->surname = $th_surname;
+    $record_teacher_info->patronymic = $th_patronymic;
+    $record_teacher_info->phone_number = $th_phone_number;
+    $record_teacher_info->email = $th_email;
+    $record_teacher_info->place_work = $th_place_work;
+    $record_teacher_info->position_work = $th_position_work;
+    $record_teacher_info->academic_title = $th_academic_title;
+    $record_teacher_info->academic_degree = $th_academic_degree;
+    $DB->insert_record('nir_teacher_info', $record_teacher_info, false);
+
+    if(isset($_POST['cn_surname']) && isset($_POST['cn_name']) && isset($_POST['cn_patronymic']) && isset($_POST['cn_phone_number']) &&
+            isset($_POST['cn_email']) && isset($_POST['cn_place_work']) && isset($_POST['cn_position_work']) &&
+            isset($_POST['cn_academic_title']) && isset($_POST['cn_academic_degree'])){
+
+        $record_consultant_info = new stdClass();
+        $record_consultant_info->work_plan_id = $work_plan_id;
+        $record_consultant_info->type = 'C';
+        $record_consultant_info->name = $_POST['cn_name'];
+        $record_consultant_info->surname = $_POST['cn_surname'];
+        $record_consultant_info->patronymic = $_POST['cn_patronymic'];
+        $record_consultant_info->phone_number = $_POST['cn_phone_number'];
+        $record_consultant_info->email = $_POST['cn_email'];
+        $record_consultant_info->place_work = $_POST['cn_place_work'];
+        $record_consultant_info->position_work = $_POST['cn_position_work'];
+        $record_consultant_info->academic_title = $_POST['cn_academic_title'];
+        $record_consultant_info->academic_degree = $_POST['cn_academic_degree'];
+        $DB->insert_record('nir_teacher_info', $record_consultant_info, false);
+    }
+
+    echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id)));
 }
 else {
     echo json_encode(array('status' => "Validation error"));

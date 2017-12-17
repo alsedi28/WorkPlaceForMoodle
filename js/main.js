@@ -103,6 +103,7 @@ $(document).ready(function(){
                 if(data.status == 'Ok'){
                     alert('Задание добавлено');
                     $('#form_plan').remove();
+                    $('.block_work_plan').append(data.data);
                 }
                 else{
                     alert('Произошла ошибка');
@@ -134,6 +135,7 @@ $(document).ready(function(){
         var new_name = current_name.slice(0,current_name.length - 3) + '[' + count + ']';
 
         $(clone_element).find('.textarea_many_block')[0].name = new_name;
+        $(clone_element).find('.textarea_many_block')[0].value = '';
 
         if(count === 4){
             $($(clone_element).find('.plus_input')[0]).remove();

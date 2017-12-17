@@ -330,15 +330,94 @@ function render_work_plan($user, $work_id){
             $content .= render_work_plan_create($work_id);
         }
         else{
-            $content .= render_work_plan_view();
+            $content .= render_work_plan_view($work_id);
         }
     }
 
     return $content;
 }
 
-function render_work_plan_view(){
+function render_work_plan_view($work_id){
+    global $DB;
+    global $USER;
 
+    $sql_work_plan_info = "SELECT * FROM mdl_nir_work_plans WHERE mdl_nir_work_plans.nir_id=".$work_id;
+    $work_plan_info = $DB->get_record_sql($sql_work_plan_info);
+
+    $sql_user_info = "SELECT * FROM mdl_nir_user_info WHERE mdl_nir_user_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_user_info.user_id=".$USER->id;
+    $user_info = $DB->get_record_sql($sql_user_info);
+
+    $sql_teacher_info = "SELECT * FROM mdl_nir_teacher_info WHERE mdl_nir_teacher_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_teacher_info.type='T'";
+    $teacher_info = $DB->get_record_sql($sql_teacher_info);
+
+    $sql_consultant_info = "SELECT * FROM mdl_nir_teacher_info WHERE mdl_nir_teacher_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_teacher_info.type='C'";
+    $consultant_info = $DB->get_record_sql($sql_consultant_info);
+
+    $sql_work_plan_items = "SELECT * FROM mdl_nir_work_plan_items WHERE mdl_nir_work_plan_items.work_plan_id=".$work_plan_info->id;
+    $work_plan_items = $DB->get_records_sql($sql_work_plan_items);
+
+    print_r($work_plan_items);
+    $content = '';
+    $content .= html_writer::start_tag('div', array('class' => 'form_work_plan'));
+
+    $content .= html_writer::start_tag('div', array('class' => 'man_block'));
+
+    $content .= html_writer::tag('h3', 'Исполнитель', array('class' => 'header_block'));
+
+    $content .= render_work_plan_input_block_view('Фамилия', $user_info->surname);
+    $content .= render_work_plan_input_block_view('Имя', $user_info->name);
+    $content .= render_work_plan_input_block_view('Отчество', $user_info->patronymic);
+    $content .= render_work_plan_input_block_view('Номер телефона', $user_info->phone_number);
+    $content .= render_work_plan_input_block_view('Электронная почта', $user_info->email);
+
+    $content .= html_writer::end_tag('div');//end executor_block
+
+    $content .= html_writer::start_tag('div', array('class' => 'man_block'));
+
+    $content .= html_writer::tag('h3', 'Научный руководитель', array('class' => 'header_block'));
+
+    $content .= render_work_plan_input_block_view('Фамилия', $teacher_info->surname);
+    $content .= render_work_plan_input_block_view('Имя', $teacher_info->name);
+    $content .= render_work_plan_input_block_view('Отчество', $teacher_info->patronymic);
+    $content .= render_work_plan_input_block_view('Номер телефона', $teacher_info->phone_number);
+    $content .= render_work_plan_input_block_view('Электронная почта', $teacher_info->email);
+    $content .= render_work_plan_input_block_view('Место работы', $teacher_info->place_work);
+    $content .= render_work_plan_input_block_view('Должность', $teacher_info->position_work);
+    $content .= render_work_plan_input_block_view('Учёное звание', $teacher_info->academic_title);
+    $content .= render_work_plan_input_block_view('Учёная степень', $teacher_info->academic_degree);
+
+    $content .= html_writer::end_tag('div');//end teacher_block
+
+    $content .= html_writer::start_tag('div', array('class' => 'man_block'));
+    if($consultant_info){
+        $content .= html_writer::tag('h3', 'Консультант', array('class' => 'header_block'));
+
+        $content .= render_work_plan_input_block_view('Фамилия', $consultant_info->surname);
+        $content .= render_work_plan_input_block_view('Имя', $consultant_info->name);
+        $content .= render_work_plan_input_block_view('Отчество', $consultant_info->patronymic);
+        $content .= render_work_plan_input_block_view('Номер телефона', $consultant_info->phone_number);
+        $content .= render_work_plan_input_block_view('Электронная почта', $consultant_info->email);
+        $content .= render_work_plan_input_block_view('Место работы', $consultant_info->place_work);
+        $content .= render_work_plan_input_block_view('Должность', $consultant_info->position_work);
+        $content .= render_work_plan_input_block_view('Учёное звание', $consultant_info->academic_title);
+        $content .= render_work_plan_input_block_view('Учёная степень', $consultant_info->academic_degree);
+    }
+    $content .= html_writer::end_tag('div');//end consultant_block
+
+    $content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
+
+    $content .= html_writer::start_tag('div', array('class' => 'work_info_block'));
+    $content .= html_writer::tag('h3', 'Общие сведения о работе', array('class' => 'header_block'));
+
+    $content .= render_work_plan_input_block_view('Тема работы', $work_plan_info->theme, 'textarea_block_view');
+    $content .= render_work_plan_input_block_view('Цель работы', $work_plan_info->goal, 'textarea_block_view');
+
+    $content .= render_work_plan_list_view($work_plan_items);
+
+    $content .= html_writer::end_tag('div');//end work_info_block
+    $content .= html_writer::end_tag('div');
+
+    return $content;
 }
 
 function render_work_plan_create($work_id){
@@ -375,10 +454,10 @@ function render_work_plan_create($work_id){
     $content .= render_work_plan_input_block('Электронная почта', 'th_email', true, $rs->email);
     $content .= render_work_plan_input_block('Место работы', 'th_place_work', true);
     $content .= render_work_plan_input_block('Должность', 'th_position_work', true);
-    $content .= render_work_plan_selected_block('Учёное звание', 'th_academic_title', array('docent' => 'Доцент', 'prof' => 'Профессор',
-        'oldworker' => 'Старший научный сотрудник', 'leadworker' => 'Ведущий научный сотрудник'));
-    $content .= render_work_plan_selected_block('Учёная степень', 'th_academic_degree', array('ctech' => 'Кандидат технических наук', 'dtech' => 'Доктор технических наук',
-        'cphymath' => 'Кандидат физико-математических наук', 'dphymath' => 'Доктор физико-математических наук'));
+    $content .= render_work_plan_selected_block('Учёное звание', 'th_academic_title', array('Доцент', 'Профессор',
+        'Старший научный сотрудник', 'Ведущий научный сотрудник'));
+    $content .= render_work_plan_selected_block('Учёная степень', 'th_academic_degree', array('Кандидат технических наук', 'Доктор технических наук',
+        'Кандидат физико-математических наук', 'Доктор физико-математических наук'));
 
     $content .= html_writer::end_tag('div');//end teacher_block
 
@@ -409,6 +488,73 @@ function render_work_plan_create($work_id){
     $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Отправить на согласование научному руководителю', 'id' => 'submit_button_work_plan'));
 
     $content .= html_writer::end_tag('form');
+
+    return $content;
+}
+
+function render_work_plan_input_block_view($label, $value, $class = 'input_block_view'){
+    $content = '';
+
+    $content .= html_writer::start_tag('div', array('class' => ''));
+    $content .= html_writer::tag('label', $label, array('class' => 'label_block'));
+
+    $content .= html_writer::tag('p', $value, array('class' => $class));
+    $content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
+    $content .= html_writer::end_tag('div');
+
+    return $content;
+}
+
+function render_work_plan_list_view($items){
+    $content = '';
+
+    $work_content_items = array();
+    $work_result_items = array();
+    $info_source_items = array();
+
+    foreach ($items as $item) {
+        switch($item->type){
+            case 'C':
+                array_push($work_content_items, $item);
+                break;
+            case 'R':
+                array_push($work_result_items, $item);
+                break;
+            case 'I':
+                array_push($info_source_items, $item);
+                break;
+        }
+    }
+
+    $content .= html_writer::empty_tag('hr', array('class' => 'separate_line separate_line_view'));
+    $content .= render_list('Содержание и основные этапы работы', $work_content_items);
+    $content .= html_writer::empty_tag('hr', array('class' => 'separate_line separate_line_view'));
+    $content .= render_list('Ожидаемые результаты и формы их реализации', $work_result_items);
+    $content .= html_writer::empty_tag('hr', array('class' => 'separate_line separate_line_view'));
+    $content .= render_list('Основные источники информации', $info_source_items);
+    $content .= html_writer::empty_tag('hr', array('class' => 'separate_line separate_line_view'));
+
+    return $content;
+}
+
+function render_list($label, $items){
+    $content = '';
+
+    usort($items, 'sort_items');
+    $text = '';
+
+    $i = 1;
+    foreach($items as $item){
+        $text .= $i.'. '.($item->text)."<br/>";
+        $i++;
+    }
+
+    $content .= html_writer::start_tag('div', array('class' => ''));
+    $content .= html_writer::tag('label', $label, array('class' => 'label_block'));
+
+    $content .= html_writer::tag('p', $text, array('class' => 'textarea_block_view'));
+    $content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
+    $content .= html_writer::end_tag('div');
 
     return $content;
 }
@@ -463,10 +609,10 @@ function render_work_plan_selected_block($label, $name, $options){
     $content .= html_writer::start_tag('div', array('class' => ''));
     $content .= html_writer::tag('label', $label, array('class' => 'label_block label_select'));
     $content .= html_writer::start_tag('select', array('class' => 'select_block', 'name' => $name));
-    $content .= html_writer::tag('option', 'Нет', array('value' => 'not', 'selected' => true));
+    $content .= html_writer::tag('option', 'Нет', array('value' => 'Нет', 'selected' => true));
 
-    foreach ($options as $key => $value){
-        $content .= html_writer::tag('option', $value, array('value' => $key));
+    foreach ($options as $value){
+        $content .= html_writer::tag('option', $value, array('value' => $value));
     }
 
     $content .= html_writer::end_tag('select');
@@ -522,5 +668,10 @@ function render_work_plan_textarea_many_block($label, $textarea_name, $rows, $re
     $content .= html_writer::end_tag('div');
 
     return $content;
+}
+
+function sort_items($a, $b)
+{
+    return $a->order_number > $b->order_number;
 }
 ?>
