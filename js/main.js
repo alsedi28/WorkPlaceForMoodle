@@ -82,15 +82,42 @@ $(document).ready(function(){
     }
 
     if($(".work_info_block .plus_input")){
-        $(".work_info_block .plus_input").click(add_point);
+        $(".block_work_plan").on('click', '.work_info_block .plus_input',  add_point);
     }
 
     if($(".work_info_block .minus_input")){
-        $(".work_info_block .minus_input").click(remove_point);
+        $(".block_work_plan").on('click', '.work_info_block .minus_input',  remove_point);
     }
 
     if($("#form_plan")){
         $("#form_plan").submit(send_form_work_plan);
+    }
+
+    if($("#edit_button_work_plan")){
+        $("#edit_button_work_plan").click(get_edit_work_plan_page);
+    }
+
+    function get_edit_work_plan_page(event){
+        var work_id = $("[name='work_id']").val();
+
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_edit_work_plan_page.php',
+            data: { 'work_id' : work_id },
+            success: function (data) {
+                if(data.status == 'Ok'){
+                    $('div.form_work_plan').remove();
+                    $('.block_work_plan').append(data.data);
+                    $('body').scrollTop(0);
+                }
+                else{
+                    alert('Произошла ошибка');
+                }
+            },
+            error: function (xhr, str) {
+                alert('Возникла ошибка: ' + xhr.responseCode);
+            }
+        });
     }
 
     function send_form_work_plan(){
@@ -104,6 +131,7 @@ $(document).ready(function(){
                     alert('Задание добавлено');
                     $('#form_plan').remove();
                     $('.block_work_plan').append(data.data);
+                    $('body').scrollTop(0);
                 }
                 else{
                     alert('Произошла ошибка');
@@ -140,16 +168,11 @@ $(document).ready(function(){
         if(count === 4){
             $($(clone_element).find('.plus_input')[0]).remove();
         }
-        else{
-            $($(clone_element).find('.plus_input')[0]).click(add_point);
-        }
 
         if($(clone_element).find('.minus_input').length < 1){
             $($(clone_element).find('.minus_input_block')[0]).append("<div class='minus_input' title='Удалить'>" +
                 "<img src='img/PlusIcon_Small_Gray.png' height='26px'/></div>");
         }
-
-        $($(clone_element).find('.minus_input')[0]).click(remove_point);
     }
 
     function remove_point(event){
@@ -165,14 +188,10 @@ $(document).ready(function(){
         if(count == 5){
             $($(prev_point).find('.minus_input_block')[0]).append("<div class='minus_input' title='Удалить'>" +
                 "<img src='img/PlusIcon_Small_Gray.png' height='26px'/></div>");
-
-            $($(prev_point).find('.minus_input')[0]).click(remove_point);
         }
 
         $($(prev_point).find('.plus_input_block')[0]).append("<div class='plus_input' title='Добавить пункт'>" +
             "<img src='img/PlusIcon_Small_Gray.png' height='26px'/></div>");
-        $($(prev_point).find('.plus_input')[0]).click(add_point);
-
     }
 
     function render_partial_form_consultant(){
