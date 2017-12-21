@@ -89,15 +89,23 @@ $(document).ready(function(){
         $(".block_work_plan").on('click', '.work_info_block .minus_input',  remove_point);
     }
 
+    if($("#submit_edit_work_plan")){
+        $(".block_work_plan").on('click', '#submit_edit_work_plan',  send_edit_work_plan);
+    }
+
+    if($("#cancel_edit_work_plan")){
+        $(".block_work_plan").on('click', '#cancel_edit_work_plan',  get_view_work_plan_page);
+    }
+
+    if($("#edit_button_work_plan")){
+        $(".block_work_plan").on('click', '#edit_button_work_plan',  get_edit_work_plan_page);
+    }
+
     if($("#form_plan")){
         $("#form_plan").submit(send_form_work_plan);
     }
 
-    if($("#edit_button_work_plan")){
-        $("#edit_button_work_plan").click(get_edit_work_plan_page);
-    }
-
-    function get_edit_work_plan_page(event){
+    function get_edit_work_plan_page(){
         var work_id = $("[name='work_id']").val();
 
         $.ajax({
@@ -130,6 +138,52 @@ $(document).ready(function(){
                 if(data.status == 'Ok'){
                     alert('Задание добавлено');
                     $('#form_plan').remove();
+                    $('.block_work_plan').append(data.data);
+                    $('body').scrollTop(0);
+                }
+                else{
+                    alert('Произошла ошибка');
+                }
+            },
+            error: function (xhr, str) {
+                alert('Возникла ошибка: ' + xhr.responseCode);
+            }
+        });
+    }
+
+    function send_edit_work_plan(){
+        var msg   = $('#form_plan').serialize();
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_edit_work_plan.php',
+            data: msg,
+            success: function (data) {
+                if(data.status == 'Ok'){
+                    alert('Задание отредактировано');
+                    $('#form_plan').remove();
+                    $('.block_work_plan').append(data.data);
+                    $('body').scrollTop(0);
+                }
+                else{
+                    alert('Произошла ошибка');
+                }
+            },
+            error: function (xhr, str) {
+                alert('Возникла ошибка: ' + xhr.responseCode);
+            }
+        });
+    }
+
+    function get_view_work_plan_page(){
+        var work_id = $("[name='work_id']").val();
+
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_view_work_plan_page.php',
+            data: { 'work_id' : work_id },
+            success: function (data) {
+                if(data.status == 'Ok'){
+                    $('form.form_work_plan').remove();
                     $('.block_work_plan').append(data.data);
                     $('body').scrollTop(0);
                 }

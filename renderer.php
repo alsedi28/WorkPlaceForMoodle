@@ -422,6 +422,7 @@ function render_work_plan_view($work_id){
 
     return $content;
 }
+
 function render_work_plan_edit($work_id){
     global $DB;
     global $USER;
@@ -504,6 +505,10 @@ function render_work_plan_edit($work_id){
     $content .= render_work_plan_textarea_block('Цель работы', 'work_goal', 2, true, $work_plan_info->goal);
 
     $content .= render_work_plan_list($work_plan_items, false);
+
+    $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'work_id', 'value' => $work_id));
+    $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отправить на согласование научному руководителю', 'id' => 'submit_edit_work_plan'));
+    $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отменить', 'id' => 'cancel_edit_work_plan'));
 
     return $content;
 }

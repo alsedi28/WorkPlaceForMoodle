@@ -128,7 +128,7 @@
     border-top: 1px dashed #AAA;
 }
 
-#edit_button_work_plan, #submit_button_work_plan{
+#edit_button_work_plan, #submit_button_work_plan, #cancel_edit_work_plan, #submit_edit_work_plan{
     display: block;
     margin: auto;
     color: #333;
@@ -139,8 +139,12 @@
     -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
 }
 
-#edit_button_work_plan:hover, #submit_button_work_plan:hover{
+#edit_button_work_plan:hover, #submit_button_work_plan:hover, #cancel_edit_work_plan:hover, #submit_edit_work_plan:hover{
     background-color: rgba(70,182,172, 0.85);
+}
+
+#cancel_edit_work_plan{
+    margin-top: 20px;
 }
 
 .input_block_view{
