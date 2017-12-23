@@ -41,9 +41,7 @@ $(document).ready(function(){
         });
     }
 
-    if($("#button_add_consultant")){
-        $("#button_add_consultant").on("click", render_partial_form_consultant);
-    }
+    $(".block_work_plan").on('click', '#button_add_consultant',  render_partial_form_consultant);
 
     if($("#send_review")){
         $("#send_review").on("click", add_review);
@@ -81,25 +79,15 @@ $(document).ready(function(){
         $("#tab2 .cancel_button_teacher").on("click", cancel_sign_nir_teacher);
     }
 
-    if($(".work_info_block .plus_input")){
-        $(".block_work_plan").on('click', '.work_info_block .plus_input',  add_point);
-    }
+    $(".block_work_plan").on('click', '.work_info_block .plus_input',  add_point);
 
-    if($(".work_info_block .minus_input")){
-        $(".block_work_plan").on('click', '.work_info_block .minus_input',  remove_point);
-    }
+    $(".block_work_plan").on('click', '.work_info_block .minus_input',  remove_point);
 
-    if($("#submit_edit_work_plan")){
-        $(".block_work_plan").on('click', '#submit_edit_work_plan',  send_edit_work_plan);
-    }
+    $(".block_work_plan").on('click', '#submit_edit_work_plan',  send_edit_work_plan);
 
-    if($("#cancel_edit_work_plan")){
-        $(".block_work_plan").on('click', '#cancel_edit_work_plan',  get_view_work_plan_page);
-    }
+    $(".block_work_plan").on('click', '#cancel_edit_work_plan',  get_view_work_plan_page);
 
-    if($("#edit_button_work_plan")){
-        $(".block_work_plan").on('click', '#edit_button_work_plan',  get_edit_work_plan_page);
-    }
+    $(".block_work_plan").on('click', '#edit_button_work_plan',  get_edit_work_plan_page);
 
     if($("#form_plan")){
         $("#form_plan").submit(send_form_work_plan);
@@ -153,6 +141,7 @@ $(document).ready(function(){
 
     function send_edit_work_plan(){
         var msg   = $('#form_plan').serialize();
+
         $.ajax({
             type: 'POST',
             url: 'ajax_edit_work_plan.php',

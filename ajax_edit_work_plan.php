@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/renderer.php');
+require_once(dirname(__FILE__) . '/helpers.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['work_id'])){
@@ -33,7 +34,10 @@ $work_plan_items = $DB->get_records_sql($sql_work_plan_items);
 if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_patronymic'])&& isset($_POST['ex_phone_number']) && isset($_POST['ex_email']) &&
     isset($_POST['th_surname']) && isset($_POST['th_name']) && isset($_POST['th_patronymic']) && isset($_POST['th_phone_number']) && isset($_POST['th_email']) &&
     isset($_POST['th_place_work']) && isset($_POST['th_position_work']) && isset($_POST['th_academic_title']) && isset($_POST['th_academic_degree']) && isset($_POST['work_theme']) &&
-    isset($_POST['work_goal'])) {
+    isset($_POST['work_goal']) && isset($_POST['work_content'][0]) && isset($_POST['work_content'][1]) && isset($_POST['work_content'][2]) &&
+    isset($_POST['work_result'][0]) && isset($_POST['work_result'][1]) && isset($_POST['work_result'][2]) && isset($_POST['info_source'][0]) &&
+    isset($_POST['info_source'][1]) && isset($_POST['info_source'][2]))
+    {
     $work_id = $_POST['work_id'];
     $ex_surname = $_POST['ex_surname'];
     $ex_name = $_POST['ex_name'];
@@ -94,24 +98,114 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
         }
     }
 
-    $need_update = false;
+    $need_update_work_plan = false;
     $update_work_plan = new stdClass();
     $update_work_plan->id=$work_plan_info->id;
 
     if($work_theme !== $work_plan_info->theme){
-        $update_work_plan->theme=$work_plan_info->theme;
-        $need_update = true;
+        $update_work_plan->theme=$work_theme;
+        $need_update_work_plan = true;
     }
 
     if($work_goal !== $work_plan_info->goal){
-        $update_work_plan->goal=$work_plan_info->goal;
-        $need_update = true;
+        $update_work_plan->goal=$work_goal;
+        $need_update_work_plan = true;
     }
 
-    if($need_update)
+    $need_update_user_info = false;
+
+    $update_user_info = new stdClass();
+    $update_user_info->id=$user_info->id;
+
+    if($ex_patronymic !== $user_info->patronymic){
+        $update_user_info->patronymic=$ex_patronymic;
+        $need_update_user_info = true;
+    }
+
+    if($ex_phone_number !== $user_info->phone_number){
+        $update_user_info->phone_number=$ex_phone_number;
+        $need_update_user_info = true;
+    }
+
+    if($ex_email !== $user_info->email){
+        $update_user_info->email=$ex_email;
+        $need_update_user_info = true;
+    }
+
+    update_teacher_info($teacher_info, array('patronymic' => $th_patronymic, 'phone_number' => $th_phone_number,
+        'email' => $th_email, 'place_work' => $th_place_work, 'position_work' => $th_position_work, 'academic_title' => $th_academic_title,
+        'academic_degree' => $th_academic_degree));
+
+    if(isset($_POST['cn_surname']) && isset($_POST['cn_name']) && isset($_POST['cn_patronymic']) && isset($_POST['cn_phone_number']) &&
+            isset($_POST['cn_email']) && isset($_POST['cn_place_work']) && isset($_POST['cn_position_work']) &&
+            isset($_POST['cn_academic_title']) && isset($_POST['cn_academic_degree'])){
+
+        if($consultant_info){
+            update_teacher_info($consultant_info, array('patronymic' => $_POST['cn_patronymic'], 'phone_number' => $_POST['cn_phone_number'],
+                'email' => $_POST['cn_email'], 'place_work' => $_POST['cn_place_work'], 'position_work' => $_POST['cn_position_work'],
+                'academic_title' => $_POST['cn_academic_title'], 'academic_degree' => $_POST['cn_academic_degree']));
+        }
+        else{
+            $record_consultant_info = new stdClass();
+            $record_consultant_info->work_plan_id = $work_plan_info->id;
+            $record_consultant_info->type = 'C';
+            $record_consultant_info->name = $_POST['cn_name'];
+            $record_consultant_info->surname = $_POST['cn_surname'];
+            $record_consultant_info->patronymic = $_POST['cn_patronymic'];
+            $record_consultant_info->phone_number = $_POST['cn_phone_number'];
+            $record_consultant_info->email = $_POST['cn_email'];
+            $record_consultant_info->place_work = $_POST['cn_place_work'];
+            $record_consultant_info->position_work = $_POST['cn_position_work'];
+            $record_consultant_info->academic_title = $_POST['cn_academic_title'];
+            $record_consultant_info->academic_degree = $_POST['cn_academic_degree'];
+            $DB->insert_record('nir_teacher_info', $record_consultant_info, false);
+        }
+    }
+
+    $work_content_items = array();
+    $work_result_items = array();
+    $info_source_items = array();
+    $work_items_records = array();
+    $need_add_items = false;
+
+    foreach ($work_plan_items as $item) {
+        switch($item->type){
+            case 'C':
+                array_push($work_content_items, $item);
+                break;
+            case 'R':
+                array_push($work_result_items, $item);
+                break;
+            case 'I':
+                array_push($info_source_items, $item);
+                break;
+        }
+    }
+
+    usort($work_content_items, 'sort_items');
+    usort($work_result_items, 'sort_items');
+    usort($info_source_items, 'sort_items');
+
+    update_work_plan_items($work_content_items, $work_plan_info->id, 'work_content', 'C');
+    update_work_plan_items($work_result_items, $work_plan_info->id, 'work_result', 'R');
+    update_work_plan_items($info_source_items, $work_plan_info->id, 'info_source', 'I');
+
+    if($need_update_work_plan)
         $DB->update_record('nir_files',$update_work_plan);
 
-    $need_update = false;
+    if($need_update_user_info)
+        $DB->update_record('nir_user_info',$update_user_info);
+
+    $message = "Задание на НИР отредактировано и отправлено научному руководителю.";
+    $record = new stdClass();
+    $record->user_id = $USER->id;
+    $record->nir_id = $work_id;
+    $record->nir_type = 'Z';
+    $record->text = $message;
+
+    $DB->insert_record('nir_messages', $record, false);
+
+    echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id)));
 }
 else{
     echo json_encode(array('status' => "Validation error"));

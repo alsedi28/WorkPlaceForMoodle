@@ -1,4 +1,5 @@
 <?php
+require_once(dirname(__FILE__) . '/helpers.php');
 
 function render_modal_dialog_create_work($teachers, $user_id){
     $dialog = '';
@@ -476,7 +477,7 @@ function render_work_plan_edit($work_id){
 
     $content .= html_writer::end_tag('div');//end teacher_block
 
-    $content .= html_writer::start_tag('div', array('class' => 'man_block'));
+    $content .= html_writer::start_tag('div', array('class' => 'man_block', 'id' => 'consultant_block'));
     if($consultant_info){
         $content .= html_writer::tag('h3', 'Консультант', array('class' => 'header_block'));
 
@@ -492,6 +493,9 @@ function render_work_plan_edit($work_id){
             'Старший научный сотрудник', 'Ведущий научный сотрудник'), $consultant_info->academic_title);
         $content .= render_work_plan_selected_block('Учёная степень', 'cn_academic_degree', array('Кандидат технических наук', 'Доктор технических наук',
             'Кандидат физико-математических наук', 'Доктор физико-математических наук'), $consultant_info->academic_degree);
+    }
+    else{
+        $content .= html_writer::tag('div', 'Добавить консультанта', array('id' => 'button_add_consultant'));
     }
 
     $content .= html_writer::end_tag('div');//end consultant_block
@@ -785,10 +789,5 @@ function render_work_plan_textarea_many_block($label, $textarea_name, $rows, $re
     $content .= html_writer::end_tag('div');
 
     return $content;
-}
-
-function sort_items($a, $b)
-{
-    return $a->order_number > $b->order_number;
 }
 ?>

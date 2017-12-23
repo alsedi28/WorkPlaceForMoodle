@@ -184,6 +184,15 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
         $DB->insert_record('nir_teacher_info', $record_consultant_info, false);
     }
 
+    $message = "Создано задание на НИР и отправлено научному руководителю.";
+    $record = new stdClass();
+    $record->user_id = $USER->id;
+    $record->nir_id = $work_id;
+    $record->nir_type = 'Z';
+    $record->text = $message;
+
+    $DB->insert_record('nir_messages', $record, false);
+
     echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id)));
 }
 else {
