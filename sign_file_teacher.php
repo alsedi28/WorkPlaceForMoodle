@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
+require_once(dirname(__FILE__) . '/helpers.php');
 
 $id = isset($_POST['id']) ? $_POST['id'] : 0;
 $date = isset($_POST['date']) ? $_POST['date'] : "";
@@ -29,30 +30,11 @@ if($rs && $USER->profile['isTeacher'] === "1"){
     
     $DB->insert_record('nir_messages', $record, false);
 
+    $last_date = NULL;
     if($date !== "0")
-        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname, mdl_user.id FROM mdl_nir_messages, mdl_user WHERE mdl_nir_messages.date > '".$date."' AND mdl_nir_messages.nir_id=".($rs->nir_id)." AND mdl_user.id=mdl_nir_messages.user_id AND mdl_nir_messages.nir_type='".($rs->type)."'";
-    else
-        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname FROM mdl_nir_messages, mdl_user WHERE mdl_nir_messages.nir_id=".($rs->nir_id)." AND mdl_user.id=mdl_nir_messages.user_id AND mdl_nir_messages.nir_type='".($rs->type)."'";
+        $last_date = $date;
 
-    $messages = $DB->get_records_sql($sql_messages);
-
-    foreach ($messages as $m){
-        echo "<div class='message'>";
-        echo "<div class='header_message";
-        if($m->id == $ADMIN){
-            echo " header_message_kaf";
-        }
-        echo "'>";
-        if($m->id == $ADMIN)
-            echo "<p class='header_message_name'>Кафедра</p>";
-        else
-            echo "<p class='header_message_name'>".$m->lastname." ".$m->firstname."</p>";
-        echo "<p class='header_message_date'>".$m->date."</p>";
-        echo "<div style='clear:both;'></div>";
-        echo "</div>";
-        echo "<p class='message_text'>".$m->text."</p>";
-        echo "</div>";
-    }
+    echo get_messages($rs->nir_id, $rs->type, $last_date);
 }
 else{
     echo "Error";

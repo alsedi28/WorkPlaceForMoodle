@@ -95,9 +95,39 @@ function update_teacher_info($teacher_info, $data){
         $DB->update_record('nir_teacher_info',$update_teacher_info);
 }
 
+function get_messages($work_id, $type, $last_date){
+    global $DB;
+    $ADMIN = 2;
+    $messages_data = '';
+
+    if ($last_date != NULL){
+        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname, mdl_user.id FROM mdl_nir_messages, mdl_user WHERE 
+                          mdl_nir_messages.date > '".$_POST['last_date_message']."' AND mdl_nir_messages.nir_id=".$work_id." AND mdl_user.id=mdl_nir_messages.user_id AND 
+                          mdl_nir_messages.nir_type='".$type."'";
+    }
+    else{
+        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname FROM mdl_nir_messages, mdl_user WHERE 
+                          mdl_nir_messages.nir_id=".$work_id." AND mdl_user.id=mdl_nir_messages.user_id AND mdl_nir_messages.nir_type='".$type."'";
+    }
+
+    $messages = $DB->get_records_sql($sql_messages);
+
+    foreach ($messages as $m){
+        $messages_data .= html_writer::start_tag('div', array('class' => 'message'));
+        $messages_data .= html_writer::start_tag('div', array('class' => $m->id == $ADMIN ? 'header_message header_message_kaf' : 'header_message'));
+        $messages_data .= html_writer::tag('p', $m->id == $ADMIN ? 'Кафедра' : $m->lastname." ".$m->firstname, array('class' => 'header_message_name'));
+        $messages_data .= html_writer::tag('p', $m->date, array('class' => 'header_message_date'));
+        $messages_data .= html_writer::tag('div', '', array('style' => 'clear:both;'));
+        $messages_data .= html_writer::end_tag('div');
+        $messages_data .= html_writer::tag('p', $m->text, array('class' => 'message_text'));
+        $messages_data .= html_writer::end_tag('div');
+    }
+
+    return $messages_data;
+}
+
 function sort_items($a, $b)
 {
     return $a->order_number > $b->order_number;
 }
-
 ?>

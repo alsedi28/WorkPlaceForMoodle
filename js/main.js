@@ -118,6 +118,13 @@ $(document).ready(function(){
 
     function send_form_work_plan(){
         var msg   = $('#form_plan').serialize();
+
+        var date_lst = $("#tab1 .message .header_message_date");
+        if (date_lst.length !== 0){
+            var date = date_lst[date_lst.length - 1].innerText;
+            msg = msg + '&' + $.param({'last_date_message': date});
+        }
+
         $.ajax({
             type: 'POST',
             url: 'ajax_add_work_plan.php',
@@ -127,6 +134,10 @@ $(document).ready(function(){
                     alert('Задание добавлено');
                     $('#form_plan').remove();
                     $('.block_work_plan').append(data.data);
+
+                    if(data.messages)
+                        $("#tab1 .textar_message_new").before(data.messages);
+
                     $('body').scrollTop(0);
                 }
                 else{
@@ -142,6 +153,12 @@ $(document).ready(function(){
     function send_edit_work_plan(){
         var msg   = $('#form_plan').serialize();
 
+        var date_lst = $("#tab1 .message .header_message_date");
+        if (date_lst.length !== 0){
+            var date = date_lst[date_lst.length - 1].innerText;
+            msg = msg + '&' + $.param({'last_date_message': date});
+        }
+
         $.ajax({
             type: 'POST',
             url: 'ajax_edit_work_plan.php',
@@ -151,6 +168,10 @@ $(document).ready(function(){
                     alert('Задание отредактировано');
                     $('#form_plan').remove();
                     $('.block_work_plan').append(data.data);
+
+                    if(data.messages)
+                        $("#tab1 .textar_message_new").before(data.messages);
+
                     $('body').scrollTop(0);
                 }
                 else{
@@ -248,10 +269,10 @@ $(document).ready(function(){
             "<div><label class='label_block'>Место работы<span style='color:red'> *</span></label><input type='text' name='cn_place_work' id='cn_place_work' class='input_block' required /><div style='clear:both'></div></div>" +
             "<div><label class='label_block'>Должность<span style='color:red'> *</span></label><input type='text' name='cn_position_work' id='cn_position_work' class='input_block' required/><div style='clear:both'></div></div>" +
             "<div><label class='label_block label_select'>Учёное звание</label><select name='cn_academic_title' class='select_block'>" +
-            "<option value='not'>Нет</option><option value='docent'>Доцент</option><option value='prof'>Профессор</option><option value='oldworker'>Старший научный сотрудник</option><option value='leadworker'>Ведущий научный сотрудник</option></select><div style='clear:both'></div></div>" +
+            "<option value='Нет'>Нет</option><option value='Доцент'>Доцент</option><option value='Профессор'>Профессор</option><option value='Старший научный сотрудник'>Старший научный сотрудник</option><option value='Ведущий научный сотрудник'>Ведущий научный сотрудник</option></select><div style='clear:both'></div></div>" +
             "<div><label class='label_block label_select'>Учёная степень</label><select name='cn_academic_degree' class='select_block'>" +
-            "<option value='not'>Нет</option><option value='ctech'>Кандидат технических наук</option><option value='dtech'>Доктор технических наук</option>" +
-            "<option value='cphymath'>Кандидат физико-математических наук</option><option value='dphymath'>Доктор физико-математических наук</option></select><div style='clear:both'></div></div>");
+            "<option value='Нет'>Нет</option><option value='Кандидат технических наук'>Кандидат технических наук</option><option value='Доктор технических наук'>Доктор технических наук</option>" +
+            "<option value='Кандидат физико-математических наук'>Кандидат физико-математических наук</option><option value='Доктор физико-математических наук'>Доктор физико-математических наук</option></select><div style='clear:both'></div></div>");
     }
 
     function sign_nir_teacher(event){

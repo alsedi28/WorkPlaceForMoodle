@@ -193,11 +193,16 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
 
     $DB->insert_record('nir_messages', $record, false);
 
-    echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id)));
+    $last_date = NULL;
+    if (isset($_POST['last_date_message']))
+        $last_date = $_POST['last_date_message'];
+
+    $messages_data = get_messages($work_id, 'Z', $last_date);
+
+    echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id), 'messages' => $messages_data));
 }
 else {
     echo json_encode(array('status' => "Validation error"));
 }
-
 
 ?>

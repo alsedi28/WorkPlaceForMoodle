@@ -196,7 +196,12 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
     if($need_update_user_info)
         $DB->update_record('nir_user_info',$update_user_info);
 
-    $message = "Задание на НИР отредактировано и отправлено научному руководителю.";
+    $message = '';
+    if($USER->profile['isTeacher'] === "0")
+        $message = "Задание на НИР отредактировано и отправлено научному руководителю.";
+    else
+        $message = "Задание на НИР отредактировано и отправлено студенту для доработки.";
+
     $record = new stdClass();
     $record->user_id = $USER->id;
     $record->nir_id = $work_id;
@@ -205,7 +210,13 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
 
     $DB->insert_record('nir_messages', $record, false);
 
-    echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id)));
+    $last_date = NULL;
+    if (isset($_POST['last_date_message']))
+        $last_date = $_POST['last_date_message'];
+
+    $messages_data = get_messages($work_id, 'Z', $last_date);
+
+    echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id), 'messages' => $messages_data));
 }
 else{
     echo json_encode(array('status' => "Validation error"));

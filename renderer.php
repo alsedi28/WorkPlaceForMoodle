@@ -184,7 +184,7 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
     $tab_content .= html_writer::start_tag('div', array('class' => $options["tab_number"] === 1 ? 'block_work_plan' : 'block_files'));
 
     if($options["tab_number"] === 1){
-        $tab_content .= render_work_plan($user, $work_id);
+        $tab_content .= render_work_plan($work_id);
     }
     else {
         $i = 1;
@@ -317,22 +317,25 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
     return $tab_content;
 }
 
-function render_work_plan($user, $work_id){
-    global $DB;
+function render_work_plan($work_id){
+    global $DB, $USER;
     $content = '';
     $content .= html_writer::tag('h2', 'Задание на НИР', array('class' => '', 'style' => 'text-align: center; color: rgba(0,0,0,.54);'));
 
-    if($user->profile['isTeacher'] === "0"){//if page for student
-        $sql_work_plan = "SELECT mdl_nir.id, mdl_user.firstname, mdl_user.lastname, mdl_nir_work_plans.theme, mdl_nir_work_plans.goal FROM mdl_nir, mdl_user, mdl_nir_work_plans 
-                            WHERE mdl_user.id=".$user->id." AND mdl_nir.user_id=mdl_user.id AND mdl_nir.id=".$work_id." AND mdl_nir_work_plans.nir_id=mdl_nir.id AND mdl_nir.is_closed=0";
-        $rs = $DB->get_records_sql($sql_work_plan);
+    $sql_work_plan = "SELECT mdl_nir.id FROM mdl_nir, mdl_nir_work_plans 
+                        WHERE (mdl_nir.user_id=".$USER->id." OR mdl_nir.teacher_id=".$USER->id.") AND mdl_nir.id=".$work_id." 
+                        AND mdl_nir_work_plans.nir_id=mdl_nir.id AND mdl_nir.is_closed=0";
 
-        if(count($rs) == 0){
+    $rs = $DB->get_records_sql($sql_work_plan);
+
+    if(count($rs) == 0){
+        if($USER->profile['isTeacher'] === "0")
             $content .= render_work_plan_create($work_id);
-        }
-        else{
-            $content .= render_work_plan_view($work_id);
-        }
+        else
+            $content .= html_writer::tag('h3', 'Задание на НИР еще не было загружено студентом.', array('style' => 'text-align: center; color: rgba(0,0,0,.54);'));
+    }
+    else{
+        $content .= render_work_plan_view($work_id);
     }
 
     return $content;
@@ -418,6 +421,9 @@ function render_work_plan_view($work_id){
 
     $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'work_id', 'value' => $work_id));
     $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Редактировать', 'id' => 'edit_button_work_plan'));
+
+    if($USER->profile['isTeacher'] === "1")
+        $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отправить на согласование кафедре', 'id' => 'send_work_plan_kaf'));
 
     $content .= html_writer::end_tag('div');
 
@@ -511,7 +517,14 @@ function render_work_plan_edit($work_id){
     $content .= render_work_plan_list($work_plan_items, false);
 
     $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'work_id', 'value' => $work_id));
-    $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отправить на согласование научному руководителю', 'id' => 'submit_edit_work_plan'));
+
+    $text_button_edit = 'Отправить на согласование научному руководителю';
+    if($USER->profile['isTeacher'] === "1"){
+        $text_button_edit = 'Сохранить и отправить на студенту';
+        $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отправить на согласование кафедре', 'id' => 'submit_edit_work_plan'));
+    }
+
+    $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => $text_button_edit, 'id' => 'submit_edit_work_plan'));
     $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отменить', 'id' => 'cancel_edit_work_plan'));
 
     return $content;
