@@ -93,6 +93,7 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
     $record->theme = $work_theme;
     $record->goal = $work_goal;
     $record->nir_id = $work_id;
+    $record->is_sign_user = 1;
 
     $work_plan_id = $DB->insert_record('nir_work_plans', $record, true);
 

@@ -89,6 +89,8 @@ $(document).ready(function(){
 
     $(".block_work_plan").on('click', '#edit_button_work_plan',  get_edit_work_plan_page);
 
+    $(".block_work_plan").on('click', '#send_work_plan_kaf',  send_work_plan_to_kaf);
+
     if($("#form_plan")){
         $("#form_plan").submit(send_form_work_plan);
     }
@@ -150,13 +152,49 @@ $(document).ready(function(){
         });
     }
 
-    function send_edit_work_plan(){
+    function send_work_plan_to_kaf(event){
+        var work_id = $("[name='work_id']").val();
+        var params_obj = {'work_id' : work_id};
+
+        var date_lst = $("#tab1 .message .header_message_date");
+        if (date_lst.length !== 0){
+            var date = date_lst[date_lst.length - 1].innerText;
+            params_obj.last_date_message = date;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: 'ajax_sign_work_plan_teacher.php',
+            data: $.param(params_obj),
+            success: function (data) {
+                if(data.status == 'Ok'){
+                    $('#edit_button_work_plan').remove();
+                    $('#send_work_plan_kaf').remove();
+                    alert('Задание отправлено на кафедру');
+                    if(data.messages)
+                        $("#tab1 .textar_message_new").before(data.messages);
+
+                    $('body').scrollTop(0);
+                }
+                else{
+                    alert('Произошла ошибка');
+                }
+            },
+            error: function (xhr, str) {
+                alert('Возникла ошибка: ' + xhr.responseCode);
+            }
+        });
+    }
+
+    function send_edit_work_plan(event){
         var msg   = $('#form_plan').serialize();
 
         var date_lst = $("#tab1 .message .header_message_date");
         if (date_lst.length !== 0){
             var date = date_lst[date_lst.length - 1].innerText;
-            msg = msg + '&' + $.param({'last_date_message': date});
+            var action_type = $(event.target).attr('action_type');
+
+            msg = msg + '&' + $.param({'last_date_message': date, 'action' : action_type});
         }
 
         $.ajax({

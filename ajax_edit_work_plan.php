@@ -11,7 +11,10 @@ if(!isset($_POST['work_id'])){
 
 $work_id = $_POST['work_id'];
 
-$sql_work_plan_info = "SELECT * FROM mdl_nir_work_plans WHERE mdl_nir_work_plans.nir_id=".$work_id;
+$sql_work_plan_info = "SELECT mdl_nir_work_plans.id, mdl_nir_work_plans.theme, mdl_nir_work_plans.goal, mdl_nir.teacher_id  FROM mdl_nir_work_plans, mdl_nir WHERE 
+                        mdl_nir_work_plans.nir_id=".$work_id." AND mdl_nir.id=mdl_nir_work_plans.nir_id AND 
+                        (mdl_nir.teacher_id=".$USER->id." OR mdl_nir.user_id=".$USER->id.")";
+
 $work_plan_info = $DB->get_record_sql($sql_work_plan_info);
 
 if(!$work_plan_info){
@@ -19,7 +22,7 @@ if(!$work_plan_info){
     exit();
 }
 
-$sql_user_info = "SELECT * FROM mdl_nir_user_info WHERE mdl_nir_user_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_user_info.user_id=".$USER->id;
+$sql_user_info = "SELECT * FROM mdl_nir_user_info WHERE mdl_nir_user_info.work_plan_id=".$work_plan_info->id;
 $user_info = $DB->get_record_sql($sql_user_info);
 
 $sql_teacher_info = "SELECT * FROM mdl_nir_teacher_info WHERE mdl_nir_teacher_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_teacher_info.type='T'";
@@ -31,14 +34,13 @@ $consultant_info = $DB->get_record_sql($sql_consultant_info);
 $sql_work_plan_items = "SELECT * FROM mdl_nir_work_plan_items WHERE mdl_nir_work_plan_items.work_plan_id=".$work_plan_info->id;
 $work_plan_items = $DB->get_records_sql($sql_work_plan_items);
 
-if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_patronymic'])&& isset($_POST['ex_phone_number']) && isset($_POST['ex_email']) &&
+if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_patronymic'])&& isset($_POST['ex_phone_number']) && isset($_POST['ex_email']) &&
     isset($_POST['th_surname']) && isset($_POST['th_name']) && isset($_POST['th_patronymic']) && isset($_POST['th_phone_number']) && isset($_POST['th_email']) &&
     isset($_POST['th_place_work']) && isset($_POST['th_position_work']) && isset($_POST['th_academic_title']) && isset($_POST['th_academic_degree']) && isset($_POST['work_theme']) &&
     isset($_POST['work_goal']) && isset($_POST['work_content'][0]) && isset($_POST['work_content'][1]) && isset($_POST['work_content'][2]) &&
     isset($_POST['work_result'][0]) && isset($_POST['work_result'][1]) && isset($_POST['work_result'][2]) && isset($_POST['info_source'][0]) &&
     isset($_POST['info_source'][1]) && isset($_POST['info_source'][2]))
     {
-    $work_id = $_POST['work_id'];
     $ex_surname = $_POST['ex_surname'];
     $ex_name = $_POST['ex_name'];
     $ex_patronymic = $_POST['ex_patronymic'];
@@ -98,19 +100,28 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
         }
     }
 
-    $need_update_work_plan = false;
     $update_work_plan = new stdClass();
     $update_work_plan->id=$work_plan_info->id;
 
-    if($work_theme !== $work_plan_info->theme){
-        $update_work_plan->theme=$work_theme;
-        $need_update_work_plan = true;
+    if(isset($_POST['action'])) {
+        if ($work_plan_info->teacher_id == $USER->id) {
+            if ($_POST['action'] == "send_to_kaf") {
+                $update_work_plan->is_sign_teacher = 1;
+            } else if ($_POST['action'] == "send_to_user") {
+                $update_work_plan->is_sign_teacher = 0;
+                $update_work_plan->is_sign_user = 0;
+            }
+        }
+        else{
+            $update_work_plan->is_sign_user = 1;
+        }
     }
 
-    if($work_goal !== $work_plan_info->goal){
+    if($work_theme !== $work_plan_info->theme)
+        $update_work_plan->theme=$work_theme;
+
+    if($work_goal !== $work_plan_info->goal)
         $update_work_plan->goal=$work_goal;
-        $need_update_work_plan = true;
-    }
 
     $need_update_user_info = false;
 
@@ -190,8 +201,7 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
     update_work_plan_items($work_result_items, $work_plan_info->id, 'work_result', 'R');
     update_work_plan_items($info_source_items, $work_plan_info->id, 'info_source', 'I');
 
-    if($need_update_work_plan)
-        $DB->update_record('nir_files',$update_work_plan);
+    $DB->update_record('nir_work_plans',$update_work_plan);
 
     if($need_update_user_info)
         $DB->update_record('nir_user_info',$update_user_info);

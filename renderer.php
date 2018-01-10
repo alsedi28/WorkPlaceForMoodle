@@ -348,7 +348,7 @@ function render_work_plan_view($work_id){
     $sql_work_plan_info = "SELECT * FROM mdl_nir_work_plans WHERE mdl_nir_work_plans.nir_id=".$work_id;
     $work_plan_info = $DB->get_record_sql($sql_work_plan_info);
 
-    $sql_user_info = "SELECT * FROM mdl_nir_user_info WHERE mdl_nir_user_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_user_info.user_id=".$USER->id;
+    $sql_user_info = "SELECT * FROM mdl_nir_user_info WHERE mdl_nir_user_info.work_plan_id=".$work_plan_info->id;
     $user_info = $DB->get_record_sql($sql_user_info);
 
     $sql_teacher_info = "SELECT * FROM mdl_nir_teacher_info WHERE mdl_nir_teacher_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_teacher_info.type='T'";
@@ -420,10 +420,15 @@ function render_work_plan_view($work_id){
     $content .= html_writer::end_tag('div');//end work_info_block
 
     $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'work_id', 'value' => $work_id));
-    $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Редактировать', 'id' => 'edit_button_work_plan'));
 
-    if($USER->profile['isTeacher'] === "1")
-        $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отправить на согласование кафедре', 'id' => 'send_work_plan_kaf'));
+    if($work_plan_info->is_sign_teacher == 0 && (($USER->profile['isTeacher'] === "1" && $work_plan_info->is_sign_user == 1) ||
+            ($USER->profile['isTeacher'] !== "1" && $work_plan_info->is_sign_user == 0)))
+        $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Редактировать', 'id' => 'edit_button_work_plan'));
+
+    if($USER->profile['isTeacher'] === "1" && $work_plan_info->is_sign_user == 1 && $work_plan_info->is_sign_teacher == 0){
+        $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отправить на согласование кафедре', 'id' => 'send_work_plan_kaf',
+            'action_type' => 'only_send_to_kaf'));
+    }
 
     $content .= html_writer::end_tag('div');
 
@@ -437,7 +442,7 @@ function render_work_plan_edit($work_id){
     $sql_work_plan_info = "SELECT * FROM mdl_nir_work_plans WHERE mdl_nir_work_plans.nir_id=".$work_id;
     $work_plan_info = $DB->get_record_sql($sql_work_plan_info);
 
-    $sql_user_info = "SELECT * FROM mdl_nir_user_info WHERE mdl_nir_user_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_user_info.user_id=".$USER->id;
+    $sql_user_info = "SELECT * FROM mdl_nir_user_info WHERE mdl_nir_user_info.work_plan_id=".$work_plan_info->id;
     $user_info = $DB->get_record_sql($sql_user_info);
 
     $sql_teacher_info = "SELECT * FROM mdl_nir_teacher_info WHERE mdl_nir_teacher_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_teacher_info.type='T'";
@@ -519,12 +524,15 @@ function render_work_plan_edit($work_id){
     $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'work_id', 'value' => $work_id));
 
     $text_button_edit = 'Отправить на согласование научному руководителю';
+    $attr_button_type = 'send_to_teacher';
     if($USER->profile['isTeacher'] === "1"){
-        $text_button_edit = 'Сохранить и отправить на студенту';
-        $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отправить на согласование кафедре', 'id' => 'submit_edit_work_plan'));
+        $text_button_edit = 'Сохранить и отправить студенту';
+        $attr_button_type = 'send_to_user';
+        $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отправить на согласование кафедре', 'id' => 'submit_edit_work_plan',
+            'action_type' => 'send_to_kaf'));
     }
 
-    $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => $text_button_edit, 'id' => 'submit_edit_work_plan'));
+    $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => $text_button_edit, 'id' => 'submit_edit_work_plan', 'action_type' => $attr_button_type));
     $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отменить', 'id' => 'cancel_edit_work_plan'));
 
     return $content;
