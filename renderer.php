@@ -322,17 +322,20 @@ function render_work_plan($work_id){
     $content = '';
     $content .= html_writer::tag('h2', 'Задание на НИР', array('class' => '', 'style' => 'text-align: center; color: rgba(0,0,0,.54);'));
 
-    $sql_work_plan = "SELECT mdl_nir.id FROM mdl_nir, mdl_nir_work_plans 
+    $sql_work_plan = "SELECT mdl_nir.id, mdl_nir_work_plans.is_sign_user, mdl_nir_work_plans.is_sign_teacher, mdl_nir_work_plans.is_sign_kaf FROM mdl_nir, mdl_nir_work_plans 
                         WHERE (mdl_nir.user_id=".$USER->id." OR mdl_nir.teacher_id=".$USER->id.") AND mdl_nir.id=".$work_id." 
                         AND mdl_nir_work_plans.nir_id=mdl_nir.id AND mdl_nir.is_closed=0";
 
     $rs = $DB->get_records_sql($sql_work_plan);
 
+    if(count($rs) == 0)
+        $content .= render_message_container(false, false, false, false);
+    else
+        $content .= render_message_container($rs[$work_id]->is_sign_user, $rs[$work_id]->is_sign_teacher, $rs[$work_id]->is_sign_kaf);
+
     if(count($rs) == 0){
         if($USER->profile['isTeacher'] === "0")
             $content .= render_work_plan_create($work_id);
-        else
-            $content .= html_writer::tag('h3', 'Задание на НИР еще не было загружено студентом.', array('style' => 'text-align: center; color: rgba(0,0,0,.54);'));
     }
     else{
         $content .= render_work_plan_view($work_id);
@@ -807,6 +810,62 @@ function render_work_plan_textarea_many_block($label, $textarea_name, $rows, $re
     }
 
     $content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
+    $content .= html_writer::end_tag('div');
+
+    return $content;
+}
+
+function render_message_container($is_sign_user, $is_sign_teacher, $is_sign_kaf, $is_exist = true){
+    global $USER;
+    $content = '';
+    $text = '';
+
+    if($USER->profile['isTeacher'] === "1"){
+        if($is_sign_user){
+            if($is_sign_teacher){
+                if($is_sign_kaf){
+                    $text = "Задание на НИР утверждено кафедрой.";
+                }
+                else{
+                    $text = "Задание на НИР находится на рассмотрении у кафедры.";
+                }
+            }
+            else{
+                return $content;
+            }
+        }
+        else if($is_exist){
+            return $content;
+        }
+        else{
+            $text = "Задание на НИР еще не было загружено студентом.";
+        }
+    }
+    else if($USER->profile['isTeacher'] === "0"){
+        if($is_sign_user){
+            if($is_sign_teacher){
+                if($is_sign_kaf){
+                    $text = "Задание на НИР утверждено кафедрой.";
+                }
+                else{
+                    $text = "Задание на НИР находится на рассмотрении у кафедры.";
+                }
+            }
+            else{
+                $text = "Задание на НИР находится на рассмотрении у научного руководителя.";
+            }
+        }
+        else{
+            return $content;
+        }
+    }
+    else if($USER->profile['isTeacher'] === "666"){
+
+    }
+
+    $content .= html_writer::start_tag('div', array('class' => 'message_container'));
+    $content .= html_writer::empty_tag('img', array('src' => 'img/information.png', 'class' => 'message_icon'));
+    $content .= html_writer::tag('p', $text, array('class' => 'message_text'));
     $content .= html_writer::end_tag('div');
 
     return $content;

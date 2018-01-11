@@ -171,3 +171,30 @@
     margin-bottom: 11px;
     margin-top: 0px;
 }
+
+.message_container{
+    height: 85px;
+    margin: 10px;
+    background-color: white;
+    border: 1px solid lightgray;
+    background-color: rgba(255, 210, 115, 0.1);
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+    -moz-box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+    -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+}
+
+.message_icon{
+    display: block;
+    height: 42px;
+    float: left;
+    margin-left: 30px;
+    margin-top: 23px;
+}
+
+.message_container .message_text{
+    float: left;
+    width: 80%;
+    font-size: 19px;
+    height: 85px;
+    line-height: 85px;
+}
