@@ -100,6 +100,8 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
         }
     }
 
+    $message = '';
+
     $update_work_plan = new stdClass();
     $update_work_plan->id=$work_plan_info->id;
 
@@ -107,13 +109,16 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
         if ($work_plan_info->teacher_id == $USER->id) {
             if ($_POST['action'] == "send_to_kaf") {
                 $update_work_plan->is_sign_teacher = 1;
+                $message = "Задание на НИР отредактировано и отправлено на кафедру.";
             } else if ($_POST['action'] == "send_to_user") {
                 $update_work_plan->is_sign_teacher = 0;
                 $update_work_plan->is_sign_user = 0;
+                $message = "Задание на НИР отредактировано и отправлено студенту для доработки.";
             }
         }
         else{
             $update_work_plan->is_sign_user = 1;
+            $message = "Задание на НИР отредактировано и отправлено научному руководителю.";
         }
     }
 
@@ -206,12 +211,6 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
     if($need_update_user_info)
         $DB->update_record('nir_user_info',$update_user_info);
 
-    $message = '';
-    if($USER->profile['isTeacher'] === "0")
-        $message = "Задание на НИР отредактировано и отправлено научному руководителю.";
-    else
-        $message = "Задание на НИР отредактировано и отправлено студенту для доработки.";
-
     $record = new stdClass();
     $record->user_id = $USER->id;
     $record->nir_id = $work_id;
@@ -226,7 +225,7 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
 
     $messages_data = get_messages($work_id, 'Z', $last_date);
 
-    echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id), 'messages' => $messages_data));
+    echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id), 'messages' => $messages_data, 'alert' => $message));
 }
 else{
     echo json_encode(array('status' => "Validation error"));

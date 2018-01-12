@@ -43,5 +43,5 @@ if (isset($_POST['last_date_message']))
 
 $messages_data = get_messages($work_id, 'Z', $last_date);
 
-echo json_encode(array('status' => "Ok", 'messages' => $messages_data));
+echo json_encode(array('status' => "Ok", 'messages' => $messages_data, 'alert' => $message));
 ?>

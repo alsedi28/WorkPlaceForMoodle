@@ -820,6 +820,8 @@ function render_message_container($is_sign_user, $is_sign_teacher, $is_sign_kaf,
     $content = '';
     $text = '';
 
+    $empty_block = html_writer::tag('div', '', array('class' => 'message_container_block'));
+
     if($USER->profile['isTeacher'] === "1"){
         if($is_sign_user){
             if($is_sign_teacher){
@@ -831,11 +833,11 @@ function render_message_container($is_sign_user, $is_sign_teacher, $is_sign_kaf,
                 }
             }
             else{
-                return $content;
+                return $empty_block;
             }
         }
         else if($is_exist){
-            return $content;
+            return $empty_block;
         }
         else{
             $text = "Задание на НИР еще не было загружено студентом.";
@@ -856,14 +858,14 @@ function render_message_container($is_sign_user, $is_sign_teacher, $is_sign_kaf,
             }
         }
         else{
-            return $content;
+            return $empty_block;
         }
     }
     else if($USER->profile['isTeacher'] === "666"){
 
     }
 
-    $content .= html_writer::start_tag('div', array('class' => 'message_container'));
+    $content .= html_writer::start_tag('div', array('class' => 'message_container_block message_container'));
     $content .= html_writer::empty_tag('img', array('src' => 'img/information.png', 'class' => 'message_icon'));
     $content .= html_writer::tag('p', $text, array('class' => 'message_text'));
     $content .= html_writer::end_tag('div');

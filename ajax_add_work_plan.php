@@ -200,7 +200,8 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
 
     $messages_data = get_messages($work_id, 'Z', $last_date);
 
-    echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id), 'messages' => $messages_data));
+    echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id), 'messages' => $messages_data,
+        'alert' => "Задание на НИР создано и отправлено научному руководителю."));
 }
 else {
     echo json_encode(array('status' => "Validation error"));

@@ -1,5 +1,6 @@
 $(document).ready(function(){
-    
+    var messageArea = new MessageArea(document.querySelector('.message_container_block'));
+
     var dataObj = {
         "work": document.getElementById("h_work").value,
         "type": document.getElementById("h_work_type").value,
@@ -96,6 +97,9 @@ $(document).ready(function(){
     }
 
     function get_edit_work_plan_page(){
+        messageArea.AddLoading('Подождите...');
+        $('body').scrollTop(0);
+
         var work_id = $("[name='work_id']").val();
 
         $.ajax({
@@ -106,19 +110,23 @@ $(document).ready(function(){
                 if(data.status == 'Ok'){
                     $('div.form_work_plan').remove();
                     $('.block_work_plan').append(data.data);
-                    $('body').scrollTop(0);
+
+                    messageArea.AddInformation(data.alert);
                 }
                 else{
-                    alert('Произошла ошибка');
+                    messageArea.AddError('Произошла ошибка.');
                 }
             },
             error: function (xhr, str) {
-                alert('Возникла ошибка: ' + xhr.responseCode);
+                messageArea.AddError('Возникла ошибка: ' + xhr.responseCode);
             }
         });
     }
 
     function send_form_work_plan(){
+        messageArea.AddLoading('Подождите...');
+        $('body').scrollTop(0);
+
         var msg   = $('#form_plan').serialize();
 
         var date_lst = $("#tab1 .message .header_message_date");
@@ -133,26 +141,28 @@ $(document).ready(function(){
             data: msg,
             success: function (data) {
                 if(data.status == 'Ok'){
-                    alert('Задание добавлено');
+                    messageArea.AddInformation(data.alert);
+
                     $('#form_plan').remove();
                     $('.block_work_plan').append(data.data);
 
                     if(data.messages)
                         $("#tab1 .textar_message_new").before(data.messages);
-
-                    $('body').scrollTop(0);
                 }
                 else{
-                    alert('Произошла ошибка');
+                    messageArea.AddError('Произошла ошибка.');
                 }
             },
             error: function (xhr, str) {
-                alert('Возникла ошибка: ' + xhr.responseCode);
+                messageArea.AddError('Возникла ошибка: ' + xhr.responseCode);
             }
         });
     }
 
     function send_work_plan_to_kaf(event){
+        messageArea.AddLoading('Подождите...');
+        $('body').scrollTop(0);
+
         var work_id = $("[name='work_id']").val();
         var params_obj = {'work_id' : work_id};
 
@@ -170,23 +180,25 @@ $(document).ready(function(){
                 if(data.status == 'Ok'){
                     $('#edit_button_work_plan').remove();
                     $('#send_work_plan_kaf').remove();
-                    alert('Задание отправлено на кафедру');
+                    messageArea.AddInformation(data.alert);
+
                     if(data.messages)
                         $("#tab1 .textar_message_new").before(data.messages);
-
-                    $('body').scrollTop(0);
                 }
                 else{
-                    alert('Произошла ошибка');
+                    messageArea.AddError('Произошла ошибка.');
                 }
             },
             error: function (xhr, str) {
-                alert('Возникла ошибка: ' + xhr.responseCode);
+                messageArea.AddError('Возникла ошибка: ' + xhr.responseCode);
             }
         });
     }
 
     function send_edit_work_plan(event){
+        messageArea.AddLoading('Подождите...');
+        $('body').scrollTop(0);
+
         var msg   = $('#form_plan').serialize();
 
         var date_lst = $("#tab1 .message .header_message_date");
@@ -203,26 +215,27 @@ $(document).ready(function(){
             data: msg,
             success: function (data) {
                 if(data.status == 'Ok'){
-                    alert('Задание отредактировано');
+                    messageArea.AddInformation(data.alert);
                     $('#form_plan').remove();
                     $('.block_work_plan').append(data.data);
 
                     if(data.messages)
                         $("#tab1 .textar_message_new").before(data.messages);
-
-                    $('body').scrollTop(0);
                 }
                 else{
-                    alert('Произошла ошибка');
+                    messageArea.AddError('Произошла ошибка.');
                 }
             },
             error: function (xhr, str) {
-                alert('Возникла ошибка: ' + xhr.responseCode);
+                messageArea.AddError('Возникла ошибка: ' + xhr.responseCode);
             }
         });
     }
 
     function get_view_work_plan_page(){
+        messageArea.AddLoading('Подождите...');
+        $('body').scrollTop(0);
+
         var work_id = $("[name='work_id']").val();
 
         $.ajax({
@@ -231,16 +244,16 @@ $(document).ready(function(){
             data: { 'work_id' : work_id },
             success: function (data) {
                 if(data.status == 'Ok'){
+                    messageArea.Clear();
                     $('form.form_work_plan').remove();
                     $('.block_work_plan').append(data.data);
-                    $('body').scrollTop(0);
                 }
                 else{
-                    alert('Произошла ошибка');
+                    messageArea.AddError('Произошла ошибка.');
                 }
             },
             error: function (xhr, str) {
-                alert('Возникла ошибка: ' + xhr.responseCode);
+                messageArea.AddError('Возникла ошибка: ' + xhr.responseCode);
             }
         });
     }

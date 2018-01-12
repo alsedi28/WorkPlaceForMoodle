@@ -27,6 +27,6 @@ if(count($rs) === 0){
     exit();
 }
 
-echo json_encode(array('status' => "Ok", 'data' => render_work_plan_edit($work_id)));
+echo json_encode(array('status' => "Ok", 'data' => render_work_plan_edit($work_id), 'alert' => 'Можете начать редактирование задания на НИР.'));
 
 ?>
