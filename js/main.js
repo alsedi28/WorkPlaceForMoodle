@@ -92,8 +92,40 @@ $(document).ready(function(){
 
     $(".block_work_plan").on('click', '#send_work_plan_kaf',  send_work_plan_to_kaf);
 
+    $(".tab").on('click', '.download_messages_block', get_messages);
+
     if($("#form_plan")){
         $("#form_plan").submit(send_form_work_plan);
+    }
+
+    function get_messages(event){
+        var tabs = $(event.target).closest('.tab');
+        var current_tab_id = tabs[0].id;
+
+        var type = document.querySelector("#" + current_tab_id + " [name='h_work_type']").value;
+        var work_id = document.querySelector("#" + current_tab_id + " [name='h_work']").value;
+
+        var date_first = $("#" + current_tab_id + " .message .header_message_date");
+        if (date_first.length !== 0){
+            var date = date_first[0].innerText;
+        }
+        else{
+            $(event.target).remove();
+        }
+
+        $.ajax({
+            url: 'ajax_get_messages.php',
+            type: 'GET',
+            data: {'type': type, 'date': date, 'work_id': work_id},
+            success: function(data){
+                if(data.status === "Ok"){
+                    $("#" + current_tab_id + " .download_messages_block").after(data.messages);
+
+                    if(data.count <= 5)
+                        $(event.target).remove();
+                }
+            }
+        });
     }
 
     function get_edit_work_plan_page(){

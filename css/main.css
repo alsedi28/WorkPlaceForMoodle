@@ -529,3 +529,17 @@ li.active a, li.active a:hover{
 	margin-top: -25px;
 	text-align: right;
 }
+
+.download_messages_block{
+	height: 30px;
+	background-color: rgba(70,182,172, 0.35);
+	text-align: center;
+	line-height: 30px;
+	font-size: 15px;
+	cursor: pointer;
+	border-bottom: 1px rgba(0,0,0,.2) solid;
+}
+
+.download_messages_block:hover {
+	background-color: rgba(70, 182, 172, 0.85);
+}

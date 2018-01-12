@@ -288,6 +288,11 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
     if(!(count($messages) == 0 && $result[$work_id]->is_closed == 1)){
         $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
 
+        if(count($messages) > 5){
+            array_shift($messages);
+            $tab_content .= html_writer::tag('div', 'Загрузить еще сообщений', array('class' => 'download_messages_block'));
+        }
+
         foreach ($messages as $mz){
             $tab_content .= html_writer::start_tag('div', array('class' => 'message'));
             $tab_content .= html_writer::start_tag('div', array('class' => $mz->user_id == $ADMIN ? 'header_message header_message_kaf' :'header_message'));

@@ -97,8 +97,6 @@ function update_teacher_info($teacher_info, $data){
 
 function get_messages($work_id, $type, $last_date){
     global $DB;
-    $ADMIN = 2;
-    $messages_data = '';
 
     if ($last_date != NULL){
         $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname, mdl_user.id FROM mdl_nir_messages, mdl_user WHERE 
@@ -111,6 +109,14 @@ function get_messages($work_id, $type, $last_date){
     }
 
     $messages = $DB->get_records_sql($sql_messages);
+    $messages_data = render_messages($messages);
+
+    return $messages_data;
+}
+
+function render_messages($messages){
+    $ADMIN = 2;
+    $messages_data = '';
 
     foreach ($messages as $m){
         $messages_data .= html_writer::start_tag('div', array('class' => 'message'));
