@@ -24,6 +24,7 @@ $PAGE->requires->css('/nirtest/work_plan_form.css');
 $PAGE->requires->js('/nirtest/js/jquery-3.2.0.min.js', true);
 $PAGE->requires->js('/nirtest/material/jquery.filer.min.js', true);
 $PAGE->requires->js('/nirtest/js/MessageArea.js', true);
+$PAGE->requires->js('/nirtest/js/resource.js', true);
 $PAGE->requires->js('/nirtest/js/main.js', true);
 
 if ($CFG->forcelogin) {
@@ -274,7 +275,7 @@ else if(isset($_GET["id"])){ // Page of work for teacher and student
     }
 }
 else if($USER->profile['isTeacher'] === "1"){ // Main page for teacher
-    //Доступ в дополнительным полям, в данном случае к группе
+    //Доступ к дополнительным полям, в данном случае к группе
     //echo $USER->profile['isTeacher']; 
     if(isset($_GET["std"])){ // List of student's works for the current teacher
         $student_id = (int) $_GET["std"];
