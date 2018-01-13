@@ -21,6 +21,11 @@ if(!$work_plan_info){
     exit();
 }
 
+if($USER->profile['isTeacher'] !== "666"){
+    echo json_encode(array('status' => "You are not a representative of the department"));
+    exit();
+}
+
 $update_work_plan = new stdClass();
 $update_work_plan->id=$work_plan_info->id;
 $update_work_plan->is_sign_user = 0;

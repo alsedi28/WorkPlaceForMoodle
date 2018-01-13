@@ -4,20 +4,19 @@ require_once(dirname(__FILE__) . '/renderer.php');
 require_once(dirname(__FILE__) . '/helpers.php');
 header('Content-type: application/json');
 
-if(!isset($_POST['work_id'])){
+if(!isset($_POST['file_id'])){
     echo json_encode(array('status' => "Validation error"));
     exit();
 }
 
-$work_id = $_POST['work_id'];
+$file_id = $_POST['file_id'];
 
-$sql_work_plan_info = "SELECT mdl_nir_work_plans.id FROM mdl_nir_work_plans, mdl_nir WHERE 
-                        mdl_nir_work_plans.nir_id=".$work_id." AND mdl_nir.id=mdl_nir_work_plans.nir_id";
+$sql_work = "SELECT nir_id, type FROM mdl_nir_files WHERE id=".$file_id;
 
-$work_plan_info = $DB->get_record_sql($sql_work_plan_info);
+$work_result = $DB->get_record_sql($sql_work);
 
-if(!$work_plan_info){
-    echo json_encode(array('status' => "Work plan does not exist"));
+if(!$work_result){
+    echo json_encode(array('status' => "Work does not exist"));
     exit();
 }
 
@@ -26,18 +25,18 @@ if($USER->profile['isTeacher'] !== "666"){
     exit();
 }
 
-$update_work_plan = new stdClass();
-$update_work_plan->id=$work_plan_info->id;
-$update_work_plan->is_sign_kaf = 1;
+$update_record = new stdClass();
+$update_record->id=$file_id;
+$update_record->is_sign_kaf=1;
 
-$DB->update_record('nir_work_plans',$update_work_plan);
+$message = "Документ одобрен и подписан.";
 
-$message = 'Задание на НИР утверждено кафедрой.';
+$DB->update_record('nir_files',$update_record);
 
 $record = new stdClass();
 $record->user_id = $USER->id;
-$record->nir_id = $work_id;
-$record->nir_type = 'Z';
+$record->nir_id = $work_result->nir_id;
+$record->nir_type = $work_result->type;
 $record->text = $message;
 
 $DB->insert_record('nir_messages', $record, false);
@@ -46,7 +45,7 @@ $last_date = NULL;
 if (isset($_POST['last_date_message']))
     $last_date = $_POST['last_date_message'];
 
-$messages_data = get_messages_for_kaf($work_id, 'Z', $last_date);
+$messages_data = get_messages_for_kaf($work_result->nir_id, $work_result->type, $last_date);
 
 echo json_encode(array('status' => "Ok", 'messages' => $messages_data, 'alert' => $message));
 ?>

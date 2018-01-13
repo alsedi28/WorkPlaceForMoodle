@@ -477,23 +477,24 @@ $(document).ready(function(){
 
             var file_id = document.querySelector('#' + current_tab_id + ' #file_id').value;
 
-            var date = "0";
+            var params_obj = {'file_id' : file_id};
 
-            var date_lst = $("#" + current_tab_id + " .message .header_message_date");
+            var date_lst = $('#' + current_tab_id + ' .message .header_message_date');
             if (date_lst.length !== 0){
-                date = date_lst[date_lst.length - 1].innerText;
+                var date = date_lst[date_lst.length - 1].innerText;
+                params_obj.last_date_message = date;
             }
             
             $.ajax({
-            url: 'sign_file.php',
+            url: 'ajax_sign_file_kaf.php',
             type: 'POST',
-            data: {'id': file_id, 'date': date},
+            data: $.param(params_obj),
             success: function(data){
-                    if(data !== "Error"){
+                    if(data.status === "Ok"){
                         alert("Документ подписан");
                         document.querySelector('#' + current_tab_id + ' .sign_kaf_button').classList.add("sign_kaf_button_not_active");
                         $('#' + current_tab_id + ' .sign_kaf_button').off();
-                        $("#" + current_tab_id + " .textar_message_new").before(data);
+                        $("#" + current_tab_id + " .textar_message_new").before(data.messages);
                     }
                 }
             });
@@ -512,7 +513,7 @@ $(document).ready(function(){
         var isCancelSignYes = confirm(message);
 
         if(isCancelSignYes){
-            var file_id = document.querySelector('#tab1 #file_id').value;
+            var file_id = document.querySelector('#' + current_tab_id + ' #file_id').value;
 
             var date = "0";
 
