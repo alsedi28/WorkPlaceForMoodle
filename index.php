@@ -63,9 +63,9 @@ if($USER->profile['isTeacher'] === "666"){
                 $content .= html_writer::tag('h3', '404 NOT FOUND');
             }
             else{
-                $sql_file_type_z = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.date, mdl_nir_files.is_new, mdl_nir_files.is_sign_kaf, mdl_user.firstname, mdl_user.lastname FROM mdl_nir_files, mdl_nir, mdl_user WHERE mdl_nir.id=".$work_id." AND mdl_nir_files.nir_id=".$work_id." AND mdl_nir_files.type='Z' AND mdl_user.id=mdl_nir_files.user_id AND mdl_nir_files.is_sign_teacher=1";
-                $file_type_z = $DB->get_record_sql($sql_file_type_z);
-                $sql_messages_type_z = "SELECT mdl_nir_messages.id, mdl_nir_messages.text, mdl_nir_messages.date FROM (SELECT * FROM mdl_nir_messages WHERE mdl_nir_messages.nir_id=".$work_id." AND mdl_nir_messages.user_id=".$USER->id." AND mdl_nir_messages.nir_type='Z' ORDER BY mdl_nir_messages.id LIMIT 5) ORDER BY mdl_nir_messages.date";
+                $sql_work_plan = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.date, mdl_nir_files.is_new, mdl_nir_files.is_sign_kaf, mdl_user.firstname, mdl_user.lastname FROM mdl_nir_files, mdl_nir, mdl_user WHERE mdl_nir.id=".$work_id." AND mdl_nir_files.nir_id=".$work_id." AND mdl_nir_files.type='Z' AND mdl_user.id=mdl_nir_files.user_id AND mdl_nir_files.is_sign_teacher=1";
+                $work_plan_result = $DB->get_record_sql($sql_work_plan);
+                $sql_messages_type_z = "SELECT mdl_nir_messages.id, mdl_nir_messages.text, mdl_nir_messages.date FROM mdl_nir_messages WHERE mdl_nir_messages.nir_id=".$work_id." AND mdl_nir_messages.user_id=".$USER->id." AND mdl_nir_messages.nir_type='Z' ORDER BY mdl_nir_messages.date";
                 $messages_type_z = $DB->get_records_sql($sql_messages_type_z);
 
                 $sql_file_type_o = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.date, mdl_nir_files.is_new, mdl_nir_files.is_sign_kaf, mdl_user.firstname, mdl_user.lastname FROM mdl_nir_files, mdl_nir, mdl_user WHERE mdl_nir.id=".$work_id." AND mdl_nir_files.nir_id=".$work_id." AND mdl_nir_files.type='O' AND mdl_user.id=mdl_nir_files.user_id AND mdl_nir_files.is_sign_teacher=1";
@@ -94,13 +94,13 @@ if($USER->profile['isTeacher'] === "666"){
                 $content .= html_writer::start_tag('div', array('class' => 'tab-content'));
                 $content .= html_writer::start_tag('div', array('class' => 'tab active', 'id' => 'tab1'));
 
-                $content .= render_kafedra_tab($file_type_z, $messages_type_z, $rs, $work_id);
+                $content .= render_kafedra_tab_work_plan($messages_type_z, $rs[$work_id]->is_closed, $work_id);
 
                 $content .= html_writer::end_tag('div');
 
                 $content .= html_writer::start_tag('div', array('class' => 'tab', 'id' => 'tab2'));
 
-                $content .= render_kafedra_tab($file_type_o, $messages_type_o, $rs, $work_id, true);
+                $content .= render_kafedra_tab_report($file_type_o, $messages_type_o, $rs, $work_id); // tab2
 
                 $content .= html_writer::end_tag('div');
 

@@ -52,10 +52,6 @@ $(document).ready(function(){
         $(".finish_work_button").click(finish_work);
     }
     
-    if($("#tab1 .sign_kaf_button").is('.sign_kaf_button') && !document.querySelector('#tab1 .sign_kaf_button').classList.contains("sign_kaf_button_not_active")){
-        $("#tab1 .sign_kaf_button").on("click", sign_nir_kaf);
-    }
-    
     if($("#tab2 .sign_kaf_button").is('.sign_kaf_button') && !document.querySelector('#tab2 .sign_kaf_button').classList.contains("sign_kaf_button_not_active")){
         $("#tab2 .sign_kaf_button").on("click", sign_nir_kaf);
     }
@@ -92,10 +88,57 @@ $(document).ready(function(){
 
     $(".block_work_plan").on('click', '#send_work_plan_kaf',  send_work_plan_to_kaf);
 
+    $(".block_work_plan").on('click', '#approve_work_plan_kaf',  sign_work_plan_kaf.bind(null, "approve"));
+
+    $(".block_work_plan").on('click', '#cancel_work_plan_kaf',  sign_work_plan_kaf.bind(null, "cancel"));
+
     $(".tab").on('click', '.download_messages_block', get_messages);
 
     if($("#form_plan")){
         $("#form_plan").submit(send_form_work_plan);
+    }
+
+    function sign_work_plan_kaf(type){
+        messageArea.AddLoading('Подождите...');
+        $('body').scrollTop(0);
+
+        var work_id = $("[name='work_id']").val();
+        var params_obj = {'work_id' : work_id};
+
+        var date_lst = $("#tab1 .message .header_message_date");
+        if (date_lst.length !== 0){
+            var date = date_lst[date_lst.length - 1].innerText;
+            params_obj.last_date_message = date;
+        }
+
+        var url = type === 'approve' ? 'ajax_sign_work_plan_kaf.php' : 'ajax_cancel_work_plan_kaf.php';
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: $.param(params_obj),
+            success: function (data) {
+                if(data.status == 'Ok'){
+                    if(type === 'cancel')
+                        $('.form_work_plan').remove();
+                    else {
+                        $('#approve_work_plan_kaf').remove();
+                        $('#cancel_work_plan_kaf').remove();
+                    }
+
+                    messageArea.AddInformation(data.alert);
+
+                    if(data.messages)
+                        $("#tab1 .textar_message_new").before(data.messages);
+                }
+                else{
+                    messageArea.AddError('Произошла ошибка.');
+                }
+            },
+            error: function (xhr, str) {
+                messageArea.AddError('Возникла ошибка: ' + xhr.responseCode);
+            }
+        });
     }
 
     function get_messages(event){

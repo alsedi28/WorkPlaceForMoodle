@@ -40,7 +40,7 @@ if($rs && $USER->profile['isTeacher'] === "666"){
 
     foreach ($messages as $m){
         echo "<div class='message'>";
-        echo "<div class='header_message'>";
+        echo "<div class='header_message header_message_kaf'>";
         echo "<p class='header_message_name'>Кафедра</p>";
         echo "<p class='header_message_date'>".$m->date."</p>";
         echo "<div style='clear:both;'></div>";

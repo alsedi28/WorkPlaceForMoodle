@@ -100,7 +100,7 @@ function get_messages($work_id, $type, $last_date){
 
     if ($last_date != NULL){
         $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname, mdl_user.id FROM mdl_nir_messages, mdl_user WHERE 
-                          mdl_nir_messages.date > '".$_POST['last_date_message']."' AND mdl_nir_messages.nir_id=".$work_id." AND mdl_user.id=mdl_nir_messages.user_id AND 
+                          mdl_nir_messages.date > '".$last_date."' AND mdl_nir_messages.nir_id=".$work_id." AND mdl_user.id=mdl_nir_messages.user_id AND 
                           mdl_nir_messages.nir_type='".$type."'";
     }
     else{
@@ -114,14 +114,33 @@ function get_messages($work_id, $type, $last_date){
     return $messages_data;
 }
 
-function render_messages($messages){
+function get_messages_for_kaf($work_id, $type, $last_date){
+    global $DB;
+    global $USER;
+
+    if ($last_date != NULL){
+        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date FROM mdl_nir_messages WHERE mdl_nir_messages.date > '".$last_date."' AND 
+                            mdl_nir_messages.nir_id=".$work_id." AND mdl_nir_messages.user_id=".$USER->id." AND mdl_nir_messages.nir_type='".$type."'";
+    }
+    else{
+        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date FROM mdl_nir_messages WHERE mdl_nir_messages.nir_id=".$work_id." AND 
+                            mdl_nir_messages.user_id=".$USER->id." AND mdl_nir_messages.nir_type='".$type."'";
+    }
+
+    $messages = $DB->get_records_sql($sql_messages);
+    $messages_data = render_messages($messages, true);
+
+    return $messages_data;
+}
+
+function render_messages($messages, $is_for_kaf = false){
     $ADMIN = 2;
     $messages_data = '';
 
     foreach ($messages as $m){
         $messages_data .= html_writer::start_tag('div', array('class' => 'message'));
-        $messages_data .= html_writer::start_tag('div', array('class' => $m->id == $ADMIN ? 'header_message header_message_kaf' : 'header_message'));
-        $messages_data .= html_writer::tag('p', $m->id == $ADMIN ? 'Кафедра' : $m->lastname." ".$m->firstname, array('class' => 'header_message_name'));
+        $messages_data .= html_writer::start_tag('div', array('class' => ($m->id == $ADMIN || $is_for_kaf) ? 'header_message header_message_kaf' : 'header_message'));
+        $messages_data .= html_writer::tag('p', ($m->id == $ADMIN || $is_for_kaf) ? 'Кафедра' : $m->lastname." ".$m->firstname, array('class' => 'header_message_name'));
         $messages_data .= html_writer::tag('p', $m->date, array('class' => 'header_message_date'));
         $messages_data .= html_writer::tag('div', '', array('style' => 'clear:both;'));
         $messages_data .= html_writer::end_tag('div');

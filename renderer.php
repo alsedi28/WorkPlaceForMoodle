@@ -83,7 +83,7 @@ function render_student_info($student){
     return $header;
 }
 
-function render_kafedra_tab($file, $messages, $result, $work_id, $need_review = false){
+function render_kafedra_tab_report($file, $messages, $result, $work_id){
     $tab_content = '';
     $tab_content .= html_writer::start_tag('div', array('id' => 'content'));
     $tab_content .= html_writer::start_tag('div', array('class' => 'block_files_kaf'));
@@ -123,13 +123,12 @@ function render_kafedra_tab($file, $messages, $result, $work_id, $need_review = 
         $tab_content .= html_writer::tag('br');
     }
 
-    $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => $need_review ? 'h_work_2' : 'h_work', 'value' => $work_id));
-    $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work_type', 'id' => $need_review ? 'h_work_type_2' : 'h_work_type', 'value' => $need_review ? 'O' : 'Z'));
+    $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => 'h_work_2', 'value' => $work_id));
+    $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work_type', 'id' => 'h_work_type_2', 'value' => 'O'));
 
-    if($need_review){ //need delete (failed js when try get *_3)
-        $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => 'h_work_3', 'value' => $work_id));
-        $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work_type', 'id' => 'h_work_type_3', 'value' => 'O'));
-    }
+    //need delete (failed js when try get *_3)
+    $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => 'h_work_3', 'value' => $work_id));
+    $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work_type', 'id' => 'h_work_type_3', 'value' => 'O'));
 
     if($result[$work_id]->review != "" && $result[$work_id]->mark != null){
         $tab_content .= html_writer::start_tag('div', array('id' => 'review_block_header'));
@@ -150,7 +149,7 @@ function render_kafedra_tab($file, $messages, $result, $work_id, $need_review = 
 
         foreach ($messages as $mz){
             $tab_content .= html_writer::start_tag('div', array('class' => 'message'));
-            $tab_content .= html_writer::start_tag('div', array('class' => 'header_message'));
+            $tab_content .= html_writer::start_tag('div', array('class' => 'header_message header_message_kaf'));
             $tab_content .= html_writer::tag('p', 'Кафедра', array('class' => 'header_message_name'));
             $tab_content .= html_writer::tag('p', $mz->date, array('class' => 'header_message_date'));
             $tab_content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
@@ -161,8 +160,8 @@ function render_kafedra_tab($file, $messages, $result, $work_id, $need_review = 
 
         if($result[$work_id]->is_closed != 1){
             $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
-            $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => $need_review ? 'message_textarea_tab2' : 'message_textarea_tab1', 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));
-            $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => $need_review ? 'send_message_tab2' : 'send_message_tab1'));
+            $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => 'message_textarea_tab2', 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));
+            $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => 'send_message_tab2'));
             $tab_content .= html_writer::empty_tag('img', array('class' => 'send_icon', 'src' => 'img/send_icon.png', 'width' => '50px'));
             $tab_content .= html_writer::end_tag('button');
             $tab_content .= html_writer::end_tag('div');
@@ -171,6 +170,55 @@ function render_kafedra_tab($file, $messages, $result, $work_id, $need_review = 
         $tab_content .= html_writer::end_tag('div');
     }
 
+    $tab_content .= html_writer::end_tag('div');
+    return $tab_content;
+}
+
+function render_kafedra_tab_work_plan($messages, $is_closed, $work_id){
+    global $DB;
+
+    $tab_content = '';
+    $tab_content .= html_writer::start_tag('div', array('id' => 'content'));
+    $tab_content .= html_writer::start_tag('div', array('class' => 'block_work_plan'));
+
+    $sql_work_plan_info = "SELECT is_sign_user, is_sign_teacher, is_sign_kaf FROM mdl_nir_work_plans WHERE mdl_nir_work_plans.nir_id=".$work_id;
+    $work_plan_info = $DB->get_record_sql($sql_work_plan_info);
+
+    $tab_content .= render_message_container($work_plan_info->is_sign_user, $work_plan_info->is_sign_teacher, $work_plan_info->is_sign_kaf);
+
+    if($work_plan_info->is_sign_user && $work_plan_info->is_sign_teacher)
+        $tab_content .= render_work_plan_view($work_id);
+
+    $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => 'h_work', 'value' => $work_id)); // h_work h_work_2 h_work_3
+    $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work_type', 'id' => 'h_work_type', 'value' => 'Z'));
+
+    if(!(count($messages) == 0 && $is_closed == 1)){
+        $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
+
+        foreach ($messages as $mz){
+            $tab_content .= html_writer::start_tag('div', array('class' => 'message'));
+            $tab_content .= html_writer::start_tag('div', array('class' => 'header_message header_message_kaf'));
+            $tab_content .= html_writer::tag('p', 'Кафедра', array('class' => 'header_message_name'));
+            $tab_content .= html_writer::tag('p', $mz->date, array('class' => 'header_message_date'));
+            $tab_content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
+            $tab_content .= html_writer::end_tag('div');
+            $tab_content .= html_writer::tag('p', $mz->text, array('class' => 'message_text'));
+            $tab_content .= html_writer::end_tag('div');
+        }
+
+        if($is_closed != 1){
+            $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
+            $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => 'message_textarea_tab1', 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));
+            $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => 'send_message_tab1'));
+            $tab_content .= html_writer::empty_tag('img', array('class' => 'send_icon', 'src' => 'img/send_icon.png', 'width' => '50px'));
+            $tab_content .= html_writer::end_tag('button');
+            $tab_content .= html_writer::end_tag('div');
+        }
+
+        $tab_content .= html_writer::end_tag('div');
+    }
+
+    $tab_content .= html_writer::end_tag('div');
     $tab_content .= html_writer::end_tag('div');
     return $tab_content;
 }
@@ -290,7 +338,7 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
 
         if(count($messages) > 5){
             array_shift($messages);
-            $tab_content .= html_writer::tag('div', 'Загрузить еще сообщений', array('class' => 'download_messages_block'));
+            $tab_content .= html_writer::tag('div', 'Загрузить еще сообщения', array('class' => 'download_messages_block'));
         }
 
         foreach ($messages as $mz){
@@ -436,6 +484,11 @@ function render_work_plan_view($work_id){
     if($USER->profile['isTeacher'] === "1" && $work_plan_info->is_sign_user == 1 && $work_plan_info->is_sign_teacher == 0){
         $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отправить на согласование кафедре', 'id' => 'send_work_plan_kaf',
             'action_type' => 'only_send_to_kaf'));
+    }
+
+    if($USER->profile['isTeacher'] === "666" && $work_plan_info->is_sign_user == 1 && $work_plan_info->is_sign_teacher == 1 && $work_plan_info->is_sign_kaf == 0){
+        $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Подтвердить', 'id' => 'approve_work_plan_kaf'));
+        $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Отклонить', 'id' => 'cancel_work_plan_kaf'));
     }
 
     $content .= html_writer::end_tag('div');
@@ -867,7 +920,15 @@ function render_message_container($is_sign_user, $is_sign_teacher, $is_sign_kaf,
         }
     }
     else if($USER->profile['isTeacher'] === "666"){
-
+        if($is_sign_user && $is_sign_teacher){
+            if($is_sign_kaf)
+                $text = "Текущее задание на НИР согласовано кафедрой.";
+            else
+                $text = "Текущее задание на НИР ожидает решения кафедры.";
+        }
+        else{
+            $text = "Задание на НИР еще не было загружено студентом.";
+        }
     }
 
     $content .= html_writer::start_tag('div', array('class' => 'message_container_block message_container'));
