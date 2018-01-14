@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/renderer.php');
 require_once(dirname(__FILE__) . '/helpers.php');
+require_once(dirname(__FILE__) . '/constants.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['work_id'])){
@@ -100,7 +101,7 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
         }
     }
 
-    $message = '';
+    $alert_message = '';
 
     $update_work_plan = new stdClass();
     $update_work_plan->id=$work_plan_info->id;
@@ -109,25 +110,32 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
         if ($work_plan_info->teacher_id == $USER->id) {
             if ($_POST['action'] == "send_to_kaf") {
                 $update_work_plan->is_sign_teacher = 1;
-                $message = "Задание на НИР отредактировано и отправлено на кафедру.";
+                $alert_message = "Задание на НИР отредактировано и отправлено на кафедру.";
             } else if ($_POST['action'] == "send_to_user") {
                 $update_work_plan->is_sign_teacher = 0;
                 $update_work_plan->is_sign_user = 0;
-                $message = "Задание на НИР отредактировано и отправлено студенту для доработки.";
+                $alert_message = "Задание на НИР отредактировано и отправлено студенту для доработки.";
             }
         }
         else{
             $update_work_plan->is_sign_user = 1;
-            $message = "Задание на НИР отредактировано и отправлено научному руководителю.";
+            $alert_message = "Задание на НИР отредактировано и отправлено научному руководителю.";
         }
     }
 
-    if($work_theme !== $work_plan_info->theme)
+    $changed_common_fields = array();
+
+    if($work_theme !== $work_plan_info->theme){
         $update_work_plan->theme=$work_theme;
+        array_push($changed_common_fields, $local['work_theme']);
+    }
 
-    if($work_goal !== $work_plan_info->goal)
+    if($work_goal !== $work_plan_info->goal){
         $update_work_plan->goal=$work_goal;
+        array_push($changed_common_fields, $local['work_goal']);
+    }
 
+    $changed_executor_fields = array();
     $need_update_user_info = false;
 
     $update_user_info = new stdClass();
@@ -135,29 +143,33 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
 
     if($ex_patronymic !== $user_info->patronymic){
         $update_user_info->patronymic=$ex_patronymic;
+        array_push($changed_executor_fields, $local['patronymic']);
         $need_update_user_info = true;
     }
 
     if($ex_phone_number !== $user_info->phone_number){
         $update_user_info->phone_number=$ex_phone_number;
+        array_push($changed_executor_fields, $local['phone_number']);
         $need_update_user_info = true;
     }
 
     if($ex_email !== $user_info->email){
         $update_user_info->email=$ex_email;
+        array_push($changed_executor_fields, $local['email']);
         $need_update_user_info = true;
     }
 
-    update_teacher_info($teacher_info, array('patronymic' => $th_patronymic, 'phone_number' => $th_phone_number,
+    $changed_teacher_fields = update_teacher_info($teacher_info, array('patronymic' => $th_patronymic, 'phone_number' => $th_phone_number,
         'email' => $th_email, 'place_work' => $th_place_work, 'position_work' => $th_position_work, 'academic_title' => $th_academic_title,
         'academic_degree' => $th_academic_degree));
 
+    $changed_consultant_fields = array();
     if(isset($_POST['cn_surname']) && isset($_POST['cn_name']) && isset($_POST['cn_patronymic']) && isset($_POST['cn_phone_number']) &&
             isset($_POST['cn_email']) && isset($_POST['cn_place_work']) && isset($_POST['cn_position_work']) &&
             isset($_POST['cn_academic_title']) && isset($_POST['cn_academic_degree'])){
 
         if($consultant_info){
-            update_teacher_info($consultant_info, array('patronymic' => $_POST['cn_patronymic'], 'phone_number' => $_POST['cn_phone_number'],
+            $changed_consultant_fields = update_teacher_info($consultant_info, array('patronymic' => $_POST['cn_patronymic'], 'phone_number' => $_POST['cn_phone_number'],
                 'email' => $_POST['cn_email'], 'place_work' => $_POST['cn_place_work'], 'position_work' => $_POST['cn_position_work'],
                 'academic_title' => $_POST['cn_academic_title'], 'academic_degree' => $_POST['cn_academic_degree']));
         }
@@ -211,6 +223,8 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
     if($need_update_user_info)
         $DB->update_record('nir_user_info',$update_user_info);
 
+    $message = build_message_edit_work_plan($alert_message, $changed_common_fields, $changed_executor_fields, $changed_teacher_fields, $changed_consultant_fields);
+
     $record = new stdClass();
     $record->user_id = $USER->id;
     $record->nir_id = $work_id;
@@ -225,7 +239,7 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
 
     $messages_data = get_messages($work_id, 'Z', $last_date);
 
-    echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id), 'messages' => $messages_data, 'alert' => $message));
+    echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id), 'messages' => $messages_data, 'alert' => $alert_message));
 }
 else{
     echo json_encode(array('status' => "Validation error"));

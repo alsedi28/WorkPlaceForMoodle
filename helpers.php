@@ -50,7 +50,9 @@ function update_work_plan_items($items, $work_plan_id, $collection_name, $item_t
 
 function update_teacher_info($teacher_info, $data){
     global $DB;
+    global $local;
 
+    $changed_fields = array();
     $need_update_teacher_info = false;
 
     $update_teacher_info = new stdClass();
@@ -58,41 +60,50 @@ function update_teacher_info($teacher_info, $data){
 
     if($data['patronymic'] !== $teacher_info->patronymic){
         $update_teacher_info->patronymic=$data['patronymic'];
+        array_push($changed_fields, $local['patronymic']);
         $need_update_teacher_info = true;
     }
 
     if($data['phone_number'] !== $teacher_info->phone_number){
         $update_teacher_info->phone_number=$data['phone_number'];
+        array_push($changed_fields, $local['phone_number']);
         $need_update_teacher_info = true;
     }
 
     if($data['email'] !== $teacher_info->email){
         $update_teacher_info->email=$data['email'];
+        array_push($changed_fields, $local['email']);
         $need_update_teacher_info = true;
     }
 
     if($data['place_work'] !== $teacher_info->place_work){
         $update_teacher_info->place_work=$data['place_work'];
+        array_push($changed_fields, $local['place_work']);
         $need_update_teacher_info = true;
     }
 
     if($data['position_work'] !== $teacher_info->position_work){
         $update_teacher_info->position_work=$data['position_work'];
+        array_push($changed_fields, $local['position_work']);
         $need_update_teacher_info = true;
     }
 
     if($data['academic_title'] !== $teacher_info->academic_title){
         $update_teacher_info->academic_title=$data['academic_title'];
+        array_push($changed_fields, $local['academic_title']);
         $need_update_teacher_info = true;
     }
 
     if($data['academic_degree'] !== $teacher_info->academic_degree){
         $update_teacher_info->academic_degree=$data['academic_degree'];
+        array_push($changed_fields, $local['academic_degree']);
         $need_update_teacher_info = true;
     }
 
     if($need_update_teacher_info)
         $DB->update_record('nir_teacher_info',$update_teacher_info);
+
+    return $changed_fields;
 }
 
 function get_messages($work_id, $type, $last_date){
@@ -151,8 +162,34 @@ function render_messages($messages, $is_for_kaf = false){
     return $messages_data;
 }
 
+function build_message_edit_work_plan($message, $common_fields, $executor_fields, $teacher_fields, $consultant_fields, $consultant_create = false){
+    global $local;
+
+    $text = $message;
+
+    array_walk($executor_fields, 'concat_changed_field_name', $local['tag_executor']);
+    array_walk($teacher_fields, 'concat_changed_field_name', $local['tag_teacher']);
+    array_walk($consultant_fields, 'concat_changed_field_name', $local['tag_consultant']);
+
+    $fields = array_merge($common_fields, $executor_fields, $teacher_fields, $consultant_fields);
+
+    if(count($fields) > 0){
+        $text .= $local['beginning_message_changed_fields'].implode(", ", $fields).".";
+    }
+
+    if($consultant_create)
+        $text .= $local['consultant_was_added'];
+
+    return $text;
+}
+
 function sort_items($a, $b)
 {
     return $a->order_number > $b->order_number;
+}
+
+function concat_changed_field_name(&$item, $key, $prefix)
+{
+    $item = "$item $prefix";
 }
 ?>
