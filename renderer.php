@@ -522,11 +522,11 @@ function render_work_plan_edit($work_id){
 
     $content .= html_writer::tag('h3', 'Исполнитель', array('class' => 'header_block'));
 
-    $content .= render_work_plan_input_block('Фамилия', 'ex_surname', true, $USER->lastname, true);
-    $content .= render_work_plan_input_block('Имя', 'ex_name', true, $USER->firstname, true);
-    $content .= render_work_plan_input_block('Отчество', 'ex_patronymic', true, $user_info->patronymic);
-    $content .= render_work_plan_input_block('Номер телефона', 'ex_phone_number', true, $user_info->phone_number, false, 'tel');
-    $content .= render_work_plan_input_block('Электронная почта', 'ex_email', true, $user_info->email, false, 'email');
+    $content .= render_work_plan_input_block('Фамилия', 'ex_surname', true, $USER->lastname, true, 'text', 25, 'letters');
+    $content .= render_work_plan_input_block('Имя', 'ex_name', true, $USER->firstname, true, 'text', 25, 'letters');
+    $content .= render_work_plan_input_block('Отчество', 'ex_patronymic', true, $user_info->patronymic, false,'text', 25, 'letters');
+    $content .= render_work_plan_input_block('Номер телефона', 'ex_phone_number', true, $user_info->phone_number, false, 'tel', 20, 'numbers');
+    $content .= render_work_plan_input_block('Электронная почта', 'ex_email', true, $user_info->email, false, 'email', 30);
 
     $content .= html_writer::end_tag('div');//end executor_block
 
@@ -534,13 +534,13 @@ function render_work_plan_edit($work_id){
 
     $content .= html_writer::tag('h3', 'Научный руководитель', array('class' => 'header_block'));
 
-    $content .= render_work_plan_input_block('Фамилия', 'th_surname', true, $teacher_info->surname, true);
-    $content .= render_work_plan_input_block('Имя', 'th_name', true, $teacher_info->name, true);
-    $content .= render_work_plan_input_block('Отчество', 'th_patronymic', true, $teacher_info->patronymic);
-    $content .= render_work_plan_input_block('Номер телефона', 'th_phone_number', true, $teacher_info->phone_number, false, 'tel');
-    $content .= render_work_plan_input_block('Электронная почта', 'th_email', true, $teacher_info->email, false, 'email');
-    $content .= render_work_plan_input_block('Место работы', 'th_place_work', true, $teacher_info->place_work);
-    $content .= render_work_plan_input_block('Должность', 'th_position_work', true, $teacher_info->position_work);
+    $content .= render_work_plan_input_block('Фамилия', 'th_surname', true, $teacher_info->surname, true, 'text', 25, 'letters');
+    $content .= render_work_plan_input_block('Имя', 'th_name', true, $teacher_info->name, true, 'text', 25, 'letters');
+    $content .= render_work_plan_input_block('Отчество', 'th_patronymic', true, $teacher_info->patronymic, false,'text', 25, 'letters');
+    $content .= render_work_plan_input_block('Номер телефона', 'th_phone_number', true, $teacher_info->phone_number, false, 'tel', 20, 'numbers');
+    $content .= render_work_plan_input_block('Электронная почта', 'th_email', true, $teacher_info->email, false, 'email', 30);
+    $content .= render_work_plan_input_block('Место работы', 'th_place_work', true, $teacher_info->place_work, false, 'text', 50);
+    $content .= render_work_plan_input_block('Должность', 'th_position_work', true, $teacher_info->position_work, false, 'text', 50);
 
     $content .= render_work_plan_selected_block('Учёное звание', 'th_academic_title', array('Доцент', 'Профессор',
         'Старший научный сотрудник', 'Ведущий научный сотрудник'), $teacher_info->academic_title);
@@ -553,13 +553,13 @@ function render_work_plan_edit($work_id){
     if($consultant_info){
         $content .= html_writer::tag('h3', 'Консультант', array('class' => 'header_block'));
 
-        $content .= render_work_plan_input_block('Фамилия', 'cn_surname', true, $consultant_info->surname, true);
-        $content .= render_work_plan_input_block('Имя', 'cn_name', true, $consultant_info->name, true);
-        $content .= render_work_plan_input_block('Отчество', 'cn_patronymic', true, $consultant_info->patronymic);
-        $content .= render_work_plan_input_block('Номер телефона', 'cn_phone_number', true, $consultant_info->phone_number, false, 'tel');
-        $content .= render_work_plan_input_block('Электронная почта', 'cn_email', true, $consultant_info->email, false, 'email');
-        $content .= render_work_plan_input_block('Место работы', 'cn_place_work', true, $consultant_info->place_work);
-        $content .= render_work_plan_input_block('Должность', 'cn_position_work', true, $consultant_info->position_work);
+        $content .= render_work_plan_input_block('Фамилия', 'cn_surname', true, $consultant_info->surname, true,'text', 25, 'letters');
+        $content .= render_work_plan_input_block('Имя', 'cn_name', true, $consultant_info->name, true,'text', 25, 'letters');
+        $content .= render_work_plan_input_block('Отчество', 'cn_patronymic', true, $consultant_info->patronymic, false,'text', 25, 'letters');
+        $content .= render_work_plan_input_block('Номер телефона', 'cn_phone_number', true, $consultant_info->phone_number, false, 'tel', 20, 'numbers');
+        $content .= render_work_plan_input_block('Электронная почта', 'cn_email', true, $consultant_info->email, false, 'email', 30);
+        $content .= render_work_plan_input_block('Место работы', 'cn_place_work', true, $consultant_info->place_work, false, 'text', 50);
+        $content .= render_work_plan_input_block('Должность', 'cn_position_work', true, $consultant_info->position_work, false, 'text', 50);
 
         $content .= render_work_plan_selected_block('Учёное звание', 'cn_academic_title', array('Доцент', 'Профессор',
             'Старший научный сотрудник', 'Ведущий научный сотрудник'), $consultant_info->academic_title);
@@ -614,11 +614,11 @@ function render_work_plan_create($work_id){
 
     $content .= html_writer::tag('h3', 'Исполнитель', array('class' => 'header_block'));
 
-    $content .= render_work_plan_input_block('Фамилия', 'ex_surname', true, $USER->lastname, true);
-    $content .= render_work_plan_input_block('Имя', 'ex_name', true, $USER->firstname, true);
-    $content .= render_work_plan_input_block('Отчество', 'ex_patronymic', true);
-    $content .= render_work_plan_input_block('Номер телефона', 'ex_phone_number', true, '',false, 'tel');
-    $content .= render_work_plan_input_block('Электронная почта', 'ex_email', true, $USER->email, false, 'email');
+    $content .= render_work_plan_input_block('Фамилия', 'ex_surname', true, $USER->lastname, true,'text', 25, 'letters');
+    $content .= render_work_plan_input_block('Имя', 'ex_name', true, $USER->firstname, true,'text', 25, 'letters');
+    $content .= render_work_plan_input_block('Отчество', 'ex_patronymic', true, '', false,'text', 25, 'letters');
+    $content .= render_work_plan_input_block('Номер телефона', 'ex_phone_number', true, '',false, 'tel', 20, 'numbers');
+    $content .= render_work_plan_input_block('Электронная почта', 'ex_email', true, $USER->email, false, 'email', 30);
 
     $content .= html_writer::end_tag('div');//end executor_block
 
@@ -626,13 +626,13 @@ function render_work_plan_create($work_id){
 
     $content .= html_writer::tag('h3', 'Научный руководитель', array('class' => 'header_block'));
 
-    $content .= render_work_plan_input_block('Фамилия', 'th_surname', true, $rs->lastname, true);
-    $content .= render_work_plan_input_block('Имя', 'th_name', true, $rs->firstname, true);
-    $content .= render_work_plan_input_block('Отчество', 'th_patronymic', true);
-    $content .= render_work_plan_input_block('Номер телефона', 'th_phone_number', true, '', false, 'tel');
-    $content .= render_work_plan_input_block('Электронная почта', 'th_email', true, $rs->email, false, 'email');
-    $content .= render_work_plan_input_block('Место работы', 'th_place_work', true);
-    $content .= render_work_plan_input_block('Должность', 'th_position_work', true);
+    $content .= render_work_plan_input_block('Фамилия', 'th_surname', true, $rs->lastname, true,'text', 25, 'letters');
+    $content .= render_work_plan_input_block('Имя', 'th_name', true, $rs->firstname, true,'text', 25, 'letters');
+    $content .= render_work_plan_input_block('Отчество', 'th_patronymic', true, '', false, 'text', 25, 'letters');
+    $content .= render_work_plan_input_block('Номер телефона', 'th_phone_number', true, '', false, 'tel', 20, 'numbers');
+    $content .= render_work_plan_input_block('Электронная почта', 'th_email', true, $rs->email, false, 'email', 30);
+    $content .= render_work_plan_input_block('Место работы', 'th_place_work', true, '', false, 'text', 50);
+    $content .= render_work_plan_input_block('Должность', 'th_position_work', true, '', false, 'text', 50);
     $content .= render_work_plan_selected_block('Учёное звание', 'th_academic_title', array('Доцент', 'Профессор',
         'Старший научный сотрудник', 'Ведущий научный сотрудник'));
     $content .= render_work_plan_selected_block('Учёная степень', 'th_academic_degree', array('Кандидат технических наук', 'Доктор технических наук',
@@ -749,7 +749,8 @@ function render_list($label, $items){
     return $content;
 }
 
-function render_work_plan_input_block($label, $input_name, $required = false, $value = '', $readonly = false, $type = 'text'){
+function render_work_plan_input_block($label, $input_name, $required = false, $value = '', $readonly = false, $type = 'text',
+                                        $max_length = 100, $attr_type = 'text'){
     $content = '';
 
     $content .= html_writer::start_tag('div', array('class' => ''));
@@ -759,7 +760,9 @@ function render_work_plan_input_block($label, $input_name, $required = false, $v
         $content .= html_writer::tag('span', ' *', array('style' => 'color:red;'));
     $content .= html_writer::end_tag('label');
 
-    $params = array('type' => $type, 'name' => $input_name, 'id' => $input_name, 'class' => 'input_block', 'value' => $value);
+    $params = array('type' => $type, 'name' => $input_name, 'id' => $input_name, 'class' => 'input_block', 'value' => $value,
+                    'maxlength' => $max_length, 'data-validation' => $attr_type);
+
     if($required)
         $params['required'] = $required;
     if($readonly)

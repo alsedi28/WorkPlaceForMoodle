@@ -88,6 +88,9 @@ $(document).ready(function(){
 
     $(".tab").on('click', '.download_messages_block', get_messages);
 
+    $(".block_work_plan").on('input', "input[data-validation='numbers']", validation_numbers_input);
+    $(".block_work_plan").on('input', "input[data-validation='letters']", validation_letters_input);
+
     $('.tabs .tab-links a').on('click', function(event)  {
         var currentAttrValue = $(this).attr('href');
 
@@ -393,13 +396,13 @@ $(document).ready(function(){
     function render_partial_form_consultant(){
         $('#button_add_consultant').remove();
         $('#consultant_block').append("<h3 class='header_block'>Консультант</h3>" +
-            "<div><label class='label_block'>Фамилия<span style='color:red'> *</span></label><input type='text' name='cn_surname' id='cn_surname' class='input_block' required /><div style='clear:both'></div></div>" +
-            "<div><label class='label_block'>Имя<span style='color:red'> *</span></label><input type='text' name='cn_name' id='cn_name' class='input_block' required /><div style='clear:both'></div></div>" +
-            "<div><label class='label_block'>Отчество<span style='color:red'> *</span></label><input type='text' name='cn_patronymic' id='cn_patronymic' class='input_block' required /><div style='clear:both'></div></div>" +
-            "<div><label class='label_block'>Номер телефона<span style='color:red'> *</span></label><input type='tel' name='cn_phone_number' id='cn_phone_number' class='input_block' required /><div style='clear:both'></div></div>" +
-            "<div><label class='label_block'>Электронная почта<span style='color:red'> *</span></label><input type='email' name='cn_email' id='cn_email' class='input_block' required /><div style='clear:both'></div></div>" +
-            "<div><label class='label_block'>Место работы<span style='color:red'> *</span></label><input type='text' name='cn_place_work' id='cn_place_work' class='input_block' required /><div style='clear:both'></div></div>" +
-            "<div><label class='label_block'>Должность<span style='color:red'> *</span></label><input type='text' name='cn_position_work' id='cn_position_work' class='input_block' required/><div style='clear:both'></div></div>" +
+            "<div><label class='label_block'>Фамилия<span style='color:red'> *</span></label><input type='text' name='cn_surname' id='cn_surname' class='input_block' required maxlength='25' data-validation='letters'/><div style='clear:both'></div></div>" +
+            "<div><label class='label_block'>Имя<span style='color:red'> *</span></label><input type='text' name='cn_name' id='cn_name' class='input_block' required maxlength='25' data-validation='letters'/><div style='clear:both'></div></div>" +
+            "<div><label class='label_block'>Отчество<span style='color:red'> *</span></label><input type='text' name='cn_patronymic' id='cn_patronymic' class='input_block' required maxlength='25' data-validation='letters'/><div style='clear:both'></div></div>" +
+            "<div><label class='label_block'>Номер телефона<span style='color:red'> *</span></label><input type='tel' name='cn_phone_number' id='cn_phone_number' class='input_block' required maxlength='20' data-validation='numbers'/><div style='clear:both'></div></div>" +
+            "<div><label class='label_block'>Электронная почта<span style='color:red'> *</span></label><input type='email' name='cn_email' id='cn_email' class='input_block' required maxlength='30' data-validation='text'/><div style='clear:both'></div></div>" +
+            "<div><label class='label_block'>Место работы<span style='color:red'> *</span></label><input type='text' name='cn_place_work' id='cn_place_work' class='input_block' required maxlength='50' data-validation='text'/><div style='clear:both'></div></div>" +
+            "<div><label class='label_block'>Должность<span style='color:red'> *</span></label><input type='text' name='cn_position_work' id='cn_position_work' class='input_block' required maxlength='50' data-validation='text'/><div style='clear:both'></div></div>" +
             "<div><label class='label_block label_select'>Учёное звание</label><select name='cn_academic_title' class='select_block'>" +
             "<option value='Нет'>Нет</option><option value='Доцент'>Доцент</option><option value='Профессор'>Профессор</option><option value='Старший научный сотрудник'>Старший научный сотрудник</option><option value='Ведущий научный сотрудник'>Ведущий научный сотрудник</option></select><div style='clear:both'></div></div>" +
             "<div><label class='label_block label_select'>Учёная степень</label><select name='cn_academic_degree' class='select_block'>" +
@@ -619,6 +622,14 @@ $(document).ready(function(){
                 $("#" + current_tab_id + " .textar_message_new").before(data);
             }
         });
+    }
+
+    function validation_numbers_input(event){
+        event.target.value = event.target.value.replace(/[^0-9]/gim,'');
+    }
+
+    function validation_letters_input(event){
+        event.target.value = event.target.value.replace(/[^а-яА-Я]/gim,'');
     }
 
     $("#send_message_tab2").click(send_comment);
