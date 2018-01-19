@@ -163,6 +163,7 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
         'email' => $th_email, 'place_work' => $th_place_work, 'position_work' => $th_position_work, 'academic_title' => $th_academic_title,
         'academic_degree' => $th_academic_degree));
 
+    $consultant_create = false;
     $changed_consultant_fields = array();
     if(isset($_POST['cn_surname']) && isset($_POST['cn_name']) && isset($_POST['cn_patronymic']) && isset($_POST['cn_phone_number']) &&
             isset($_POST['cn_email']) && isset($_POST['cn_place_work']) && isset($_POST['cn_position_work']) &&
@@ -187,6 +188,8 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
             $record_consultant_info->academic_title = $_POST['cn_academic_title'];
             $record_consultant_info->academic_degree = $_POST['cn_academic_degree'];
             $DB->insert_record('nir_teacher_info', $record_consultant_info, false);
+
+            $consultant_create = true;
         }
     }
 
@@ -214,16 +217,17 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
     usort($work_result_items, 'sort_items');
     usort($info_source_items, 'sort_items');
 
-    update_work_plan_items($work_content_items, $work_plan_info->id, 'work_content', 'C');
-    update_work_plan_items($work_result_items, $work_plan_info->id, 'work_result', 'R');
-    update_work_plan_items($info_source_items, $work_plan_info->id, 'info_source', 'I');
+    $changed_work_content = update_work_plan_items($work_content_items, $work_plan_info->id, 'work_content', 'C');
+    $changed_work_result = update_work_plan_items($work_result_items, $work_plan_info->id, 'work_result', 'R');
+    $changed_info_source = update_work_plan_items($info_source_items, $work_plan_info->id, 'info_source', 'I');
 
     $DB->update_record('nir_work_plans',$update_work_plan);
 
     if($need_update_user_info)
         $DB->update_record('nir_user_info',$update_user_info);
 
-    $message = build_message_edit_work_plan($alert_message, $changed_common_fields, $changed_executor_fields, $changed_teacher_fields, $changed_consultant_fields);
+    $message = build_message_edit_work_plan($alert_message, $changed_common_fields, $changed_executor_fields, $changed_teacher_fields,
+                    $changed_consultant_fields, $changed_work_content, $changed_work_result, $changed_info_source, $consultant_create);
 
     $record = new stdClass();
     $record->user_id = $USER->id;

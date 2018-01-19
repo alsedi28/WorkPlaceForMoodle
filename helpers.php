@@ -2,6 +2,7 @@
 
 function update_work_plan_items($items, $work_plan_id, $collection_name, $item_type){
     global $DB;
+    $changed_items = array("add" => array(), "remove" => array(), "mod" => array());
 
     $work_items_records = array();
     $need_add_items = false;
@@ -15,6 +16,7 @@ function update_work_plan_items($items, $work_plan_id, $collection_name, $item_t
                     $update_work_item->id=$items[$i]->id;
                     $update_work_item->text=$_POST[$collection_name][$i];
                     $DB->update_record('nir_work_plan_items',$update_work_item);
+                    array_push($changed_items["mod"], ($i + 1));
                 }
             }
             else{
@@ -25,6 +27,7 @@ function update_work_plan_items($items, $work_plan_id, $collection_name, $item_t
                 $record->order_number = ($i + 1);
 
                 array_push($work_items_records, $record);
+                array_push($changed_items["add"], ($i + 1));
                 $need_add_items = true;
             }
         }
@@ -37,15 +40,19 @@ function update_work_plan_items($items, $work_plan_id, $collection_name, $item_t
 
     if(count($items) == 4 && !isset($_POST[$collection_name][4])){
         $DB->delete_records('nir_work_plan_items', array('work_plan_id' => $work_plan_id, 'type' => $item_type, 'order_number' => 4));
+        array_push($changed_items["remove"], 4);
     }
 
     if(count($items) == 5 && !isset($_POST[$collection_name][5])){
         $DB->delete_records('nir_work_plan_items', array('work_plan_id' => $work_plan_id, 'type' => $item_type, 'order_number' => 5));
+        array_push($changed_items["remove"], 5);
     }
 
     if($need_add_items){
         $DB->insert_records('nir_work_plan_items', $work_items_records);
     }
+
+    return $changed_items;
 }
 
 function update_teacher_info($teacher_info, $data){
@@ -162,7 +169,8 @@ function render_messages($messages, $is_for_kaf = false){
     return $messages_data;
 }
 
-function build_message_edit_work_plan($message, $common_fields, $executor_fields, $teacher_fields, $consultant_fields, $consultant_create = false){
+function build_message_edit_work_plan($message, $common_fields, $executor_fields, $teacher_fields, $consultant_fields,
+                                      $work_content_items, $work_result_items, $info_source_items, $consultant_create){
     global $local;
 
     $text = $message;
@@ -173,12 +181,48 @@ function build_message_edit_work_plan($message, $common_fields, $executor_fields
 
     $fields = array_merge($common_fields, $executor_fields, $teacher_fields, $consultant_fields);
 
+    if(count($work_content_items["add"]) > 0 || count($work_content_items["remove"]) > 0 || count($work_content_items["mod"]) > 0){
+        array_push($fields, create_message_for_changed_items($work_content_items, $local['work_content']));
+    }
+
+    if(count($work_result_items["add"]) > 0 || count($work_result_items["remove"]) > 0 || count($work_result_items["mod"]) > 0){
+        array_push($fields, create_message_for_changed_items($work_result_items, $local['work_result']));
+    }
+
+    if(count($info_source_items["add"]) > 0 || count($info_source_items["remove"]) > 0 || count($info_source_items["mod"]) > 0){
+        array_push($fields, create_message_for_changed_items($info_source_items, $local['info_source']));
+    }
+
     if(count($fields) > 0){
         $text .= $local['beginning_message_changed_fields'].implode(", ", $fields).".";
     }
 
     if($consultant_create)
         $text .= $local['consultant_was_added'];
+
+    return $text;
+}
+
+function create_message_for_changed_items($items, $title){
+    global $local;
+    $text = $title." (";
+
+    $args = array();
+
+    if(count($items["add"]) > 0){
+        array_push($args, implode("; ", $items["add"])." - ".$local["tag_add"]);
+    }
+
+    if(count($items["remove"]) > 0){
+        array_push($args, implode("; ", $items["remove"])." - ".$local["tag_remove"]);
+    }
+
+    if(count($items["mod"]) > 0){
+        array_push($args, implode("; ", $items["mod"])." - ".$local["tag_mod"]);
+    }
+
+    $text .= implode(", ", $args);
+    $text .= ")";
 
     return $text;
 }

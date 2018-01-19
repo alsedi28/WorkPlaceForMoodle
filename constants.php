@@ -21,6 +21,15 @@ $local['academic_degree'] = 'Учёная степень';
 $local['work_theme'] = 'Тема работы';
 $local['work_goal'] = 'Цель работы';
 
+$local['work_goal'] = 'Цель работы';
+$local['work_goal'] = 'Цель работы';
+$local['work_content'] = 'Содержание и основные этапы работы';
+$local['work_result'] = 'Ожидаемые результаты и формы их реализации';
+$local['info_source'] = 'Основные источники информации';
+$local['tag_add'] = 'доб.';
+$local['tag_remove'] = 'уд.';
+$local['tag_mod'] = 'изм.';
+
 $local['teacher'] = 'Научный руководитель';
 $local['tag_teacher'] = '(науч. рук.)';
 $local['executor'] = 'Исполнитель';
