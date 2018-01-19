@@ -553,8 +553,8 @@ function render_work_plan_edit($work_id){
     if($consultant_info){
         $content .= html_writer::tag('h3', 'Консультант', array('class' => 'header_block'));
 
-        $content .= render_work_plan_input_block('Фамилия', 'cn_surname', true, $consultant_info->surname, true,'text', 25, 'letters');
-        $content .= render_work_plan_input_block('Имя', 'cn_name', true, $consultant_info->name, true,'text', 25, 'letters');
+        $content .= render_work_plan_input_block('Фамилия', 'cn_surname', true, $consultant_info->surname, false,'text', 25, 'letters');
+        $content .= render_work_plan_input_block('Имя', 'cn_name', true, $consultant_info->name, false,'text', 25, 'letters');
         $content .= render_work_plan_input_block('Отчество', 'cn_patronymic', true, $consultant_info->patronymic, false,'text', 25, 'letters');
         $content .= render_work_plan_input_block('Номер телефона', 'cn_phone_number', true, $consultant_info->phone_number, false, 'tel', 20, 'numbers');
         $content .= render_work_plan_input_block('Электронная почта', 'cn_email', true, $consultant_info->email, false, 'email', 30);
