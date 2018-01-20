@@ -7,29 +7,34 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
         isset($_POST['th_surname']) && isset($_POST['th_name']) && isset($_POST['th_patronymic']) && isset($_POST['th_phone_number']) && isset($_POST['th_email']) &&
         isset($_POST['th_place_work']) && isset($_POST['th_position_work']) && isset($_POST['th_academic_title']) && isset($_POST['th_academic_degree']) && isset($_POST['work_theme']) &&
         isset($_POST['work_goal'])){
-    $work_id = $_POST['work_id'];
-    $ex_surname = $_POST['ex_surname'];
-    $ex_name = $_POST['ex_name'];
-    $ex_patronymic = $_POST['ex_patronymic'];
-    $ex_phone_number = $_POST['ex_phone_number'];
-    $ex_email = $_POST['ex_email'];
-    $th_surname = $_POST['th_surname'];
-    $th_name = $_POST['th_name'];
-    $th_patronymic = $_POST['th_patronymic'];
-    $th_phone_number = $_POST['th_phone_number'];
-    $th_email = $_POST['th_email'];
-    $th_place_work = $_POST['th_place_work'];
-    $th_position_work = $_POST['th_position_work'];
-    $th_academic_title = $_POST['th_academic_title'];
-    $th_academic_degree = $_POST['th_academic_degree'];
-    $work_theme = $_POST['work_theme'];
-    $work_goal = $_POST['work_goal'];
+    $work_id = intval($_POST['work_id']);
+    $ex_surname = htmlspecialchars($_POST['ex_surname']);
+    $ex_name = htmlspecialchars($_POST['ex_name']);
+    $ex_patronymic = htmlspecialchars($_POST['ex_patronymic']);
+    $ex_phone_number = htmlspecialchars($_POST['ex_phone_number']);
+    $ex_email = htmlspecialchars($_POST['ex_email']);
+    $th_surname = htmlspecialchars($_POST['th_surname']);
+    $th_name = htmlspecialchars($_POST['th_name']);
+    $th_patronymic = htmlspecialchars($_POST['th_patronymic']);
+    $th_phone_number = htmlspecialchars($_POST['th_phone_number']);
+    $th_email = htmlspecialchars($_POST['th_email']);
+    $th_place_work = htmlspecialchars($_POST['th_place_work']);
+    $th_position_work = htmlspecialchars($_POST['th_position_work']);
+    $th_academic_title = htmlspecialchars($_POST['th_academic_title']);
+    $th_academic_degree = htmlspecialchars($_POST['th_academic_degree']);
+    $work_theme = htmlspecialchars($_POST['work_theme']);
+    $work_goal = htmlspecialchars($_POST['work_goal']);
+
+    if($work_id === 0){
+        echo json_encode(array('status' => "Validation error"));
+        exit();
+    }
 
     $work_content_items = array();
     $i = 0;
     while(true){
         if(isset($_POST['work_content'][$i])){
-            array_push($work_content_items, $_POST['work_content'][$i]);
+            array_push($work_content_items, htmlspecialchars($_POST['work_content'][$i]));
             $i++;
         }
         else if($i < 3){
@@ -45,7 +50,7 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
     $i = 0;
     while(true){
         if(isset($_POST['work_result'][$i])){
-            array_push($work_result_items, $_POST['work_result'][$i]);
+            array_push($work_result_items, htmlspecialchars($_POST['work_result'][$i]));
             $i++;
         }
         else if($i < 3){
@@ -61,7 +66,7 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
     $i = 0;
     while(true){
         if(isset($_POST['info_source'][$i])){
-            array_push($info_source_items, $_POST['info_source'][$i]);
+            array_push($info_source_items, htmlspecialchars($_POST['info_source'][$i]));
             $i++;
         }
         else if($i < 3){
@@ -73,16 +78,16 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
         }
     }
 
-    $sql_nir = "SELECT mdl_nir.id FROM mdl_nir WHERE mdl_nir.user_id=".$USER->id." AND mdl_nir.id=".$work_id." AND mdl_nir.is_closed=0";
-    $rs = $DB->get_records_sql($sql_nir);
+    $sql_nir = "SELECT mdl_nir.id FROM {nir} WHERE mdl_nir.user_id = ? AND mdl_nir.id = ? AND mdl_nir.is_closed = 0";
+    $rs = $DB->get_records_sql($sql_nir, array($USER->id, $work_id));
 
     if(count($rs) == 0){
         echo json_encode(array('status' => "Validation error"));
         exit();
     }
 
-    $sql_work_plan = "SELECT mdl_nir_work_plans.id FROM mdl_nir_work_plans WHERE mdl_nir_work_plans.nir_id=".$work_id;
-    $rs = $DB->get_records_sql($sql_work_plan);
+    $sql_work_plan = "SELECT mdl_nir_work_plans.id FROM {nir_work_plans} WHERE mdl_nir_work_plans.nir_id = ?";
+    $rs = $DB->get_records_sql($sql_work_plan, array($work_id));
 
     if(count($rs) > 0){
         echo json_encode(array('status' => "Validation error"));
@@ -173,15 +178,15 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
         $record_consultant_info = new stdClass();
         $record_consultant_info->work_plan_id = $work_plan_id;
         $record_consultant_info->type = 'C';
-        $record_consultant_info->name = $_POST['cn_name'];
-        $record_consultant_info->surname = $_POST['cn_surname'];
-        $record_consultant_info->patronymic = $_POST['cn_patronymic'];
-        $record_consultant_info->phone_number = $_POST['cn_phone_number'];
-        $record_consultant_info->email = $_POST['cn_email'];
-        $record_consultant_info->place_work = $_POST['cn_place_work'];
-        $record_consultant_info->position_work = $_POST['cn_position_work'];
-        $record_consultant_info->academic_title = $_POST['cn_academic_title'];
-        $record_consultant_info->academic_degree = $_POST['cn_academic_degree'];
+        $record_consultant_info->name = htmlspecialchars($_POST['cn_name']);
+        $record_consultant_info->surname = htmlspecialchars($_POST['cn_surname']);
+        $record_consultant_info->patronymic = htmlspecialchars($_POST['cn_patronymic']);
+        $record_consultant_info->phone_number = htmlspecialchars($_POST['cn_phone_number']);
+        $record_consultant_info->email = htmlspecialchars($_POST['cn_email']);
+        $record_consultant_info->place_work = htmlspecialchars($_POST['cn_place_work']);
+        $record_consultant_info->position_work = htmlspecialchars($_POST['cn_position_work']);
+        $record_consultant_info->academic_title = htmlspecialchars($_POST['cn_academic_title']);
+        $record_consultant_info->academic_degree = htmlspecialchars($_POST['cn_academic_degree']);
         $DB->insert_record('nir_teacher_info', $record_consultant_info, false);
     }
 
