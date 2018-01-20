@@ -10,7 +10,7 @@ $user = isset($_POST['user']) ? $_POST['user'] : 0;
 $record = new stdClass();
 $record->teacher_id = (int)$teacher;
 $record->user_id = (int)$user;
-$record->title = $title;
+$record->title = htmlspecialchars($title);
 
 $DB->insert_record('nir', $record, false);
 

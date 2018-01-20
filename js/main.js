@@ -574,7 +574,7 @@ $(document).ready(function(){
             'mark': mark
         },
         success: function(data){
-                if(data === "Ok"){
+                if(data.status === "Ok"){
                     alert(loc.ReviewAdded);
                     
                     document.querySelector('#tab2 .sign_button_teacher').classList.remove("sign_teacher_button_not_active");

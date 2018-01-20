@@ -1,28 +1,30 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
+header('Content-type: application/json');
 
-$id = isset($_POST['id']) ? $_POST['id'] : 0;
+$id = isset($_POST['id']) ? intval($_POST['id']) : null;
 $review = isset($_POST['review']) ? $_POST['review'] : "";
-$mark = isset($_POST['mark']) ? (int)$_POST['mark'] : 0;
+$mark = isset($_POST['mark']) ? intval($_POST['mark']) : null;
 
-if($review === "" || $mark === 0 || !($mark >= 1 && $mark <= 5)){
-    echo "Error";
+if($id === null || !$id || $review === "" || $mark === null ||
+    !($mark >= 1 && $mark <= 5) || $USER->profile['isTeacher'] !== "1"){
+    echo json_encode(array('status' => "Validation error"));
+    exit();
 }
 
-$sql_work = "SELECT id, teacher_id FROM mdl_nir WHERE id=".$id;
-$rs = $DB->get_record_sql($sql_work);
+$work = $DB->get_record_sql("SELECT id, teacher_id, mark, review FROM {nir} WHERE id = ?", array($id));
 
-if($rs && $USER->profile['isTeacher'] === "1" && $rs->teacher_id == $USER->id){
+if($work && $work->teacher_id == $USER->id && $work->review === null && $work->mark === null){
     $update_record = new stdClass();
-    $update_record->id=$id;
-    $update_record->review=$review;
-    $update_record->mark=$mark;
+    $update_record->id = $id;
+    $update_record->review = htmlspecialchars($review);
+    $update_record->mark = $mark;
    
-    $DB->update_record('nir',$update_record); 
+    $DB->update_record('nir',$update_record);
 
-    echo "Ok";
+    echo json_encode(array('status' => "Ok"));
 }
 else{
-    echo "Error";
+    echo json_encode(array('status' => "Validation error"));
 }
 ?>

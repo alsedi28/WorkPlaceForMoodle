@@ -28,7 +28,7 @@ $record = new stdClass();
 $record->user_id = (int)$user;
 $record->nir_id = (int)$nir;
 $record->nir_type = $type;
-$record->text = $text;
+$record->text = htmlspecialchars($text);
 
 $DB->insert_record('nir_messages', $record, false);
 
