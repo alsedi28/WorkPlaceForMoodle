@@ -782,7 +782,7 @@ $(document).ready(function(){
                 var filerKit = inputEl.prop("jFiler"),
                     file_name = filerKit.files_list[id].name;
 
-                $.post('ajax_remove_file.php', {file: file_name});
+                $.post('ajax_remove_file.php', {file: file_name, work_id: data.work, type: data.type});
             },
             onEmpty: null,
             options: null,
