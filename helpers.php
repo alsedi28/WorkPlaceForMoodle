@@ -1,6 +1,6 @@
 <?php
 
-function update_work_plan_items($items, $work_plan_id, $collection_name, $item_type){
+function update_work_plan_items($items_current, $items_new,  $work_plan_id, $item_type){
     global $DB;
     $changed_items = array("add" => array(), "remove" => array(), "mod" => array());
 
@@ -9,19 +9,19 @@ function update_work_plan_items($items, $work_plan_id, $collection_name, $item_t
 
     $i = 0;
     while(true){
-        if(isset($_POST[$collection_name][$i])){
-            if(count($items) >= ($i + 1)){
-                if($_POST[$collection_name][$i] !== $items[$i]->text){
+        if(array_key_exists($i, $items_new)){
+            if(count($items_current) >= ($i + 1)){
+                if($items_new[$i] !== $items_current[$i]->text){
                     $update_work_item = new stdClass();
-                    $update_work_item->id=$items[$i]->id;
-                    $update_work_item->text=$_POST[$collection_name][$i];
+                    $update_work_item->id=$items_current[$i]->id;
+                    $update_work_item->text=$items_new[$i];
                     $DB->update_record('nir_work_plan_items',$update_work_item);
                     array_push($changed_items["mod"], ($i + 1));
                 }
             }
             else{
                 $record = new stdClass();
-                $record->text = $_POST[$collection_name][$i];
+                $record->text = $items_new[$i];
                 $record->type = $item_type;
                 $record->work_plan_id = $work_plan_id;
                 $record->order_number = ($i + 1);
@@ -38,12 +38,12 @@ function update_work_plan_items($items, $work_plan_id, $collection_name, $item_t
         $i++;
     }
 
-    if(count($items) == 4 && !isset($_POST[$collection_name][4])){
+    if(count($items_current) == 4 && !array_key_exists(3, $items_new)){
         $DB->delete_records('nir_work_plan_items', array('work_plan_id' => $work_plan_id, 'type' => $item_type, 'order_number' => 4));
         array_push($changed_items["remove"], 4);
     }
 
-    if(count($items) == 5 && !isset($_POST[$collection_name][5])){
+    if(count($items_current) == 5 && !array_key_exists(4, $items_new)){
         $DB->delete_records('nir_work_plan_items', array('work_plan_id' => $work_plan_id, 'type' => $item_type, 'order_number' => 5));
         array_push($changed_items["remove"], 5);
     }
@@ -64,6 +64,18 @@ function update_teacher_info($teacher_info, $data){
 
     $update_teacher_info = new stdClass();
     $update_teacher_info->id=$teacher_info->id;
+
+    if(array_key_exists("name", $data) && $data['name'] !== $teacher_info->name){
+        $update_teacher_info->name=$data['name'];
+        array_push($changed_fields, $local['name']);
+        $need_update_teacher_info = true;
+    }
+
+    if(array_key_exists("surname", $data) && $data['surname'] !== $teacher_info->surname){
+        $update_teacher_info->surname=$data['surname'];
+        array_push($changed_fields, $local['surname']);
+        $need_update_teacher_info = true;
+    }
 
     if($data['patronymic'] !== $teacher_info->patronymic){
         $update_teacher_info->patronymic=$data['patronymic'];
@@ -210,18 +222,18 @@ function create_message_for_changed_items($items, $title){
     $args = array();
 
     if(count($items["add"]) > 0){
-        array_push($args, implode("; ", $items["add"])." - ".$local["tag_add"]);
+        array_push($args, implode(", ", $items["add"])." - ".$local["tag_add"]);
     }
 
     if(count($items["remove"]) > 0){
-        array_push($args, implode("; ", $items["remove"])." - ".$local["tag_remove"]);
+        array_push($args, implode(", ", $items["remove"])." - ".$local["tag_remove"]);
     }
 
     if(count($items["mod"]) > 0){
-        array_push($args, implode("; ", $items["mod"])." - ".$local["tag_mod"]);
+        array_push($args, implode(", ", $items["mod"])." - ".$local["tag_mod"]);
     }
 
-    $text .= implode(", ", $args);
+    $text .= implode("; ", $args);
     $text .= ")";
 
     return $text;

@@ -5,35 +5,35 @@ require_once(dirname(__FILE__) . '/helpers.php');
 require_once(dirname(__FILE__) . '/constants.php');
 header('Content-type: application/json');
 
-if(!isset($_POST['work_id'])){
+if(!isset($_POST['work_id']) || intval($_POST['work_id']) == 0){
     echo json_encode(array('status' => "Validation error"));
     exit();
 }
 
 $work_id = $_POST['work_id'];
 
-$sql_work_plan_info = "SELECT mdl_nir_work_plans.id, mdl_nir_work_plans.theme, mdl_nir_work_plans.goal, mdl_nir.teacher_id  FROM mdl_nir_work_plans, mdl_nir WHERE 
-                        mdl_nir_work_plans.nir_id=".$work_id." AND mdl_nir.id=mdl_nir_work_plans.nir_id AND 
-                        (mdl_nir.teacher_id=".$USER->id." OR mdl_nir.user_id=".$USER->id.")";
+$sql_work_plan_info = "SELECT mdl_nir_work_plans.id, mdl_nir_work_plans.theme, mdl_nir_work_plans.goal, mdl_nir.teacher_id  FROM {nir_work_plans}, {nir} WHERE 
+                        mdl_nir_work_plans.nir_id = ? AND mdl_nir.id = mdl_nir_work_plans.nir_id AND 
+                        (mdl_nir.teacher_id = ? OR mdl_nir.user_id = ?)";
 
-$work_plan_info = $DB->get_record_sql($sql_work_plan_info);
+$work_plan_info = $DB->get_record_sql($sql_work_plan_info, array($work_id, $USER->id, $USER->id));
 
 if(!$work_plan_info){
     echo json_encode(array('status' => "Work plan does not exist"));
     exit();
 }
 
-$sql_user_info = "SELECT * FROM mdl_nir_user_info WHERE mdl_nir_user_info.work_plan_id=".$work_plan_info->id;
-$user_info = $DB->get_record_sql($sql_user_info);
+$sql_user_info = "SELECT * FROM {nir_user_info} WHERE mdl_nir_user_info.work_plan_id = ?";
+$user_info = $DB->get_record_sql($sql_user_info, array($work_plan_info->id));
 
-$sql_teacher_info = "SELECT * FROM mdl_nir_teacher_info WHERE mdl_nir_teacher_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_teacher_info.type='T'";
-$teacher_info = $DB->get_record_sql($sql_teacher_info);
+$sql_teacher_info = "SELECT * FROM {nir_teacher_info} WHERE mdl_nir_teacher_info.work_plan_id = ? AND mdl_nir_teacher_info.type = 'T'";
+$teacher_info = $DB->get_record_sql($sql_teacher_info, array($work_plan_info->id));
 
-$sql_consultant_info = "SELECT * FROM mdl_nir_teacher_info WHERE mdl_nir_teacher_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_teacher_info.type='C'";
-$consultant_info = $DB->get_record_sql($sql_consultant_info);
+$sql_consultant_info = "SELECT * FROM {nir_teacher_info} WHERE mdl_nir_teacher_info.work_plan_id = ? AND mdl_nir_teacher_info.type = 'C'";
+$consultant_info = $DB->get_record_sql($sql_consultant_info, array($work_plan_info->id));
 
-$sql_work_plan_items = "SELECT * FROM mdl_nir_work_plan_items WHERE mdl_nir_work_plan_items.work_plan_id=".$work_plan_info->id;
-$work_plan_items = $DB->get_records_sql($sql_work_plan_items);
+$sql_work_plan_items = "SELECT * FROM {nir_work_plan_items} WHERE mdl_nir_work_plan_items.work_plan_id = ?";
+$work_plan_items = $DB->get_records_sql($sql_work_plan_items, array($work_plan_info->id));
 
 if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_patronymic'])&& isset($_POST['ex_phone_number']) && isset($_POST['ex_email']) &&
     isset($_POST['th_surname']) && isset($_POST['th_name']) && isset($_POST['th_patronymic']) && isset($_POST['th_phone_number']) && isset($_POST['th_email']) &&
@@ -42,28 +42,28 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
     isset($_POST['work_result'][0]) && isset($_POST['work_result'][1]) && isset($_POST['work_result'][2]) && isset($_POST['info_source'][0]) &&
     isset($_POST['info_source'][1]) && isset($_POST['info_source'][2]))
     {
-    $ex_surname = $_POST['ex_surname'];
-    $ex_name = $_POST['ex_name'];
-    $ex_patronymic = $_POST['ex_patronymic'];
-    $ex_phone_number = $_POST['ex_phone_number'];
-    $ex_email = $_POST['ex_email'];
-    $th_surname = $_POST['th_surname'];
-    $th_name = $_POST['th_name'];
-    $th_patronymic = $_POST['th_patronymic'];
-    $th_phone_number = $_POST['th_phone_number'];
-    $th_email = $_POST['th_email'];
-    $th_place_work = $_POST['th_place_work'];
-    $th_position_work = $_POST['th_position_work'];
-    $th_academic_title = $_POST['th_academic_title'];
-    $th_academic_degree = $_POST['th_academic_degree'];
-    $work_theme = $_POST['work_theme'];
-    $work_goal = $_POST['work_goal'];
+    $ex_surname = htmlspecialchars($_POST['ex_surname']);
+    $ex_name = htmlspecialchars($_POST['ex_name']);
+    $ex_patronymic = htmlspecialchars($_POST['ex_patronymic']);
+    $ex_phone_number = htmlspecialchars($_POST['ex_phone_number']);
+    $ex_email = htmlspecialchars($_POST['ex_email']);
+    $th_surname = htmlspecialchars($_POST['th_surname']);
+    $th_name = htmlspecialchars($_POST['th_name']);
+    $th_patronymic = htmlspecialchars($_POST['th_patronymic']);
+    $th_phone_number = htmlspecialchars($_POST['th_phone_number']);
+    $th_email = htmlspecialchars($_POST['th_email']);
+    $th_place_work = htmlspecialchars($_POST['th_place_work']);
+    $th_position_work = htmlspecialchars($_POST['th_position_work']);
+    $th_academic_title = htmlspecialchars($_POST['th_academic_title']);
+    $th_academic_degree = htmlspecialchars($_POST['th_academic_degree']);
+    $work_theme = htmlspecialchars($_POST['work_theme']);
+    $work_goal = htmlspecialchars($_POST['work_goal']);
 
     $work_content_items = array();
     $i = 0;
     while (true) {
         if (isset($_POST['work_content'][$i])) {
-            array_push($work_content_items, $_POST['work_content'][$i]);
+            array_push($work_content_items, htmlspecialchars($_POST['work_content'][$i]));
             $i++;
         } else if ($i < 3) {
             echo json_encode(array('status' => "Validation error"));
@@ -77,7 +77,7 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
     $i = 0;
     while (true) {
         if (isset($_POST['work_result'][$i])) {
-            array_push($work_result_items, $_POST['work_result'][$i]);
+            array_push($work_result_items, htmlspecialchars($_POST['work_result'][$i]));
             $i++;
         } else if ($i < 3) {
             echo json_encode(array('status' => "Validation error"));
@@ -91,7 +91,7 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
     $i = 0;
     while (true) {
         if (isset($_POST['info_source'][$i])) {
-            array_push($info_source_items, $_POST['info_source'][$i]);
+            array_push($info_source_items, htmlspecialchars($_POST['info_source'][$i]));
             $i++;
         } else if ($i < 3) {
             echo json_encode(array('status' => "Validation error"));
@@ -169,57 +169,67 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
             isset($_POST['cn_email']) && isset($_POST['cn_place_work']) && isset($_POST['cn_position_work']) &&
             isset($_POST['cn_academic_title']) && isset($_POST['cn_academic_degree'])){
 
+        $cn_surname = htmlspecialchars($_POST['cn_surname']);
+        $cn_name = htmlspecialchars($_POST['cn_name']);
+        $cn_patronymic = htmlspecialchars($_POST['cn_patronymic']);
+        $cn_phone_number = htmlspecialchars($_POST['cn_phone_number']);
+        $cn_email = htmlspecialchars($_POST['cn_email']);
+        $cn_place_work = htmlspecialchars($_POST['cn_place_work']);
+        $cn_position_work = htmlspecialchars($_POST['cn_position_work']);
+        $cn_academic_title = htmlspecialchars($_POST['cn_academic_title']);
+        $cn_academic_degree = htmlspecialchars($_POST['cn_academic_degree']);
+
         if($consultant_info){
-            $changed_consultant_fields = update_teacher_info($consultant_info, array('patronymic' => $_POST['cn_patronymic'], 'phone_number' => $_POST['cn_phone_number'],
-                'email' => $_POST['cn_email'], 'place_work' => $_POST['cn_place_work'], 'position_work' => $_POST['cn_position_work'],
-                'academic_title' => $_POST['cn_academic_title'], 'academic_degree' => $_POST['cn_academic_degree']));
+            $changed_consultant_fields = update_teacher_info($consultant_info, array('name' => $cn_name, 'surname' => $cn_surname, 'patronymic' => $cn_patronymic,
+                'phone_number' => $cn_phone_number, 'email' => $cn_email, 'place_work' => $cn_place_work, 'position_work' => $cn_position_work,
+                'academic_title' => $cn_academic_title, 'academic_degree' => $cn_academic_degree));
         }
         else{
             $record_consultant_info = new stdClass();
             $record_consultant_info->work_plan_id = $work_plan_info->id;
             $record_consultant_info->type = 'C';
-            $record_consultant_info->name = $_POST['cn_name'];
-            $record_consultant_info->surname = $_POST['cn_surname'];
-            $record_consultant_info->patronymic = $_POST['cn_patronymic'];
-            $record_consultant_info->phone_number = $_POST['cn_phone_number'];
-            $record_consultant_info->email = $_POST['cn_email'];
-            $record_consultant_info->place_work = $_POST['cn_place_work'];
-            $record_consultant_info->position_work = $_POST['cn_position_work'];
-            $record_consultant_info->academic_title = $_POST['cn_academic_title'];
-            $record_consultant_info->academic_degree = $_POST['cn_academic_degree'];
+            $record_consultant_info->name = $cn_name;
+            $record_consultant_info->surname = $cn_surname;
+            $record_consultant_info->patronymic = $cn_patronymic;
+            $record_consultant_info->phone_number = $cn_phone_number;
+            $record_consultant_info->email = $cn_email;
+            $record_consultant_info->place_work = $cn_place_work;
+            $record_consultant_info->position_work = $cn_position_work;
+            $record_consultant_info->academic_title = $cn_academic_title;
+            $record_consultant_info->academic_degree = $cn_academic_degree;
             $DB->insert_record('nir_teacher_info', $record_consultant_info, false);
 
             $consultant_create = true;
         }
     }
 
-    $work_content_items = array();
-    $work_result_items = array();
-    $info_source_items = array();
+    $work_content_items_current = array();
+    $work_result_items_current = array();
+    $info_source_items_current = array();
     $work_items_records = array();
     $need_add_items = false;
 
     foreach ($work_plan_items as $item) {
         switch($item->type){
             case 'C':
-                array_push($work_content_items, $item);
+                array_push($work_content_items_current, $item);
                 break;
             case 'R':
-                array_push($work_result_items, $item);
+                array_push($work_result_items_current, $item);
                 break;
             case 'I':
-                array_push($info_source_items, $item);
+                array_push($info_source_items_current, $item);
                 break;
         }
     }
 
-    usort($work_content_items, 'sort_items');
-    usort($work_result_items, 'sort_items');
-    usort($info_source_items, 'sort_items');
+    usort($work_content_items_current, 'sort_items');
+    usort($work_result_items_current, 'sort_items');
+    usort($info_source_items_current, 'sort_items');
 
-    $changed_work_content = update_work_plan_items($work_content_items, $work_plan_info->id, 'work_content', 'C');
-    $changed_work_result = update_work_plan_items($work_result_items, $work_plan_info->id, 'work_result', 'R');
-    $changed_info_source = update_work_plan_items($info_source_items, $work_plan_info->id, 'info_source', 'I');
+    $changed_work_content = update_work_plan_items($work_content_items_current, $work_content_items, $work_plan_info->id, 'C');
+    $changed_work_result = update_work_plan_items($work_result_items_current, $work_result_items, $work_plan_info->id, 'R');
+    $changed_info_source = update_work_plan_items($info_source_items_current, $info_source_items, $work_plan_info->id, 'I');
 
     $DB->update_record('nir_work_plans',$update_work_plan);
 

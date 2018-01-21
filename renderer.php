@@ -760,7 +760,7 @@ function render_work_plan_input_block($label, $input_name, $required = false, $v
         $content .= html_writer::tag('span', ' *', array('style' => 'color:red;'));
     $content .= html_writer::end_tag('label');
 
-    $params = array('type' => $type, 'name' => $input_name, 'id' => $input_name, 'class' => 'input_block', 'value' => $value,
+    $params = array('type' => $type, 'name' => $input_name, 'id' => $input_name, 'class' => 'input_block', 'value' => htmlspecialchars_decode($value),
                     'maxlength' => $max_length, 'data-validation' => $attr_type);
 
     if($required)
