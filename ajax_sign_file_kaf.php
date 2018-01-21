@@ -4,24 +4,24 @@ require_once(dirname(__FILE__) . '/renderer.php');
 require_once(dirname(__FILE__) . '/helpers.php');
 header('Content-type: application/json');
 
-if(!isset($_POST['file_id'])){
+if($USER->profile['isTeacher'] !== "666"){
+    echo json_encode(array('status' => "You are not a representative of the department"));
+    exit();
+}
+
+if(!isset($_POST['file_id']) || intval($_POST['file_id']) == 0){
     echo json_encode(array('status' => "Validation error"));
     exit();
 }
 
 $file_id = $_POST['file_id'];
 
-$sql_work = "SELECT nir_id, type FROM mdl_nir_files WHERE id=".$file_id;
+$sql_work = "SELECT nir_id, type FROM {nir_files} WHERE id = ?";
 
-$work_result = $DB->get_record_sql($sql_work);
+$work_result = $DB->get_record_sql($sql_work, array($file_id));
 
 if(!$work_result){
     echo json_encode(array('status' => "Work does not exist"));
-    exit();
-}
-
-if($USER->profile['isTeacher'] !== "666"){
-    echo json_encode(array('status' => "You are not a representative of the department"));
     exit();
 }
 
