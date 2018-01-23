@@ -452,25 +452,26 @@ $(document).ready(function(){
 
             var file_id = $('#' + current_tab_id + ' .cancel_button_teacher').parent().parent().find("#file_id").val();
 
-            var date = "0";
+            var params_obj = {'file_id' : file_id};
 
-            var date_lst = $("#" + current_tab_id + " .message .header_message_date");
+            var date_lst = $('#' + current_tab_id + ' .message .header_message_date');
             if (date_lst.length !== 0){
-                date = date_lst[date_lst.length - 1].innerText;
+                var date = date_lst[date_lst.length - 1].innerText;
+                params_obj.last_date_message = date;
             }
 
             $.ajax({
                 url: 'cancel_sign_file_teacher.php',
                 type: 'POST',
-                data: {'id': file_id, 'date': date},
+                data: $.param(params_obj),
                 success: function(data){
-                    if(data !== "Error"){
+                    if(data.status === "Ok"){
                         alert(loc.SignatureCanceled);
                         document.querySelector('#' + current_tab_id + ' .sign_button_teacher').classList.remove("sign_teacher_button_not_active");
                         document.querySelector('#' + current_tab_id + ' .cancel_button_teacher').classList.add("sign_teacher_button_not_active");
                         $('#' + current_tab_id + ' .sign_button_teacher').on("click", sign_nir_teacher);
                         $('#' + current_tab_id + ' .cancel_button_teacher').off();
-                        $("#" + current_tab_id + " .textar_message_new").before(data);
+                        $("#" + current_tab_id + " .textar_message_new").before(data.messages);
                     }
                 }
             });
@@ -524,17 +525,18 @@ $(document).ready(function(){
         if(isCancelSignYes){
             var file_id = document.querySelector('#' + current_tab_id + ' #file_id').value;
 
-            var date = "0";
+            var params_obj = {'file_id' : file_id};
 
-            var date_lst = $("#" + current_tab_id + " .message .header_message_date");
+            var date_lst = $('#' + current_tab_id + ' .message .header_message_date');
             if (date_lst.length !== 0){
-                date = date_lst[date_lst.length - 1].innerText;
+                var date = date_lst[date_lst.length - 1].innerText;
+                params_obj.last_date_message = date;
             }
 
             $.ajax({
                 url: 'cancel_sign_file.php',
                 type: 'POST',
-                data: {'id': file_id, 'date': date},
+                data: $.param(params_obj),
                 success: function(result){
                     if(result.status === "Ok cancel sign document"){
                         alert(loc.SignatureCanceled);
@@ -550,7 +552,7 @@ $(document).ready(function(){
                         $('#' + current_tab_id + ' .block_files_kaf').append("<p class='work_not_load'>Работа еще не была загружена.</p>");
                     }
 
-                    $("#" + current_tab_id + " .textar_message_new").before(result.data);
+                    $("#" + current_tab_id + " .textar_message_new").before(result.messages);
                 }
             });
         }
@@ -598,14 +600,16 @@ $(document).ready(function(){
         var nir_id = document.querySelector("#" + current_tab_id + " [name='h_work']").value;
         var type = document.querySelector("#" + current_tab_id + " [name='h_work_type']").value;
         var text = document.querySelector("#" + current_tab_id + " [name='message']").value;
-        var date = "0";
 
         if (text === "")
             return;
 
-        var date_lst = $("#" + current_tab_id + " .message .header_message_date");
+        var params_obj = {'nir' : nir_id, 'type': type, 'text': text};
+
+        var date_lst = $('#' + current_tab_id + ' .message .header_message_date');
         if (date_lst.length !== 0){
-            date = date_lst[date_lst.length - 1].innerText;
+            var date = date_lst[date_lst.length - 1].innerText;
+            params_obj.last_date_message = date;
         }
 
         $("#" + current_tab_id + " .send_message_button").attr("disabled", true);
@@ -614,12 +618,12 @@ $(document).ready(function(){
         $.ajax({
             url: 'create_message.php',
             type: 'POST',
-            data: {'nir': nir_id, 'type': type, 'text': text, 'date': date},
+            data: $.param(params_obj),
             success: function(data){
                 document.querySelector("#" + current_tab_id + " [name='message']").value = "";
                 $("#" + current_tab_id + " .send_message_button").attr("disabled", false);
                 $("#" + current_tab_id + " [name='message']").attr("disabled", false);
-                $("#" + current_tab_id + " .textar_message_new").before(data);
+                $("#" + current_tab_id + " .textar_message_new").before(data.messages);
             }
         });
     }
@@ -649,7 +653,7 @@ $(document).ready(function(){
             type: 'POST',
             data: {'id': id},
             success: function(data){
-                    if(data === "Ok"){
+                    if(data.status === "Ok"){
                         window.location.reload()
                     }
                     else{

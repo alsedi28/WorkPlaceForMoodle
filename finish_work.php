@@ -1,23 +1,27 @@
 <?php
-
 require_once(dirname(__FILE__) . '/../config.php');
+header('Content-type: application/json');
 
-$id = isset($_POST['id']) ? $_POST['id'] : 0;
+if(!isset($_POST['id']) || intval($_POST['id']) == 0){
+    echo json_encode(array('status' => "Validation error"));
+    exit();
+}
 
-$user = $USER->id;
-$sql_work = "SELECT id FROM mdl_nir WHERE id=".$id." AND teacher_id=".$user;
-$rs = $DB->get_record_sql($sql_work);
+$id = $_POST['id'];
 
-if($rs && $USER->profile['isTeacher'] === "1"){
+$sql_work = "SELECT id FROM {nir} WHERE id =?  AND teacher_id = ?";
+$work = $DB->get_record_sql($sql_work, array($id, $USER->id));
+
+if($work && $USER->profile['isTeacher'] === "1"){
     $update_record = new stdClass();
-    $update_record->id=$id;
-    $update_record->is_closed=1;
+    $update_record->id = $id;
+    $update_record->is_closed = 1;
    
-    $DB->update_record('nir',$update_record); 
+    $DB->update_record('nir', $update_record);
 
-    echo "Ok";
+    echo json_encode(array('status' => "Ok"));
 }
 else{
-    echo "Error";
+    echo json_encode(array('status' => "Error"));
 }
 ?>
