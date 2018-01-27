@@ -523,7 +523,7 @@ function render_work_plan_edit($work_id){
     $work_plan_items = $DB->get_records_sql($sql_work_plan_items);
 
     $content = '';
-    $content .= html_writer::start_tag('form', array('class' => 'form_work_plan', 'action' => 'javascript:void(null);', 'id' => 'form_plan'));
+    $content .= html_writer::start_tag('form', array('class' => 'form_work_plan', 'action' => 'javascript:void(null);', 'id' => 'form_plan_edit'));
 
     $content .= html_writer::start_tag('div', array('class' => 'man_block'));
 
@@ -596,11 +596,11 @@ function render_work_plan_edit($work_id){
     if($USER->profile['isTeacher'] === "1"){
         $text_button_edit = 'Сохранить и отправить студенту';
         $attr_button_type = 'send_to_user';
-        $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отправить на согласование кафедре', 'id' => 'submit_edit_work_plan',
+        $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Отправить на согласование кафедре', 'id' => 'submit_edit_work_plan',
             'action_type' => 'send_to_kaf'));
     }
 
-    $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => $text_button_edit, 'id' => 'submit_edit_work_plan', 'action_type' => $attr_button_type));
+    $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => $text_button_edit, 'id' => 'submit_edit_work_plan', 'action_type' => $attr_button_type));
     $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отменить', 'id' => 'cancel_edit_work_plan'));
 
     return $content;
@@ -774,6 +774,16 @@ function render_work_plan_input_block($label, $input_name, $required = false, $v
         $params['required'] = $required;
     if($readonly)
         $params['readonly'] = $readonly;
+
+    if($attr_type == "numbers"){
+        $params['pattern'] = "[0-9]+";
+        $params['title'] = "Поле должно содержать только цифры.";
+    }
+
+    if($type == "text"){
+        $params['pattern'] = "^[^\s]{1}.*";
+        $params['title'] = "Поле не должно начинаться или состоять только из пробелов.";
+    }
 
     $content .= html_writer::empty_tag('input', $params);
     $content .= html_writer::tag('div', '', array('style' => 'clear:both;'));

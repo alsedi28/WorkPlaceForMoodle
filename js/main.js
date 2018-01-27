@@ -107,6 +107,8 @@ $(document).ready(function(){
         $("#form_plan").submit(send_form_work_plan);
     }
 
+    $("#form_plan_edit").submit(send_edit_work_plan);
+
     function sign_work_plan_kaf(type){
         messageArea.AddLoading(loc.Waiting);
         $('body').scrollTop(0);
@@ -208,6 +210,9 @@ $(document).ready(function(){
     }
 
     function send_form_work_plan(){
+        if(!$('#form_plan')[0].checkValidity())
+            return true;
+
         messageArea.AddLoading(loc.Waiting);
         $('body').scrollTop(0);
 
@@ -280,10 +285,13 @@ $(document).ready(function(){
     }
 
     function send_edit_work_plan(event){
+        if(!$('#form_plan_edit')[0].checkValidity())
+            return true;
+
         messageArea.AddLoading(loc.Waiting);
         $('body').scrollTop(0);
 
-        var msg   = $('#form_plan').serialize();
+        var msg   = $('#form_plan_edit').serialize();
 
         var date_lst = $("#tab1 .message .header_message_date");
         if (date_lst.length !== 0){
@@ -300,7 +308,7 @@ $(document).ready(function(){
             success: function (data) {
                 if(data.status == 'Ok'){
                     messageArea.AddInformation(data.alert);
-                    $('#form_plan').remove();
+                    $('#form_plan_edit').remove();
                     $('.block_work_plan').append(data.data);
 
                     if(data.messages)
