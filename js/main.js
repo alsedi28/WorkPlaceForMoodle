@@ -30,7 +30,7 @@ $(document).ready(function(){
             type: 'POST',
             data: {'id': id},
             success: function(data){
-                    if(data === "Ok")
+                    if(data.status === "Ok")
                         img_n.remove();
                 }
         });
@@ -418,25 +418,27 @@ $(document).ready(function(){
 
         if(isSignYes){
             var file_id = $('#' + current_tab_id + ' .sign_button_teacher').parent().parent().find("#file_id").val();
-            var date = "0";
+
+            var params_obj = {'id' : file_id};
 
             var date_lst = $("#" + current_tab_id + " .message .header_message_date");
             if (date_lst.length !== 0){
-                date = date_lst[date_lst.length - 1].innerText;
+                var date = date_lst[date_lst.length - 1].innerText;
+                params_obj.last_date_message = date;
             }
 
             $.ajax({
                 url: 'sign_file_teacher.php',
                 type: 'POST',
-                data: {'id': file_id, 'date': date},
+                data: $.param(params_obj),
                 success: function(data){
-                    if(data !== "Error"){
+                    if(data.status === "Ok"){
                         alert(loc.DocumentIsSigned);
                         document.querySelector('#' + current_tab_id + ' .sign_button_teacher').classList.add("sign_teacher_button_not_active");
                         document.querySelector('#' + current_tab_id + ' .cancel_button_teacher').classList.remove("sign_teacher_button_not_active");
                         $('#' + current_tab_id + ' .sign_button_teacher').off();
                         $('#' + current_tab_id + ' .cancel_button_teacher').on("click", cancel_sign_nir_teacher);
-                        $("#" + current_tab_id + " .textar_message_new").before(data);
+                        $("#" + current_tab_id + " .textar_message_new").before(data.messages);
                     }
                 }
             });

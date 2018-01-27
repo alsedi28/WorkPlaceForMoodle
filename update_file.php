@@ -1,21 +1,26 @@
 <?php
-
 require_once(dirname(__FILE__) . '/../config.php');
+header('Content-type: application/json');
 
-$id = isset($_POST['id']) ? $_POST['id'] : 0;
+if(!isset($_POST['id']) || intval($_POST['id']) == 0){
+    echo json_encode(array('status' => "Validation error"));
+    exit();
+}
 
-$sql_work = "SELECT * FROM mdl_nir_files WHERE id=".$id;
-$rs = $DB->get_records_sql($sql_work);
+$file_id = $_POST['id'];
 
-if(count($rs) !== 0 && $rs[$id]->user_id !== $USER->id){
+$sql_file = "SELECT * FROM {nir_files} WHERE id = ?";
+$file = $DB->get_record_sql($sql_file, array($file_id));
+
+if($file && $file->user_id !== $USER->id){
     $update_record = new stdClass();
-    $update_record->id=$id;
-    $update_record->is_new=0;
+    $update_record->id = $file_id;
+    $update_record->is_new = 0;
    
-    $DB->update_record('nir_files',$update_record); 
-    echo "Ok";
+    $DB->update_record('nir_files',$update_record);
+    echo json_encode(array('status' => "Ok"));
 }
 else{
-    echo "Error";
+    echo json_encode(array('status' => "Validation error"));
 }
 ?>

@@ -1,42 +1,44 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/helpers.php');
+header('Content-type: application/json');
 
-$id = isset($_POST['id']) ? $_POST['id'] : 0;
-$date = isset($_POST['date']) ? $_POST['date'] : "";
-
-if($id === 0 || $date === ""){
-    echo "Error";
+if(!isset($_POST['id']) || intval($_POST['id']) == 0){
+    echo json_encode(array('status' => "Validation error"));
     exit();
 }
 
-$sql_work = "SELECT nir_id, type FROM mdl_nir_files WHERE id=".$id;
-$rs = $DB->get_record_sql($sql_work);
+$file_id = $_POST['id'];
 
-if($rs && $USER->profile['isTeacher'] === "1"){
+$sql_file = "SELECT nir_id, type FROM {nir_files} WHERE id = ?";
+$file = $DB->get_record_sql($sql_file, array($file_id));
+
+if($file && $USER->profile['isTeacher'] === "1"){
     $update_record = new stdClass();
-    $update_record->id=$id;
-    $update_record->is_sign_teacher=1;
+    $update_record->id = $file_id;
+    $update_record->is_sign_teacher = 1;
    
     $DB->update_record('nir_files',$update_record);
 
-    $user_id = $USER->id;
-        
     $record = new stdClass();
-    $record->user_id = $user_id;
-    $record->nir_id = $rs->nir_id;
-    $record->nir_type = $rs->type;
+    $record->user_id = $USER->id;
+    $record->nir_id = $file->nir_id;
+    $record->nir_type = $file->type;
     $record->text = "Документ одобрен и подписан научным руководителем.";
     
     $DB->insert_record('nir_messages', $record, false);
 
     $last_date = NULL;
-    if($date !== "0")
-        $last_date = $date;
+    if (isset($_POST['last_date_message']))
+        $last_date = $_POST['last_date_message'];
 
-    echo get_messages($rs->nir_id, $rs->type, $last_date);
+    $messages_data = "";
+
+    $messages_data = get_messages($file->nir_id, $file->type, $last_date);
+
+    echo json_encode(array('status' => "Ok", 'messages' => $messages_data));
 }
 else{
-    echo "Error";
+    echo json_encode(array('status' => "Validation error"));
 }
 ?>
