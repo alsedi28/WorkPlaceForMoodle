@@ -39,7 +39,8 @@ function render_modal_dialog_create_work($teachers, $user_id){
     return $dialog;
 }
 
-function render_work_block_title_new_files($count_new_file){
+function render_work_block_title_new_files($count_new_file, $work_plan){
+    $content = "";
     if ($count_new_file->count > 0){
         $title_file_m=" новых файлов";
         if($count_new_file->count==1){
@@ -49,8 +50,14 @@ function render_work_block_title_new_files($count_new_file){
             $title_file_m=" новых файла";
         }
 
-        return html_writer::tag('p', 'Добавлено '.$count_new_file->count.$title_file_m, array('class' => 'new_file_message'));
+        $content .= html_writer::tag('p', 'Добавлено '.$count_new_file->count.$title_file_m, array('class' => 'new_file_message'));
     }
+
+    if($work_plan){
+        $content .= html_writer::tag('p', 'Загружено задание на НИР', array('class' => 'new_file_message'));
+    }
+
+    return $content;
 }
 
 function render_header_work_block($work, $is_student = false){

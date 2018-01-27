@@ -154,13 +154,16 @@ if($USER->profile['isTeacher'] === "666"){
                 $sql_users_count_files = "SELECT COUNT(mdl_nir_files.id) as count FROM mdl_nir, mdl_nir_files WHERE mdl_nir.user_id=".$u->id." AND mdl_nir_files.nir_id=mdl_nir.id AND mdl_nir_files.is_sign_teacher=1 AND mdl_nir_files.is_sign_kaf=0";
                 $count = $DB->get_record_sql($sql_users_count_files);
 
+                $sql_work_plan = "SELECT mdl_nir_work_plans.id FROM {nir}, {nir_work_plans} WHERE mdl_nir.user_id = ? AND mdl_nir.is_closed = 0 AND mdl_nir_work_plans.nir_id = mdl_nir.id AND mdl_nir_work_plans.is_sign_user = 1 AND mdl_nir_work_plans.is_sign_teacher = 1 AND mdl_nir_work_plans.is_sign_kaf = 0";
+                $work_plan = $DB->get_record_sql($sql_work_plan, array($u->id));
+
                 $url = "/nir/index.php?std=".$u->id;
 
                 $content .= html_writer::start_tag('li');
                 $content .= html_writer::start_tag('a', array('href' => $url));
                 $content .= html_writer::tag('span', $u->lastname." ".$u->firstname);
 
-                if($count->count > 0){
+                if($count->count > 0 || $work_plan){
                     $content .= html_writer::start_tag('div', array('class' => 'sign_files_kaf_icon'));
                     $content .= html_writer::empty_tag('img', array('src' => 'img/report-3-xxl.png', 'height' => '25px', 'title' => 'Добавлен новый документ'));
                     $content .= html_writer::end_tag('div');
@@ -289,13 +292,16 @@ else if($USER->profile['isTeacher'] === "1"){ // Main page for teacher
             $sql_new_files_amount = "SELECT COUNT(*) as count FROM mdl_nir_files WHERE nir_id=".$wk->id." AND user_id!=".$USER->id." AND is_new=1";
             $count_new_file = $DB->get_record_sql($sql_new_files_amount);
 
+            $sql_work_plan = "SELECT id FROM {nir_work_plans} WHERE nir_id = ? AND is_sign_user = 1 AND is_sign_teacher = 0 AND is_sign_kaf = 0";
+            $work_plan = $DB->get_record_sql($sql_work_plan, array($wk->id));
+
             $url = '/nir/index.php?std='.$wk->student_id.'&id='.$wk->id;
 
             $content .= html_writer::start_tag('a', array('href' => $url));
             $content .= html_writer::start_tag('div', array('class' => $wk->is_closed == 1 ? 'work_block work_block_closed' : 'work_block'));
 
             $content .= render_header_work_block($wk, true);
-            $content .= render_work_block_title_new_files($count_new_file);
+            $content .= render_work_block_title_new_files($count_new_file, $work_plan);
 
             $content .= html_writer::end_tag('div');
             $content .= html_writer::end_tag('a');
@@ -312,6 +318,9 @@ else if($USER->profile['isTeacher'] === "1"){ // Main page for teacher
             $sql_count_n_f = "SELECT COUNT(*) as count FROM mdl_nir_files, mdl_nir WHERE mdl_nir_files.user_id=".$us->id." AND mdl_nir.teacher_id=".$USER->id." AND mdl_nir_files.is_new=1 AND mdl_nir_files.nir_id=mdl_nir.id";
             $count_n_f = $DB->get_record_sql($sql_count_n_f);
 
+            $sql_work_plan = "SELECT mdl_nir_work_plans.id FROM {nir}, {nir_work_plans} WHERE mdl_nir.user_id = ? AND mdl_nir.is_closed = 0 AND mdl_nir.teacher_id = ? AND mdl_nir_work_plans.nir_id = mdl_nir.id AND mdl_nir_work_plans.is_sign_user = 1 AND mdl_nir_work_plans.is_sign_teacher = 0 AND mdl_nir_work_plans.is_sign_kaf = 0";
+            $work_plan = $DB->get_record_sql($sql_work_plan, array($us->id, $USER->id));
+
             $url = '/nir/index.php?std='.$us->id;
 
             $content .= html_writer::start_tag('a', array('href' => $url));
@@ -319,7 +328,7 @@ else if($USER->profile['isTeacher'] === "1"){ // Main page for teacher
             $content .= html_writer::tag('span', $us->lastname." ".$us->firstname, array('style' => 'float:left'));
             $content .= $us->data;
 
-            if($count_n_f->count > 0){
+            if($count_n_f->count > 0 || $work_plan){
                 $content .= html_writer::empty_tag('img', array('src' => 'img/report-3-xxl.png', 'height' => '25px', 'title' => 'Добавлен новый документ'));
             }
 
@@ -343,6 +352,9 @@ else{ // Main page for student with list of his works
         $sql_new_files_amount = "SELECT COUNT(*) as count FROM mdl_nir_files WHERE nir_id=".$wk->id." AND user_id!=".$USER->id." AND is_new=1";
         $count_new_file = $DB->get_record_sql($sql_new_files_amount);
 
+        $sql_work_plan = "SELECT id FROM {nir_work_plans} WHERE nir_id = ? AND is_sign_user = 0 AND is_sign_teacher = 0 AND is_sign_kaf = 0";
+        $work_plan = $DB->get_record_sql($sql_work_plan, array($wk->id));
+
         $url = '/nir/index.php?id='.$wk->id;
 
         $content .= html_writer::start_tag('a', array('href' => $url));
@@ -352,7 +364,7 @@ else{ // Main page for student with list of his works
             $count_open_works++;
 
         $content .= render_header_work_block($wk);
-        $content .= render_work_block_title_new_files($count_new_file);
+        $content .= render_work_block_title_new_files($count_new_file, $work_plan);
 
         $content .= html_writer::end_tag('div');
         $content .= html_writer::end_tag('a');
