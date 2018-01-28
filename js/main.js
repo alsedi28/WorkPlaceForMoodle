@@ -4,35 +4,35 @@ $(document).ready(function(){
     var dataObj = {
         "work": document.getElementById("h_work").value,
         "type": document.getElementById("h_work_type").value,
-    }; 
-    
+    };
+
     var dataObj2 = {
         "work": document.getElementById("h_work_2").value,
         "type": document.getElementById("h_work_type_2").value,
-    }; 
-    
+    };
+
     var dataObj3 = {
         "work": document.getElementById("h_work_3").value,
         "type": document.getElementById("h_work_type_3").value,
-    }; 
-    
+    };
+
     $(document).on("click",".block_file_prev", function(){
         var img_n = this.querySelector('.img_new');
-        
+
         if(img_n === null){
             return;
         }
-        
+
         var id = this.querySelector('#file_id').value;
-        
+
         $.ajax({
             url: 'update_file.php',
             type: 'POST',
             data: {'id': id},
             success: function(data){
-                    if(data.status === "Ok")
-                        img_n.remove();
-                }
+                if(data.status === "Ok")
+                    img_n.remove();
+            }
         });
     });
 
@@ -43,19 +43,19 @@ $(document).ready(function(){
     $(".block_work_plan").on('click', '#button_add_consultant',  render_partial_form_consultant);
 
     $(".tab").on('click', '#send_review', add_review);
-    
+
     if($(".finish_work_button")){
         $(".finish_work_button").click(finish_work);
     }
-    
+
     if($("#tab2 .sign_kaf_button").is('.sign_kaf_button') && !document.querySelector('#tab2 .sign_kaf_button').classList.contains("sign_kaf_button_not_active")){
         $("#tab2 .sign_kaf_button").on("click", sign_nir_kaf);
     }
-    
+
     if($("#tab1 .sign_button_teacher").is('.sign_button_teacher') && !document.querySelector('#tab1 .sign_button_teacher').classList.contains("sign_teacher_button_not_active")){
         $("#tab1 .sign_button_teacher").on("click", sign_nir_teacher);
     }
-    
+
     if($("#tab2 .sign_button_teacher").is('.sign_button_teacher') && !document.querySelector('#tab2 .sign_button_teacher').classList.contains("sign_teacher_button_not_active")){
         $("#tab2 .sign_button_teacher").on("click", sign_nir_teacher);
     }
@@ -73,8 +73,6 @@ $(document).ready(function(){
     $(".block_work_plan").on('click', '.work_info_block .plus_input', add_point);
 
     $(".block_work_plan").on('click', '.work_info_block .minus_input', remove_point);
-
-    $(".block_work_plan").on('click', '#submit_edit_work_plan', send_edit_work_plan);
 
     $(".block_work_plan").on('click', '#cancel_edit_work_plan', get_view_work_plan_page);
 
@@ -103,11 +101,15 @@ $(document).ready(function(){
         event.preventDefault();
     });
 
-    if($("#form_plan")){
-        $("#form_plan").submit(send_form_work_plan);
-    }
+    $(".block_work_plan").on('submit', '#form_plan', send_form_work_plan);
 
-    $("#form_plan_edit").submit(send_edit_work_plan);
+    $(".block_work_plan").on('submit', '#form_plan_edit', send_edit_work_plan);
+    $(".block_work_plan").on('click', '#form_plan_edit #submit_edit_work_plan', set_action_edit_work_plan);
+
+    function set_action_edit_work_plan(event) {
+        var action_type = $(event.target).attr('action_type');
+        $("#form_plan_edit [name='action']").val(action_type);
+    }
 
     function sign_work_plan_kaf(type){
         messageArea.AddLoading(loc.Waiting);
@@ -183,6 +185,9 @@ $(document).ready(function(){
     }
 
     function get_edit_work_plan_page(){
+        make_button_deactive('#edit_button_work_plan', 'click');
+        make_button_deactive('#send_work_plan_kaf', 'click');
+
         messageArea.AddLoading(loc.Waiting);
         $('body').scrollTop(0);
 
@@ -202,9 +207,14 @@ $(document).ready(function(){
                 else{
                     messageArea.AddError(loc.UnknownError);
                 }
+
+                make_button_active('#edit_button_work_plan', get_edit_work_plan_page, 'click');
+                make_button_active('#send_work_plan_kaf', send_work_plan_to_kaf, 'click');
             },
             error: function (xhr, str) {
                 messageArea.AddError(loc.ErrorTitle + xhr.responseCode);
+                make_button_active('#edit_button_work_plan', get_edit_work_plan_page, 'click');
+                make_button_active('#send_work_plan_kaf', send_work_plan_to_kaf, 'click');
             }
         });
     }
@@ -212,6 +222,8 @@ $(document).ready(function(){
     function send_form_work_plan(){
         if(!$('#form_plan')[0].checkValidity())
             return true;
+
+        make_button_deactive('#form_plan', 'submit');
 
         messageArea.AddLoading(loc.Waiting);
         $('body').scrollTop(0);
@@ -241,14 +253,21 @@ $(document).ready(function(){
                 else{
                     messageArea.AddError(loc.UnknownError);
                 }
+
+                make_button_active('#form_plan', send_form_work_plan, 'submit');
             },
             error: function (xhr, str) {
                 messageArea.AddError(loc.ErrorTitle + xhr.responseCode);
+
+                make_button_active('#form_plan', send_form_work_plan, 'submit');
             }
         });
     }
 
     function send_work_plan_to_kaf(event){
+        make_button_deactive('#edit_button_work_plan', 'click');
+        make_button_deactive('#send_work_plan_kaf', 'click');
+
         messageArea.AddLoading(loc.Waiting);
         $('body').scrollTop(0);
 
@@ -277,9 +296,15 @@ $(document).ready(function(){
                 else{
                     messageArea.AddError(loc.UnknownError);
                 }
+
+                make_button_active('#edit_button_work_plan', get_edit_work_plan_page, 'click');
+                make_button_active('#send_work_plan_kaf', send_work_plan_to_kaf, 'click');
             },
             error: function (xhr, str) {
                 messageArea.AddError(loc.ErrorTitle + xhr.responseCode);
+
+                make_button_active('#edit_button_work_plan', get_edit_work_plan_page, 'click');
+                make_button_active('#send_work_plan_kaf', send_work_plan_to_kaf, 'click');
             }
         });
     }
@@ -287,6 +312,10 @@ $(document).ready(function(){
     function send_edit_work_plan(event){
         if(!$('#form_plan_edit')[0].checkValidity())
             return true;
+
+        make_button_deactive('#form_plan_edit', 'submit');
+        make_button_deactive('#cancel_edit_work_plan', 'click');
+        make_button_deactive('#form_plan_edit #submit_edit_work_plan', 'click');
 
         messageArea.AddLoading(loc.Waiting);
         $('body').scrollTop(0);
@@ -296,9 +325,8 @@ $(document).ready(function(){
         var date_lst = $("#tab1 .message .header_message_date");
         if (date_lst.length !== 0){
             var date = date_lst[date_lst.length - 1].innerText;
-            var action_type = $(event.target).attr('action_type');
 
-            msg = msg + '&' + $.param({'last_date_message': date, 'action' : action_type});
+            msg = msg + '&' + $.param({'last_date_message': date});
         }
 
         $.ajax({
@@ -317,14 +345,25 @@ $(document).ready(function(){
                 else{
                     messageArea.AddError(loc.UnknownError);
                 }
+
+                make_button_active('#form_plan_edit', send_edit_work_plan, 'submit');
+                make_button_active('#cancel_edit_work_plan', get_view_work_plan_page, 'click');
+                make_button_active('#form_plan_edit #submit_edit_work_plan', set_action_edit_work_plan, 'click');
             },
             error: function (xhr, str) {
                 messageArea.AddError(loc.ErrorTitle + xhr.responseCode);
+
+                make_button_active('#form_plan_edit', send_edit_work_plan, 'submit');
+                make_button_active('#cancel_edit_work_plan', get_view_work_plan_page, 'click');
+                make_button_active('#form_plan_edit #submit_edit_work_plan', set_action_edit_work_plan, 'click');
             }
         });
     }
 
     function get_view_work_plan_page(){
+        make_button_deactive('#form_plan_edit', 'submit');
+        make_button_deactive('#cancel_edit_work_plan', 'click');
+
         messageArea.AddLoading(loc.Waiting);
         $('body').scrollTop(0);
 
@@ -343,9 +382,15 @@ $(document).ready(function(){
                 else{
                     messageArea.AddError(loc.UnknownError);
                 }
+
+                make_button_active('#form_plan_edit', send_edit_work_plan, 'submit');
+                make_button_active('#cancel_edit_work_plan', get_view_work_plan_page, 'click');
             },
             error: function (xhr, str) {
                 messageArea.AddError(loc.ErrorTitle + xhr.responseCode);
+
+                make_button_active('#form_plan_edit', send_edit_work_plan, 'submit');
+                make_button_active('#cancel_edit_work_plan', get_view_work_plan_page, 'click');
             }
         });
     }
@@ -490,7 +535,7 @@ $(document).ready(function(){
 
     function sign_nir_kaf(event){
         var isSignYes = confirm(loc.AnswerDoYouWantToSignWork);
-        
+
         if(isSignYes){
             var tabs = $(event.target).closest('.tab');
             var current_tab_id = tabs[0].id;
@@ -504,12 +549,12 @@ $(document).ready(function(){
                 var date = date_lst[date_lst.length - 1].innerText;
                 params_obj.last_date_message = date;
             }
-            
+
             $.ajax({
-            url: 'ajax_sign_file_kaf.php',
-            type: 'POST',
-            data: $.param(params_obj),
-            success: function(data){
+                url: 'ajax_sign_file_kaf.php',
+                type: 'POST',
+                data: $.param(params_obj),
+                success: function(data){
                     if(data.status === "Ok"){
                         alert(loc.DocumentIsSigned);
                         document.querySelector('#' + current_tab_id + ' .sign_kaf_button').classList.add("sign_kaf_button_not_active");
@@ -567,31 +612,31 @@ $(document).ready(function(){
             });
         }
     }
-    
+
     function add_review(){
         var nir_id = document.getElementById("h_work_2").value;
         var review = document.getElementById("review_area").value;
         var mark = document.getElementById("mark_input").value;
-        
+
         if(review === ""){
             alert(loc.FieldReviewMustBeCompleted);
             return;
         }
-        
+
         $.ajax({
-        url: 'add_review.php',
-        type: 'POST',
-        data: {'id': nir_id,
-            'review': review,
-            'mark': mark
-        },
-        success: function(data){
+            url: 'add_review.php',
+            type: 'POST',
+            data: {'id': nir_id,
+                'review': review,
+                'mark': mark
+            },
+            success: function(data){
                 if(data.status === "Ok"){
                     alert(loc.ReviewAdded);
-                    
+
                     document.querySelector('#tab2 .sign_button_teacher').classList.remove("sign_teacher_button_not_active");
                     $("#tab2 .sign_button_teacher").on("click", sign_nir_teacher);
-                    
+
                     $("#review_block").empty();
                     $("#review_block").append("<p class='ex_review_title'>" + loc.Review + "</p><p class= 'ex_review_text'>" + review + "</p><p class='ex_mark'>" + loc.ReviewMark + "<span>" + mark + "</span></p>" );
                     $("#review_block").css('height','auto');
@@ -647,22 +692,22 @@ $(document).ready(function(){
     }
 
     $("#send_message_tab2").click(send_comment);
-    
+
     $("#send_message_tab1").click(send_comment);
-    
+
     $("#send_message_tab3").click( send_comment);
-    
+
     function finish_work(){
         var isSignYes = confirm(loc.AnswerDoYouWantToFinishWork);
-        
+
         if(isSignYes){
             var id = document.querySelector('#work_f').value;
-            
+
             $.ajax({
-            url: 'finish_work.php',
-            type: 'POST',
-            data: {'id': id},
-            success: function(data){
+                url: 'finish_work.php',
+                type: 'POST',
+                data: {'id': id},
+                success: function(data){
                     if(data.status === "Ok"){
                         window.location.reload()
                     }
@@ -827,4 +872,14 @@ $(document).ready(function(){
     $("#filer_input2").filer(get_obj_settings_download_file(dataObj, ['txt', 'doc', 'docx', 'docm', 'odt', 'pages']));
     $("#filer_input1").filer(get_obj_settings_download_file(dataObj2, ['txt', 'doc', 'docx', 'docm', 'odt', 'pages']));
     $("#filer_input3").filer(get_obj_settings_download_file(dataObj3, ['pdf', 'ppt', 'pptx', 'key']));
+
+    function make_button_deactive(selector, type){
+        $(".block_work_plan").off(type, selector);
+        $('.work_plan_edit_button').removeClass('work_plan_edit_button').addClass('work_plan_edit_button_not_active');
+    }
+
+    function make_button_active(selector, handler, type){
+        $(".block_work_plan").on(type, selector, handler);
+        $('.work_plan_edit_button_not_active').removeClass('work_plan_edit_button_not_active').addClass('work_plan_edit_button');
+    }
 })

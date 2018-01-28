@@ -486,16 +486,16 @@ function render_work_plan_view($work_id){
 
     if($work_plan_info->is_sign_teacher == 0 && (($USER->profile['isTeacher'] === "1" && $work_plan_info->is_sign_user == 1) ||
             ($USER->profile['isTeacher'] !== "1" && $work_plan_info->is_sign_user == 0)))
-        $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Редактировать', 'id' => 'edit_button_work_plan'));
+        $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Редактировать', 'id' => 'edit_button_work_plan', 'class' => 'work_plan_edit_button'));
 
     if($USER->profile['isTeacher'] === "1" && $work_plan_info->is_sign_user == 1 && $work_plan_info->is_sign_teacher == 0){
         $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отправить на согласование кафедре', 'id' => 'send_work_plan_kaf',
-            'action_type' => 'only_send_to_kaf'));
+            'action_type' => 'only_send_to_kaf', 'class' => 'work_plan_edit_button'));
     }
 
     if($USER->profile['isTeacher'] === "666" && $work_plan_info->is_sign_user == 1 && $work_plan_info->is_sign_teacher == 1 && $work_plan_info->is_sign_kaf == 0){
-        $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Подтвердить', 'id' => 'approve_work_plan_kaf'));
-        $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Отклонить', 'id' => 'cancel_work_plan_kaf'));
+        $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Подтвердить', 'id' => 'approve_work_plan_kaf', 'class' => 'work_plan_edit_button'));
+        $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отклонить', 'id' => 'cancel_work_plan_kaf', 'class' => 'work_plan_edit_button'));
     }
 
     $content .= html_writer::end_tag('div');
@@ -590,6 +590,7 @@ function render_work_plan_edit($work_id){
     $content .= render_work_plan_list($work_plan_items, false);
 
     $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'work_id', 'value' => $work_id));
+    $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'action', 'value' => ''));
 
     $text_button_edit = 'Отправить на согласование научному руководителю';
     $attr_button_type = 'send_to_teacher';
@@ -597,11 +598,13 @@ function render_work_plan_edit($work_id){
         $text_button_edit = 'Сохранить и отправить студенту';
         $attr_button_type = 'send_to_user';
         $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Отправить на согласование кафедре', 'id' => 'submit_edit_work_plan',
-            'action_type' => 'send_to_kaf'));
+            'action_type' => 'send_to_kaf', 'class' => 'work_plan_edit_button'));
     }
 
-    $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => $text_button_edit, 'id' => 'submit_edit_work_plan', 'action_type' => $attr_button_type));
-    $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отменить', 'id' => 'cancel_edit_work_plan'));
+    $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => $text_button_edit, 'id' => 'submit_edit_work_plan',
+            'action_type' => $attr_button_type, 'class' => 'work_plan_edit_button'));
+
+    $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отменить', 'id' => 'cancel_edit_work_plan', 'class' => 'work_plan_edit_button'));
 
     return $content;
 }
@@ -671,7 +674,7 @@ function render_work_plan_create($work_id){
     $content .= html_writer::end_tag('div');//end work_info_block
 
     $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'work_id', 'value' => $work_id));
-    $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Отправить на согласование научному руководителю', 'id' => 'submit_button_work_plan'));
+    $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Отправить на согласование научному руководителю', 'id' => 'submit_button_work_plan', 'class' => 'work_plan_edit_button'));
 
     $content .= html_writer::end_tag('form');
 
