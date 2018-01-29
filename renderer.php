@@ -246,6 +246,8 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
         $total = count($files);
         $flag = true;
 
+        $tab_content .= html_writer::tag('div', '', array('class' => 'message_container_block'));
+
         foreach ($files as $file) {
             $height_block = '';
             if ($options["tab_number"] !== 3 && $result[$work_id]->is_closed == 0 && (($total == $i || $file->is_sign_teacher == 1) && $user->profile['isTeacher'] === "1" && $flag) || ($file->is_sign_teacher == 1 && $user->profile['isTeacher'] !== "1" && $user->profile['isTeacher'] !== "666")) {

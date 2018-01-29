@@ -1,5 +1,6 @@
 $(document).ready(function(){
-    var messageArea = new MessageArea(document.querySelector('.message_container_block'));
+    var messageArea = new MessageArea(document.querySelector('.block_work_plan .message_container_block'));
+    var messageAreaReport = new MessageArea(document.querySelector('.block_files .message_container_block'));
 
     var dataObj = {
         "work": document.getElementById("h_work").value,
@@ -88,6 +89,8 @@ $(document).ready(function(){
 
     $(".block_work_plan").on('input', "input[data-validation='numbers']", validation_numbers_input);
     $(".block_work_plan").on('input', "input[data-validation='letters']", validation_letters_input);
+
+    $(".block_work_plan").on('focusout', ".work_info_block textarea", validation_textarea);
 
     $('.tabs .tab-links a').on('click', function(event)  {
         var currentAttrValue = $(this).attr('href');
@@ -223,6 +226,11 @@ $(document).ready(function(){
         if(!$('#form_plan')[0].checkValidity())
             return true;
 
+        var isSendYes = confirm(loc.AnswerDoYouWantToSentWork);
+
+        if(!isSendYes)
+            return false;
+
         make_button_deactive('#form_plan', 'submit');
 
         messageArea.AddLoading(loc.Waiting);
@@ -265,6 +273,11 @@ $(document).ready(function(){
     }
 
     function send_work_plan_to_kaf(event){
+        var isSendYes = confirm(loc.AnswerDoYouWantToSentWork);
+
+        if(!isSendYes)
+            return false;
+
         make_button_deactive('#edit_button_work_plan', 'click');
         make_button_deactive('#send_work_plan_kaf', 'click');
 
@@ -312,6 +325,11 @@ $(document).ready(function(){
     function send_edit_work_plan(event){
         if(!$('#form_plan_edit')[0].checkValidity())
             return true;
+
+        var isSendYes = confirm(loc.AnswerDoYouWantToSentWork);
+
+        if(!isSendYes)
+            return false;
 
         make_button_deactive('#form_plan_edit', 'submit');
         make_button_deactive('#cancel_edit_work_plan', 'click');
@@ -486,7 +504,9 @@ $(document).ready(function(){
                 data: $.param(params_obj),
                 success: function(data){
                     if(data.status === "Ok"){
-                        alert(loc.DocumentIsSigned);
+                        messageAreaReport.AddSuccess(loc.DocumentIsSigned);
+                        $('body').scrollTop(0);
+
                         document.querySelector('#' + current_tab_id + ' .sign_button_teacher').classList.add("sign_teacher_button_not_active");
                         document.querySelector('#' + current_tab_id + ' .cancel_button_teacher').classList.remove("sign_teacher_button_not_active");
                         $('#' + current_tab_id + ' .sign_button_teacher').off();
@@ -656,7 +676,7 @@ $(document).ready(function(){
         var type = document.querySelector("#" + current_tab_id + " [name='h_work_type']").value;
         var text = document.querySelector("#" + current_tab_id + " [name='message']").value;
 
-        if (text === "")
+        if (text.trim().length === 0)
             return;
 
         var params_obj = {'nir' : nir_id, 'type': type, 'text': text};
@@ -689,6 +709,13 @@ $(document).ready(function(){
 
     function validation_letters_input(event){
         event.target.value = event.target.value.replace(/[^а-яА-Я]/gim,'');
+    }
+
+    function validation_textarea(event){
+        var value = event.target.value.trim();
+
+        if(value.length === 0)
+            event.target.value = "";
     }
 
     $("#send_message_tab2").click(send_comment);
