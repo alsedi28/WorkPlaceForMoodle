@@ -1,6 +1,7 @@
 $(document).ready(function(){
     var messageArea = new MessageArea(document.querySelector('.block_work_plan .message_container_block'));
     var messageAreaReport = new MessageArea(document.querySelector('.block_files .message_container_block'));
+    var messageAreaReportKaf = new MessageArea(document.querySelector('#message_kaf'));
 
     var dataObj = {
         "work": document.getElementById("h_work").value,
@@ -53,19 +54,11 @@ $(document).ready(function(){
         $("#tab2 .sign_kaf_button").on("click", sign_nir_kaf);
     }
 
-    if($("#tab1 .sign_button_teacher").is('.sign_button_teacher') && !document.querySelector('#tab1 .sign_button_teacher').classList.contains("sign_teacher_button_not_active")){
-        $("#tab1 .sign_button_teacher").on("click", sign_nir_teacher);
-    }
-
     if($("#tab2 .sign_button_teacher").is('.sign_button_teacher') && !document.querySelector('#tab2 .sign_button_teacher').classList.contains("sign_teacher_button_not_active")){
         $("#tab2 .sign_button_teacher").on("click", sign_nir_teacher);
     }
 
     $(".tab").on('click', '.cancel_kaf_button', cancel_sign_nir_kaf);
-
-    if($("#tab1 .cancel_button_teacher").is('.cancel_button_teacher') && !document.querySelector('#tab1 .cancel_button_teacher').classList.contains("sign_teacher_button_not_active")){
-        $("#tab1 .cancel_button_teacher").on("click", cancel_sign_nir_teacher);
-    }
 
     if($("#tab2 .cancel_button_teacher").is('.cancel_button_teacher') && !document.querySelector('#tab2 .cancel_button_teacher').classList.contains("sign_teacher_button_not_active")){
         $("#tab2 .cancel_button_teacher").on("click", cancel_sign_nir_teacher);
@@ -541,7 +534,9 @@ $(document).ready(function(){
                 data: $.param(params_obj),
                 success: function(data){
                     if(data.status === "Ok"){
-                        alert(loc.SignatureCanceled);
+                        messageAreaReport.AddSuccess(loc.SignatureCanceled);
+                        $('body').scrollTop(0);
+
                         document.querySelector('#' + current_tab_id + ' .sign_button_teacher').classList.remove("sign_teacher_button_not_active");
                         document.querySelector('#' + current_tab_id + ' .cancel_button_teacher').classList.add("sign_teacher_button_not_active");
                         $('#' + current_tab_id + ' .sign_button_teacher').on("click", sign_nir_teacher);
@@ -576,7 +571,8 @@ $(document).ready(function(){
                 data: $.param(params_obj),
                 success: function(data){
                     if(data.status === "Ok"){
-                        alert(loc.DocumentIsSigned);
+                        messageAreaReportKaf.AddSuccess(loc.DocumentIsSigned);
+
                         document.querySelector('#' + current_tab_id + ' .sign_kaf_button').classList.add("sign_kaf_button_not_active");
                         $('#' + current_tab_id + ' .sign_kaf_button').off();
                         $("#" + current_tab_id + " .textar_message_new").before(data.messages);
@@ -614,12 +610,15 @@ $(document).ready(function(){
                 data: $.param(params_obj),
                 success: function(result){
                     if(result.status === "Ok cancel sign document"){
-                        alert(loc.SignatureCanceled);
+                        messageAreaReportKaf.AddSuccess(loc.SignatureCanceled);
+
                         document.querySelector('#' + current_tab_id + ' .sign_kaf_button').classList.remove('sign_kaf_button_not_active');
                         $('#' + current_tab_id + ' .sign_kaf_button').on("click", sign_nir_kaf);
                     }
                     else if(result.status === "Ok cancel document"){
-                        alert(loc.DocumentRejected);
+                        messageAreaReportKaf.AddSuccess(loc.DocumentRejected);
+                        $('body').scrollTop(0);
+
                         $('#' + current_tab_id + ' .sign_kaf_button').remove();
                         $('#' + current_tab_id + ' .cancel_kaf_button').remove();
                         $('#' + current_tab_id + ' .block_files_sign_kaf').remove();

@@ -93,6 +93,7 @@ function render_student_info($student){
 function render_kafedra_tab_report($file, $messages, $result, $work_id){
     $tab_content = '';
     $tab_content .= html_writer::start_tag('div', array('id' => 'content'));
+    $tab_content .= html_writer::tag('div', '', array('class' => 'message_container_block', 'id' => 'message_kaf'));
     $tab_content .= html_writer::start_tag('div', array('class' => 'block_files_kaf'));
 
     if($file){
