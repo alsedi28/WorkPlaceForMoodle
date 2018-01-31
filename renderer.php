@@ -251,7 +251,7 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
 
         foreach ($files as $file) {
             $height_block = '';
-            if ($options["tab_number"] !== 3 && $result[$work_id]->is_closed == 0 && (($total == $i || $file->is_sign_teacher == 1) && $user->profile['isTeacher'] === "1" && $flag) || ($file->is_sign_teacher == 1 && $user->profile['isTeacher'] !== "1" && $user->profile['isTeacher'] !== "666")) {
+            if ($options["tab_number"] !== 3 && $result->is_closed == 0 && (($total == $i || $file->is_sign_teacher == 1) && $user->profile['isTeacher'] === "1" && $flag) || ($file->is_sign_teacher == 1 && $user->profile['isTeacher'] !== "1" && $user->profile['isTeacher'] !== "666")) {
                 $height_block = 'height:340px';
             }
             $tab_content .= html_writer::start_tag('div', array('class' => 'block_file_prev', 'style' => $height_block));
@@ -282,12 +282,12 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
 
             $tab_content .= html_writer::end_tag('a');
 
-            if ($options["tab_number"] !== 3 && $result[$work_id]->is_closed == 0 && ($total == $i || $file->is_sign_teacher == 1) && $user->profile['isTeacher'] === "1" && $flag) {
+            if ($options["tab_number"] !== 3 && $result->is_closed == 0 && ($total == $i || $file->is_sign_teacher == 1) && $user->profile['isTeacher'] === "1" && $flag) {
                 if ($total != $i)
                     $flag = false;
 
                 $tab_content .= html_writer::start_tag('div', array('class' => 'block_files_sign_teacher'));
-                $tab_content .= html_writer::tag('div', 'Подписать', array('class' => ($file->is_sign_teacher == 1 || ($options["tab_number"] === 2 && ($result[$work_id]->review == "" || $result[$work_id]->mark == ""))) ? 'sign_button_teacher sign_teacher_button_not_active' : 'sign_button_teacher'));
+                $tab_content .= html_writer::tag('div', 'Подписать', array('class' => ($file->is_sign_teacher == 1 || ($options["tab_number"] === 2 && ($result->review == "" || $result->mark == ""))) ? 'sign_button_teacher sign_teacher_button_not_active' : 'sign_button_teacher'));
                 $tab_content .= html_writer::tag('div', 'Отклонить', array('class' => $file->is_sign_teacher == 0 ? 'cancel_button_teacher sign_teacher_button_not_active' : 'cancel_button_teacher'));
                 $tab_content .= html_writer::end_tag('div');
             }
@@ -301,7 +301,7 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
     $tab_content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
     $tab_content .= html_writer::end_tag('div');
 
-    if($result[$work_id]->is_closed != 1 && $options["tab_number"] !== 1){
+    if($result->is_closed != 1 && $options["tab_number"] !== 1){
         $tab_content .= html_writer::empty_tag('input', array('type' => 'file', 'name' => 'files[]', 'id' => $options["filer_input_id"]));//filer_input2 filer_input1 filer_input3
     }
 
@@ -315,12 +315,12 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
             $tab_content .= html_writer::end_tag('div');
 
             $height_review_block = '';
-            if($result[$work_id]->review != "" && $result[$work_id]->mark != ""){
+            if($result->review != "" && $result->mark != ""){
                 $height_review_block = 'height:auto';
             }
             $tab_content .= html_writer::start_tag('div', array('id' => 'review_block', 'style' => $height_review_block));
 
-            if($result[$work_id]->review == "" || $result[$work_id]->mark == ""){
+            if($result->review == "" || $result->mark == ""){
                 $tab_content .= html_writer::tag('p', 'Отзыв', array('class' => 'review_title'));
                 $tab_content .= html_writer::tag('textarea', '', array('rows' => '4', 'name' => 'review', 'id' => 'review_area', 'placeholder' => 'Введите отзыв...', 'style' => 'resize: none;', 'required' => true));
                 $tab_content .= html_writer::empty_tag('br');
@@ -331,11 +331,11 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
             }
             else{
                 $tab_content .= html_writer::tag('p', 'Отзыв', array('class' => 'ex_review_title'));
-                $tab_content .= html_writer::tag('p', $result[$work_id]->review, array('class' => 'ex_review_text'));
+                $tab_content .= html_writer::tag('p', $result->review, array('class' => 'ex_review_text'));
 
                 $tab_content .= html_writer::start_tag('p', array('class' => 'ex_mark'));
                 $tab_content .= 'Оценка (по 5-ти балльной шкале): ';
-                $tab_content .= html_writer::tag('span', $result[$work_id]->mark);
+                $tab_content .= html_writer::tag('span', $result->mark);
                 $tab_content .= html_writer::end_tag('p');
             }
 
@@ -343,7 +343,7 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
         }
     }
 
-    if(!(count($messages) == 0 && $result[$work_id]->is_closed == 1)){
+    if(!(count($messages) == 0 && $result->is_closed == 1)){
         $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
 
         if(count($messages) > 5){
@@ -362,7 +362,7 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
             $tab_content .= html_writer::end_tag('div');
         }
 
-        if($result[$work_id]->is_closed != 1){
+        if($result->is_closed != 1){
             $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
             $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => $options["message_textarea_id"], 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));//message_textarea_tab1 message_textarea_tab2 message_textarea_tab3
             $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => $options["send_message_id"]));//send_message_tab1 send_message_tab2 send_message_tab3
