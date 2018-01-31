@@ -434,7 +434,7 @@ $(document).ready(function(){
 
         if($(clone_element).find('.minus_input').length < 1){
             $($(clone_element).find('.minus_input_block')[0]).append("<div class='minus_input' title='" + loc.Remove + "'>" +
-                "<img src='img/PlusIcon_Small_Gray.png' height='26px'/></div>");
+                "<img src='img/minus.png' height='26px'/></div>");
         }
     }
 
@@ -450,7 +450,7 @@ $(document).ready(function(){
 
         if(count == 5){
             $($(prev_point).find('.minus_input_block')[0]).append("<div class='minus_input' title='" + loc.Remove + "'>" +
-                "<img src='img/PlusIcon_Small_Gray.png' height='26px'/></div>");
+                "<img src='img/minus.png' height='26px'/></div>");
         }
 
         $($(prev_point).find('.plus_input_block')[0]).append("<div class='plus_input' title='" + loc.AddItem + "'>" +

@@ -884,7 +884,7 @@ function render_work_plan_textarea_many_block($label, $textarea_name, $rows, $re
         $content .= html_writer::start_tag('div', array('class' => 'minus_input_block'));
         if($i > 2 && $i == $count - 1){
             $content .= html_writer::start_tag('div', array('class' => 'minus_input', 'title' => 'Удалить'));
-            $content .= html_writer::empty_tag('img', array('src' => 'img/PlusIcon_Small_Gray.png', 'height' => '26px'));
+            $content .= html_writer::empty_tag('img', array('src' => 'img/minus.png', 'height' => '26px'));
             $content .= html_writer::end_tag('div');
         }
         $content .= html_writer::end_tag('div');
