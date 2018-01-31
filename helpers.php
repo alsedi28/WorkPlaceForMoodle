@@ -129,16 +129,20 @@ function get_messages($work_id, $type, $last_date){
     global $DB;
 
     if ($last_date != NULL){
-        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname, mdl_user.id FROM mdl_nir_messages, mdl_user WHERE 
-                          mdl_nir_messages.date > '".$last_date."' AND mdl_nir_messages.nir_id=".$work_id." AND mdl_user.id=mdl_nir_messages.user_id AND 
-                          mdl_nir_messages.nir_type='".$type."'";
+        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname, mdl_user.id FROM {nir_messages}, {user} WHERE 
+                          mdl_nir_messages.date > ? AND mdl_nir_messages.nir_id = ? AND mdl_user.id = mdl_nir_messages.user_id AND 
+                          mdl_nir_messages.nir_type = ?";
+
+        $params = array($last_date, $work_id, $type);
     }
     else{
-        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname FROM mdl_nir_messages, mdl_user WHERE 
-                          mdl_nir_messages.nir_id=".$work_id." AND mdl_user.id=mdl_nir_messages.user_id AND mdl_nir_messages.nir_type='".$type."'";
+        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname FROM {nir_messages}, {user} WHERE 
+                          mdl_nir_messages.nir_id = ? AND mdl_user.id = mdl_nir_messages.user_id AND mdl_nir_messages.nir_type = ?";
+
+        $params = array($work_id, $type);
     }
 
-    $messages = $DB->get_records_sql($sql_messages);
+    $messages = $DB->get_records_sql($sql_messages, $params);
     $messages_data = render_messages($messages);
 
     return $messages_data;
@@ -149,15 +153,19 @@ function get_messages_for_kaf($work_id, $type, $last_date){
     global $USER;
 
     if ($last_date != NULL){
-        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date FROM mdl_nir_messages WHERE mdl_nir_messages.date > '".$last_date."' AND 
-                            mdl_nir_messages.nir_id=".$work_id." AND mdl_nir_messages.user_id=".$USER->id." AND mdl_nir_messages.nir_type='".$type."'";
+        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date FROM {nir_messages} WHERE mdl_nir_messages.date > ? AND 
+                            mdl_nir_messages.nir_id = ? AND mdl_nir_messages.user_id = ? AND mdl_nir_messages.nir_type = ?";
+
+        $params = array($last_date, $work_id, $USER->id, $type);
     }
     else{
-        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date FROM mdl_nir_messages WHERE mdl_nir_messages.nir_id=".$work_id." AND 
-                            mdl_nir_messages.user_id=".$USER->id." AND mdl_nir_messages.nir_type='".$type."'";
+        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date FROM {nir_messages} WHERE mdl_nir_messages.nir_id = ? AND 
+                            mdl_nir_messages.user_id = ? AND mdl_nir_messages.nir_type = ?";
+
+        $params = array($work_id, $USER->id, $type);
     }
 
-    $messages = $DB->get_records_sql($sql_messages);
+    $messages = $DB->get_records_sql($sql_messages, $params);
     $messages_data = render_messages($messages, true);
 
     return $messages_data;

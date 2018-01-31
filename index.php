@@ -46,76 +46,108 @@ if($USER->profile['isTeacher'] === "666"){
     
     // Page kafedra select student
     if(isset($_GET["std"])){
-        $student_id = (int) $_GET["std"];
+
+        if(!intval($_GET['std'])){
+            echo html_writer::tag('h3', '404 NOT FOUND');
+            echo $OUTPUT->footer();
+            exit();
+        }
+
+        $student_id = $_GET["std"];
         
-        $sql_student = "SELECT mdl_user.firstname, mdl_user.lastname, mdl_user.id, mdl_user_info_data.data FROM mdl_user, mdl_user_info_data WHERE mdl_user.id=".$student_id." AND mdl_user_info_data.userid=mdl_user.id AND mdl_user_info_data.fieldid='3'";
-        $rs_student = $DB->get_record_sql($sql_student);
+        $sql_student = "SELECT mdl_user.firstname, mdl_user.lastname, mdl_user.id, mdl_user_info_data.data FROM {user}, {user_info_data} 
+                          WHERE mdl_user.id = ? AND mdl_user_info_data.userid = mdl_user.id AND mdl_user_info_data.fieldid = '3'";
+        $student_info = $DB->get_record_sql($sql_student, array($student_id));
+
+        if(!$student_info){
+            echo html_writer::tag('h3', '404 NOT FOUND');
+            echo $OUTPUT->footer();
+            exit();
+        }
             
         // Student's work
         if(isset($_GET["id"])){
-            $work_id = (int) $_GET["id"];
 
-            $sql_work = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_nir.review, mdl_nir.mark, mdl_user.firstname, mdl_user.lastname FROM mdl_nir, mdl_user WHERE mdl_nir.user_id=".$student_id." AND mdl_user.id=mdl_nir.teacher_id AND mdl_nir.id=".$work_id;
-            $rs = $DB->get_records_sql($sql_work);
+            if(!intval($_GET['id'])){
+                echo html_writer::tag('h3', '404 NOT FOUND');
+                echo $OUTPUT->footer();
+                exit();
+            }
+
+            $work_id = $_GET["id"];
+
+            $sql_work = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_nir.review, mdl_nir.mark, mdl_user.firstname, mdl_user.lastname 
+                            FROM {nir}, {user} WHERE mdl_nir.user_id = ? AND mdl_user.id = mdl_nir.teacher_id AND mdl_nir.id = ?";
+            $work = $DB->get_record_sql($sql_work, array($student_id, $work_id));
+
+            if(!$work){
+                echo html_writer::tag('h3', '404 NOT FOUND');
+                echo $OUTPUT->footer();
+                exit();
+            }
 
             $content .= html_writer::tag('h1', 'Научно-исследовательская работа');
 
-            if(count($rs) == 0){
-                $content .= html_writer::tag('h3', '404 NOT FOUND');
-            }
-            else{
-                $sql_work_plan = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.date, mdl_nir_files.is_new, mdl_nir_files.is_sign_kaf, mdl_user.firstname, mdl_user.lastname FROM mdl_nir_files, mdl_nir, mdl_user WHERE mdl_nir.id=".$work_id." AND mdl_nir_files.nir_id=".$work_id." AND mdl_nir_files.type='Z' AND mdl_user.id=mdl_nir_files.user_id AND mdl_nir_files.is_sign_teacher=1";
-                $work_plan_result = $DB->get_record_sql($sql_work_plan);
-                $sql_messages_type_z = "SELECT mdl_nir_messages.id, mdl_nir_messages.text, mdl_nir_messages.date FROM mdl_nir_messages WHERE mdl_nir_messages.nir_id=".$work_id." AND mdl_nir_messages.user_id=".$USER->id." AND mdl_nir_messages.nir_type='Z' ORDER BY mdl_nir_messages.date";
-                $messages_type_z = $DB->get_records_sql($sql_messages_type_z);
+            $sql_work_plan = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.date, mdl_nir_files.is_new, mdl_nir_files.is_sign_kaf, mdl_user.firstname, mdl_user.lastname 
+                                FROM {nir_files}, {nir}, {user} WHERE mdl_nir.id = ? AND mdl_nir_files.nir_id = ? AND mdl_nir_files.type='Z' 
+                                AND mdl_user.id = mdl_nir_files.user_id AND mdl_nir_files.is_sign_teacher = 1";
+            $work_plan_result = $DB->get_record_sql($sql_work_plan, array($work_id, $work_id));
 
-                $sql_file_type_o = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.date, mdl_nir_files.is_new, mdl_nir_files.is_sign_kaf, mdl_user.firstname, mdl_user.lastname FROM mdl_nir_files, mdl_nir, mdl_user WHERE mdl_nir.id=".$work_id." AND mdl_nir_files.nir_id=".$work_id." AND mdl_nir_files.type='O' AND mdl_user.id=mdl_nir_files.user_id AND mdl_nir_files.is_sign_teacher=1";
-                $file_type_o = $DB->get_record_sql($sql_file_type_o);
-                $sql_messages_type_o = "SELECT mdl_nir_messages.id, mdl_nir_messages.text, mdl_nir_messages.date FROM mdl_nir_messages WHERE mdl_nir_messages.nir_id=".$work_id." AND mdl_nir_messages.user_id=".$USER->id." AND mdl_nir_messages.nir_type='O' ORDER BY mdl_nir_messages.date";
-                $messages_type_o = $DB->get_records_sql($sql_messages_type_o);
+            $sql_messages_type_z = "SELECT mdl_nir_messages.id, mdl_nir_messages.text, mdl_nir_messages.date FROM {nir_messages}
+                                        WHERE mdl_nir_messages.nir_id = ? AND mdl_nir_messages.user_id = ? AND mdl_nir_messages.nir_type = 'Z' 
+                                        ORDER BY mdl_nir_messages.date";
+            $messages_type_z = $DB->get_records_sql($sql_messages_type_z, array($work_id, $USER->id));
 
-                $content .= html_writer::start_tag('p', array('class' => 'single_work_teacher'));
-                $content .= html_writer::tag('span', 'Научный руководитель: ', array('class' => 'single_work_teacher_title'));
-                $content .= $rs[$work_id]->lastname." ".$rs[$work_id]->firstname;
-                $content .= html_writer::end_tag('p');
+            $sql_file_type_o = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.date, mdl_nir_files.is_new, mdl_nir_files.is_sign_kaf, mdl_user.firstname, mdl_user.lastname 
+                                  FROM {nir_files}, {nir}, {user} WHERE mdl_nir.id = ? AND mdl_nir_files.nir_id = ? AND mdl_nir_files.type = 'O' 
+                                  AND mdl_user.id = mdl_nir_files.user_id AND mdl_nir_files.is_sign_teacher = 1";
+            $file_type_o = $DB->get_record_sql($sql_file_type_o, array($work_id, $work_id));
+            $sql_messages_type_o = "SELECT mdl_nir_messages.id, mdl_nir_messages.text, mdl_nir_messages.date FROM {nir_messages} 
+                                        WHERE mdl_nir_messages.nir_id = ? AND mdl_nir_messages.user_id = ? AND mdl_nir_messages.nir_type = 'O' 
+                                        ORDER BY mdl_nir_messages.date";
+            $messages_type_o = $DB->get_records_sql($sql_messages_type_o, array($work_id, $USER->id));
 
-                $content .= render_student_info($rs_student);
+            $content .= html_writer::start_tag('p', array('class' => 'single_work_teacher'));
+            $content .= html_writer::tag('span', 'Научный руководитель: ', array('class' => 'single_work_teacher_title'));
+            $content .= $work->lastname." ".$work->firstname;
+            $content .= html_writer::end_tag('p');
 
-                $content .= html_writer::start_tag('div', array('class' => 'tabs'));
+            $content .= render_student_info($student_info);
 
-                $content .= html_writer::start_tag('ul', array('class' => 'tab-links'));
-                $content .= html_writer::start_tag('li', array('class' => 'active'));
-                $content .= html_writer::tag('a', 'Задание на НИР', array('href' => '#tab1'));
-                $content .= html_writer::end_tag('li');
-                $content .= html_writer::start_tag('li');
-                $content .= html_writer::tag('a', 'Отчет', array('href' => '#tab2'));
-                $content .= html_writer::end_tag('li');
-                $content .= html_writer::end_tag('ul');
+            $content .= html_writer::start_tag('div', array('class' => 'tabs'));
 
-                $content .= html_writer::start_tag('div', array('class' => 'tab-content'));
-                $content .= html_writer::start_tag('div', array('class' => 'tab active', 'id' => 'tab1'));
+            $content .= html_writer::start_tag('ul', array('class' => 'tab-links'));
+            $content .= html_writer::start_tag('li', array('class' => 'active'));
+            $content .= html_writer::tag('a', 'Задание на НИР', array('href' => '#tab1'));
+            $content .= html_writer::end_tag('li');
+            $content .= html_writer::start_tag('li');
+            $content .= html_writer::tag('a', 'Отчет', array('href' => '#tab2'));
+            $content .= html_writer::end_tag('li');
+            $content .= html_writer::end_tag('ul');
 
-                $content .= render_kafedra_tab_work_plan($messages_type_z, $rs[$work_id]->is_closed, $work_id);
+            $content .= html_writer::start_tag('div', array('class' => 'tab-content'));
+            $content .= html_writer::start_tag('div', array('class' => 'tab active', 'id' => 'tab1'));
 
-                $content .= html_writer::end_tag('div');
+            $content .= render_kafedra_tab_work_plan($messages_type_z, $work->is_closed, $work_id);
 
-                $content .= html_writer::start_tag('div', array('class' => 'tab', 'id' => 'tab2'));
+            $content .= html_writer::end_tag('div');
 
-                $content .= render_kafedra_tab_report($file_type_o, $messages_type_o, $rs, $work_id); // tab2
+            $content .= html_writer::start_tag('div', array('class' => 'tab', 'id' => 'tab2'));
 
-                $content .= html_writer::end_tag('div');
+            $content .= render_kafedra_tab_report($file_type_o, $messages_type_o, $work, $work_id); // tab2
 
-                $content .= html_writer::end_tag('div');
-            }
-            
+            $content .= html_writer::end_tag('div');
+
+            $content .= html_writer::end_tag('div');
         }
         else{ // List of student's works
             $content .= html_writer::tag('h1', 'Научно-исследовательские работы');
 
-            $content .= render_student_info($rs_student);
+            $content .= render_student_info($student_info);
             
-            $sql_works = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_user.firstname, mdl_user.lastname FROM mdl_nir, mdl_user WHERE mdl_nir.user_id=".$student_id." AND  mdl_user.id=mdl_nir.teacher_id";
-            $works = $DB->get_records_sql($sql_works);
+            $sql_works = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_user.firstname, mdl_user.lastname FROM {nir}, {user} 
+                            WHERE mdl_nir.user_id = ? AND  mdl_user.id = mdl_nir.teacher_id";
+            $works = $DB->get_records_sql($sql_works, array($student_id));
         
             foreach ($works as $wk){
                 $url = "/nir/index.php?std=".$student_id."&id=".$wk->id;

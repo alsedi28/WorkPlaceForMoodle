@@ -138,21 +138,21 @@ function render_kafedra_tab_report($file, $messages, $result, $work_id){
     $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => 'h_work_3', 'value' => $work_id));
     $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work_type', 'id' => 'h_work_type_3', 'value' => 'O'));
 
-    if($result[$work_id]->review != "" && $result[$work_id]->mark != null){
+    if($result->review != "" && $result->mark != null){
         $tab_content .= html_writer::start_tag('div', array('id' => 'review_block_header'));
         $tab_content .= html_writer::tag('p', 'Отзыв научного руководителя', array('class' => 'review_header_title'));
         $tab_content .= html_writer::end_tag('div');
 
         $tab_content .= html_writer::start_tag('div', array('id' => 'review_block', 'style' => 'height: auto'));
         $tab_content .= html_writer::tag('p', 'Отзыв', array('class' => 'ex_review_title'));
-        $tab_content .= html_writer::tag('p', $result[$work_id]->review, array('class' => 'ex_review_text'));
+        $tab_content .= html_writer::tag('p', $result->review, array('class' => 'ex_review_text'));
         $tab_content .= html_writer::start_tag('p', array('class' => 'ex_mark'));
         $tab_content .= 'Оценка (по 5-ти балльной шкале): ';
-        $tab_content .= html_writer::tag('span', $result[$work_id]->mark);
+        $tab_content .= html_writer::tag('span', $result->mark);
         $tab_content .= html_writer::end_tag('div');
     }
 
-    if(!(count($messages) == 0 && $result[$work_id]->is_closed == 1)){
+    if(!(count($messages) == 0 && $result->is_closed == 1)){
         $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
 
         foreach ($messages as $mz){
@@ -166,7 +166,7 @@ function render_kafedra_tab_report($file, $messages, $result, $work_id){
             $tab_content .= html_writer::end_tag('div');
         }
 
-        if($result[$work_id]->is_closed != 1){
+        if($result->is_closed != 1){
             $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
             $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => 'message_textarea_tab2', 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));
             $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => 'send_message_tab2'));
@@ -189,8 +189,8 @@ function render_kafedra_tab_work_plan($messages, $is_closed, $work_id){
     $tab_content .= html_writer::start_tag('div', array('id' => 'content'));
     $tab_content .= html_writer::start_tag('div', array('class' => 'block_work_plan'));
 
-    $sql_work_plan_info = "SELECT is_sign_user, is_sign_teacher, is_sign_kaf FROM mdl_nir_work_plans WHERE mdl_nir_work_plans.nir_id=".$work_id;
-    $work_plan_info = $DB->get_record_sql($sql_work_plan_info);
+    $sql_work_plan_info = "SELECT is_sign_user, is_sign_teacher, is_sign_kaf FROM {nir_work_plans} WHERE mdl_nir_work_plans.nir_id = ?";
+    $work_plan_info = $DB->get_record_sql($sql_work_plan_info, array($work_id));
 
     $tab_content .= render_message_container($work_plan_info->is_sign_user, $work_plan_info->is_sign_teacher, $work_plan_info->is_sign_kaf);
 
@@ -385,11 +385,11 @@ function render_work_plan($work_id){
     $content = '';
     $content .= html_writer::tag('h2', 'Задание на НИР', array('class' => '', 'style' => 'text-align: center; color: rgba(0,0,0,.54);'));
 
-    $sql_work_plan = "SELECT mdl_nir.id, mdl_nir_work_plans.is_sign_user, mdl_nir_work_plans.is_sign_teacher, mdl_nir_work_plans.is_sign_kaf FROM mdl_nir, mdl_nir_work_plans 
-                        WHERE (mdl_nir.user_id=".$USER->id." OR mdl_nir.teacher_id=".$USER->id.") AND mdl_nir.id=".$work_id." 
-                        AND mdl_nir_work_plans.nir_id=mdl_nir.id AND mdl_nir.is_closed=0";
+    $sql_work_plan = "SELECT mdl_nir.id, mdl_nir_work_plans.is_sign_user, mdl_nir_work_plans.is_sign_teacher, mdl_nir_work_plans.is_sign_kaf 
+                        FROM {nir}, {nir_work_plans} WHERE (mdl_nir.user_id = ? OR mdl_nir.teacher_id = ?) AND mdl_nir.id = ?  
+                        AND mdl_nir_work_plans.nir_id = mdl_nir.id AND mdl_nir.is_closed = 0";
 
-    $rs = $DB->get_records_sql($sql_work_plan);
+    $rs = $DB->get_records_sql($sql_work_plan, array($USER->id, $USER->id, $work_id));
 
     if(count($rs) == 0)
         $content .= render_message_container(false, false, false, false);
@@ -411,20 +411,25 @@ function render_work_plan_view($work_id){
     global $DB;
     global $USER;
 
-    $sql_work_plan_info = "SELECT * FROM mdl_nir_work_plans WHERE mdl_nir_work_plans.nir_id=".$work_id;
-    $work_plan_info = $DB->get_record_sql($sql_work_plan_info);
+    //JOIN
+/*    $sql = "SELECT wp.*, ui.*, ti.* FROM mdl_nir_work_plans AS wp
+              JOIN mdl_nir_user_info AS ui ON ui.work_plan_id = wp.id 
+              JOIN mdl_nir_teacher_info AS ti ON ti.work_plan_id = wp.id AND ti.type = 'T' WHERE wp.nir_id = ?";*/
 
-    $sql_user_info = "SELECT * FROM mdl_nir_user_info WHERE mdl_nir_user_info.work_plan_id=".$work_plan_info->id;
-    $user_info = $DB->get_record_sql($sql_user_info);
+    $sql_work_plan_info = "SELECT * FROM {nir_work_plans} WHERE mdl_nir_work_plans.nir_id = ?";
+    $work_plan_info = $DB->get_record_sql($sql_work_plan_info, array($work_id));
 
-    $sql_teacher_info = "SELECT * FROM mdl_nir_teacher_info WHERE mdl_nir_teacher_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_teacher_info.type='T'";
-    $teacher_info = $DB->get_record_sql($sql_teacher_info);
+    $sql_user_info = "SELECT * FROM {nir_user_info} WHERE mdl_nir_user_info.work_plan_id = ?";
+    $user_info = $DB->get_record_sql($sql_user_info, array($work_plan_info->id));
 
-    $sql_consultant_info = "SELECT * FROM mdl_nir_teacher_info WHERE mdl_nir_teacher_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_teacher_info.type='C'";
-    $consultant_info = $DB->get_record_sql($sql_consultant_info);
+    $sql_teacher_info = "SELECT * FROM {nir_teacher_info} WHERE mdl_nir_teacher_info.work_plan_id = ? AND mdl_nir_teacher_info.type = 'T'";
+    $teacher_info = $DB->get_record_sql($sql_teacher_info, array($work_plan_info->id));
 
-    $sql_work_plan_items = "SELECT * FROM mdl_nir_work_plan_items WHERE mdl_nir_work_plan_items.work_plan_id=".$work_plan_info->id;
-    $work_plan_items = $DB->get_records_sql($sql_work_plan_items);
+    $sql_consultant_info = "SELECT * FROM {nir_teacher_info} WHERE mdl_nir_teacher_info.work_plan_id = ? AND mdl_nir_teacher_info.type = 'C'";
+    $consultant_info = $DB->get_record_sql($sql_consultant_info, array($work_plan_info->id));
+
+    $sql_work_plan_items = "SELECT * FROM {nir_work_plan_items} WHERE mdl_nir_work_plan_items.work_plan_id = ?";
+    $work_plan_items = $DB->get_records_sql($sql_work_plan_items, array($work_plan_info->id));
 
     $content = '';
     $content .= html_writer::start_tag('div', array('class' => 'form_work_plan'));
@@ -510,20 +515,20 @@ function render_work_plan_edit($work_id){
     global $DB;
     global $USER;
 
-    $sql_work_plan_info = "SELECT * FROM mdl_nir_work_plans WHERE mdl_nir_work_plans.nir_id=".$work_id;
-    $work_plan_info = $DB->get_record_sql($sql_work_plan_info);
+    $sql_work_plan_info = "SELECT * FROM {nir_work_plans} WHERE mdl_nir_work_plans.nir_id = ?";
+    $work_plan_info = $DB->get_record_sql($sql_work_plan_info, array($work_id));
 
-    $sql_user_info = "SELECT * FROM mdl_nir_user_info WHERE mdl_nir_user_info.work_plan_id=".$work_plan_info->id;
-    $user_info = $DB->get_record_sql($sql_user_info);
+    $sql_user_info = "SELECT * FROM {nir_user_info} WHERE mdl_nir_user_info.work_plan_id = ?";
+    $user_info = $DB->get_record_sql($sql_user_info, array($work_plan_info->id));
 
-    $sql_teacher_info = "SELECT * FROM mdl_nir_teacher_info WHERE mdl_nir_teacher_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_teacher_info.type='T'";
-    $teacher_info = $DB->get_record_sql($sql_teacher_info);
+    $sql_teacher_info = "SELECT * FROM {nir_teacher_info} WHERE mdl_nir_teacher_info.work_plan_id = ? AND mdl_nir_teacher_info.type = 'T'";
+    $teacher_info = $DB->get_record_sql($sql_teacher_info, array($work_plan_info->id));
 
-    $sql_consultant_info = "SELECT * FROM mdl_nir_teacher_info WHERE mdl_nir_teacher_info.work_plan_id=".$work_plan_info->id." AND mdl_nir_teacher_info.type='C'";
-    $consultant_info = $DB->get_record_sql($sql_consultant_info);
+    $sql_consultant_info = "SELECT * FROM {nir_teacher_info} WHERE mdl_nir_teacher_info.work_plan_id = ? AND mdl_nir_teacher_info.type = 'C'";
+    $consultant_info = $DB->get_record_sql($sql_consultant_info, array($work_plan_info->id));
 
-    $sql_work_plan_items = "SELECT * FROM mdl_nir_work_plan_items WHERE mdl_nir_work_plan_items.work_plan_id=".$work_plan_info->id;
-    $work_plan_items = $DB->get_records_sql($sql_work_plan_items);
+    $sql_work_plan_items = "SELECT * FROM {nir_work_plan_items} WHERE mdl_nir_work_plan_items.work_plan_id = ?";
+    $work_plan_items = $DB->get_records_sql($sql_work_plan_items, array($work_plan_info->id));
 
     $content = '';
     $content .= html_writer::start_tag('form', array('class' => 'form_work_plan', 'action' => 'javascript:void(null);', 'id' => 'form_plan_edit'));
@@ -615,10 +620,11 @@ function render_work_plan_edit($work_id){
 function render_work_plan_create($work_id){
     global $DB;
     global $USER;
-    $sql_info = "SELECT mdl_user.firstname, mdl_user.lastname, mdl_user.email FROM mdl_nir, mdl_user 
-                            WHERE mdl_nir.id=".$work_id." AND mdl_user.id=mdl_nir.teacher_id";
 
-    $rs = $DB->get_record_sql($sql_info);
+    $sql_info = "SELECT mdl_user.firstname, mdl_user.lastname, mdl_user.email FROM {nir}, {user} 
+                            WHERE mdl_nir.id = ? AND mdl_user.id = mdl_nir.teacher_id";
+
+    $rs = $DB->get_record_sql($sql_info, array($work_id));
 
     $content = '';
     $content .= html_writer::start_tag('form', array('class' => 'form_work_plan', 'action' => 'javascript:void(null);', 'id' => 'form_plan'));
