@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/helpers.php');
+require_once('class.config.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['nir']) || intval($_POST['nir']) == 0 || !isset($_POST['type']) || !isset($_POST['text'])){
@@ -18,7 +19,7 @@ if($type !== "Z" && $type !== "O" && $type !== "P"){
 }
 
 $is_kaf = false;
-if($USER->profile['isTeacher'] === "666")
+if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA)
     $is_kaf = true;
 
 $sql_work = "SELECT id, user_id, teacher_id FROM {nir} WHERE id = ?";

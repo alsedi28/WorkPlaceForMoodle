@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/helpers.php');
+require_once('class.config.php');
 
 function render_modal_dialog_create_work($teachers, $user_id){
     $dialog = '';
@@ -232,7 +233,6 @@ function render_kafedra_tab_work_plan($messages, $is_closed, $work_id){
 }
 
 function render_tab($files, $messages, $result, $user, $work_id, $options){
-    $ADMIN = 2;
     $tab_content = '';
     $tab_content .= html_writer::start_tag('div', array('class' => $options["tab_number"] === 1 ? 'tab active' : 'tab', 'id' => $options["tab_id"]));//tab1 tab2
 
@@ -251,7 +251,7 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
 
         foreach ($files as $file) {
             $height_block = '';
-            if ($options["tab_number"] !== 3 && $result->is_closed == 0 && (($total == $i || $file->is_sign_teacher == 1) && $user->profile['isTeacher'] === "1" && $flag) || ($file->is_sign_teacher == 1 && $user->profile['isTeacher'] !== "1" && $user->profile['isTeacher'] !== "666")) {
+            if ($options["tab_number"] !== 3 && $result->is_closed == 0 && (($total == $i || $file->is_sign_teacher == 1) && $user->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER && $flag) || ($file->is_sign_teacher == 1 && $user->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_TEACHER && $user->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_KAFEDRA)) {
                 $height_block = 'height:340px';
             }
             $tab_content .= html_writer::start_tag('div', array('class' => 'block_file_prev', 'style' => $height_block));
@@ -275,14 +275,14 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
                 $tab_content .= html_writer::empty_tag('img', array('src' => 'img/new.gif', 'height' => '30px', 'class' => 'img_new'));
             }
 
-            if ($options["tab_number"] !== 3 && $file->is_sign_teacher == 1 && $user->profile['isTeacher'] !== "1" && $user->profile['isTeacher'] !== "666") {
+            if ($options["tab_number"] !== 3 && $file->is_sign_teacher == 1 && $user->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_TEACHER && $user->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_KAFEDRA) {
                 $tab_content .= html_writer::tag('br');
                 $tab_content .= html_writer::tag('p', 'Файл подписан научным руководителем. Ожидает подтверждения от кафедры.', array('class' => 'file_date'));
             }
 
             $tab_content .= html_writer::end_tag('a');
 
-            if ($options["tab_number"] !== 3 && $result->is_closed == 0 && ($total == $i || $file->is_sign_teacher == 1) && $user->profile['isTeacher'] === "1" && $flag) {
+            if ($options["tab_number"] !== 3 && $result->is_closed == 0 && ($total == $i || $file->is_sign_teacher == 1) && $user->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER && $flag) {
                 if ($total != $i)
                     $flag = false;
 
@@ -309,7 +309,7 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
     $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work_type', 'id' => $options["work_input_type"], 'value' => $options["work_type"]));// h_work_type h_work_type_2 h_work_type_3 Z O P
 
     if($options["tab_number"] === 2){
-        if($user->profile['isTeacher'] === "1"){
+        if($user->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER){
             $tab_content .= html_writer::start_tag('div', array('id' => 'review_block_header'));
             $tab_content .= html_writer::tag('p', 'Отзыв научного руководителя', array('class' => 'review_header_title'));
             $tab_content .= html_writer::end_tag('div');
@@ -353,8 +353,8 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
 
         foreach ($messages as $mz){
             $tab_content .= html_writer::start_tag('div', array('class' => 'message'));
-            $tab_content .= html_writer::start_tag('div', array('class' => $mz->user_id == $ADMIN ? 'header_message header_message_kaf' :'header_message'));
-            $tab_content .= html_writer::tag('p', $mz->user_id == $ADMIN ? 'Кафедра' : $mz->lastname." ".$mz->firstname, array('class' => 'header_message_name'));
+            $tab_content .= html_writer::start_tag('div', array('class' => $mz->user_id == Config::ADMIN ? 'header_message header_message_kaf' :'header_message'));
+            $tab_content .= html_writer::tag('p', $mz->user_id == Config::ADMIN ? 'Кафедра' : $mz->lastname." ".$mz->firstname, array('class' => 'header_message_name'));
             $tab_content .= html_writer::tag('p', $mz->date, array('class' => 'header_message_date'));
             $tab_content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
             $tab_content .= html_writer::end_tag('div');
@@ -397,7 +397,7 @@ function render_work_plan($work_id){
         $content .= render_message_container($rs[$work_id]->is_sign_user, $rs[$work_id]->is_sign_teacher, $rs[$work_id]->is_sign_kaf);
 
     if(count($rs) == 0){
-        if($USER->profile['isTeacher'] === "0")
+        if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_STUDENT)
             $content .= render_work_plan_create($work_id);
     }
     else{
@@ -492,16 +492,16 @@ function render_work_plan_view($work_id){
 
     $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'work_id', 'value' => $work_id));
 
-    if($work_plan_info->is_sign_teacher == 0 && (($USER->profile['isTeacher'] === "1" && $work_plan_info->is_sign_user == 1) ||
-            ($USER->profile['isTeacher'] !== "1" && $work_plan_info->is_sign_user == 0)))
+    if($work_plan_info->is_sign_teacher == 0 && (($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER && $work_plan_info->is_sign_user == 1) ||
+            ($USER->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_TEACHER && $work_plan_info->is_sign_user == 0)))
         $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Редактировать', 'id' => 'edit_button_work_plan', 'class' => 'work_plan_edit_button'));
 
-    if($USER->profile['isTeacher'] === "1" && $work_plan_info->is_sign_user == 1 && $work_plan_info->is_sign_teacher == 0){
+    if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER && $work_plan_info->is_sign_user == 1 && $work_plan_info->is_sign_teacher == 0){
         $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отправить на согласование кафедре', 'id' => 'send_work_plan_kaf',
             'action_type' => 'only_send_to_kaf', 'class' => 'work_plan_edit_button'));
     }
 
-    if($USER->profile['isTeacher'] === "666" && $work_plan_info->is_sign_user == 1 && $work_plan_info->is_sign_teacher == 1 && $work_plan_info->is_sign_kaf == 0){
+    if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA && $work_plan_info->is_sign_user == 1 && $work_plan_info->is_sign_teacher == 1 && $work_plan_info->is_sign_kaf == 0){
         $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Подтвердить', 'id' => 'approve_work_plan_kaf', 'class' => 'work_plan_edit_button'));
         $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отклонить', 'id' => 'cancel_work_plan_kaf', 'class' => 'work_plan_edit_button'));
     }
@@ -602,7 +602,7 @@ function render_work_plan_edit($work_id){
 
     $text_button_edit = 'Отправить на согласование научному руководителю';
     $attr_button_type = 'send_to_teacher';
-    if($USER->profile['isTeacher'] === "1"){
+    if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER){
         $text_button_edit = 'Сохранить и отправить студенту';
         $attr_button_type = 'send_to_user';
         $content .= html_writer::empty_tag('input', array('type' => 'submit', 'value' => 'Отправить на согласование кафедре', 'id' => 'submit_edit_work_plan',
@@ -912,7 +912,7 @@ function render_message_container($is_sign_user, $is_sign_teacher, $is_sign_kaf,
 
     $empty_block = html_writer::tag('div', '', array('class' => 'message_container_block'));
 
-    if($USER->profile['isTeacher'] === "1"){
+    if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER){
         if($is_sign_user){
             if($is_sign_teacher){
                 if($is_sign_kaf){
@@ -933,7 +933,7 @@ function render_message_container($is_sign_user, $is_sign_teacher, $is_sign_kaf,
             $text = "Задание на НИР еще не было загружено студентом.";
         }
     }
-    else if($USER->profile['isTeacher'] === "0"){
+    else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_STUDENT){
         if($is_sign_user){
             if($is_sign_teacher){
                 if($is_sign_kaf){
@@ -951,7 +951,7 @@ function render_message_container($is_sign_user, $is_sign_teacher, $is_sign_kaf,
             return $empty_block;
         }
     }
-    else if($USER->profile['isTeacher'] === "666"){
+    else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
         if($is_sign_user && $is_sign_teacher){
             if($is_sign_kaf)
                 $text = "Текущее задание на НИР согласовано кафедрой.";

@@ -1,15 +1,4 @@
 <?php
-# ======================================================================== #
-#
-#  Title      [PHP] Uploader
-#  Author:    CreativeDream
-#  Website:   https://github.com/CreativeDream/php-uploader
-#  Version:   0.4
-#  Date:      14-Sep-2016
-#  Purpose:   Validate, Remove, Upload, Download files to server.
-#  Information: Please don't forget to check your php.ini file for "upload_max_filesize", "post_max_size", "max_file_uploads"
-#
-# ======================================================================== #
 
 class Uploader {
 

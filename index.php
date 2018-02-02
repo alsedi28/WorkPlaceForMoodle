@@ -3,6 +3,7 @@
 // The number of lines in front of config file determine the // hierarchy of files. 
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/renderer.php');
+require_once('class.config.php');
 
 $context = context_user::instance($USER->id);
 $PAGE->set_blocks_editing_capability('moodle/my:manageblocks');
@@ -34,15 +35,12 @@ if ($CFG->forcelogin) {
 $previewnode = $PAGE->navigation->add("НИР", new moodle_url('/nir/index.php'), navigation_node::TYPE_CONTAINER);
 $previewnode->make_active();
 
-
-$ADMIN = 2; // kaf id hardcode
-
 echo $OUTPUT->header();
 
 $content = '';
 
 // Page kafedra
-if($USER->profile['isTeacher'] === "666"){
+if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
     
     // Page kafedra select student
     if(isset($_GET["std"])){
@@ -56,8 +54,8 @@ if($USER->profile['isTeacher'] === "666"){
         $student_id = $_GET["std"];
         
         $sql_student = "SELECT mdl_user.firstname, mdl_user.lastname, mdl_user.id, mdl_user_info_data.data FROM {user}, {user_info_data} 
-                          WHERE mdl_user.id = ? AND mdl_user_info_data.userid = mdl_user.id AND mdl_user_info_data.fieldid = '3'";
-        $student_info = $DB->get_record_sql($sql_student, array($student_id));
+                          WHERE mdl_user.id = ? AND mdl_user_info_data.userid = mdl_user.id AND mdl_user_info_data.fieldid = ?";
+        $student_info = $DB->get_record_sql($sql_student, array($student_id, Config::FIELD_GROUP_ID));
 
         if(!$student_info){
             echo html_writer::tag('h3', '404 NOT FOUND');
@@ -165,8 +163,8 @@ if($USER->profile['isTeacher'] === "666"){
     else{ // Main page kafedra with list of students
         $content .= html_writer::tag('h1', 'Научно-исследовательская работа');
         
-        $sql_groups = "SELECT DISTINCT data FROM mdl_user_info_data WHERE fieldid = 3  AND data != '' ORDER BY data";
-        $groups = $DB->get_records_sql($sql_groups);
+        $sql_groups = "SELECT DISTINCT data FROM mdl_user_info_data WHERE fieldid = ?  AND data != '' ORDER BY data";
+        $groups = $DB->get_records_sql($sql_groups, array(Config::FIELD_GROUP_ID));
 
         $content .= html_writer::start_tag('div', array('id' => 'cssmenu'));
         $content .= html_writer::start_tag('ul');
@@ -237,8 +235,8 @@ else if(isset($_GET["id"])){ // Page of work for teacher and student
         $student_id = $_GET["std"];
         $sql_work = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_nir.review, mdl_nir.mark, mdl_user.firstname, mdl_user.lastname, mdl_user_info_data.data 
                       FROM {nir}, {user}, {user_info_data} WHERE mdl_nir.user_id = ? AND mdl_nir.teacher_id = ?  AND 
-                      mdl_user.id = mdl_nir.user_id AND mdl_nir.id = ? AND mdl_user_info_data.userid = ? AND mdl_user_info_data.fieldid = 3";
-        $work = $DB->get_record_sql($sql_work, array($student_id, $USER->id, $work_id, $student_id));
+                      mdl_user.id = mdl_nir.user_id AND mdl_nir.id = ? AND mdl_user_info_data.userid = ? AND mdl_user_info_data.fieldid = ?";
+        $work = $DB->get_record_sql($sql_work, array($student_id, $USER->id, $work_id, $student_id, Config::FIELD_GROUP_ID));
     }
     else{
         $sql_work = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_nir.review, mdl_nir.mark, mdl_user.firstname, mdl_user.lastname 
@@ -320,14 +318,14 @@ else if(isset($_GET["id"])){ // Page of work for teacher and student
     $content .= html_writer::end_tag('div');
     $content .= html_writer::end_tag('div');
 
-    if ($USER->profile['isTeacher'] === "1" && $work->is_closed == 0){
+    if ($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER && $work->is_closed == 0){
         $content .= html_writer::tag('p', 'Завершить работу', array('class' => 'finish_work_button'));
         $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'work_f', 'id' => 'work_f', 'value' => $work_id));
     }
 }
-else if($USER->profile['isTeacher'] === "1"){ // Main page for teacher
+else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER){ // Main page for teacher
     //Доступ к дополнительным полям, в данном случае к группе
-    //echo $USER->profile['isTeacher']; 
+    //echo $USER->profile[Config::FIELD_USER_TYPE_NAME];
     if(isset($_GET["std"])){ // List of student's works for the current teacher
 
         if(!intval($_GET['std'])){
@@ -367,8 +365,8 @@ else if($USER->profile['isTeacher'] === "1"){ // Main page for teacher
     else{ // List of teacher's students
         $sql_users_of_teacher = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname, mdl_user_info_data.data FROM {nir}, {user}, {user_info_data} 
                                     WHERE mdl_nir.teacher_id = ? AND mdl_user.id = mdl_nir.user_id AND mdl_user_info_data.userid = mdl_nir.user_id AND 
-                                    mdl_user_info_data.fieldid = 3";
-        $users_of_teacher = $DB->get_records_sql($sql_users_of_teacher, array($USER->id));
+                                    mdl_user_info_data.fieldid = ?";
+        $users_of_teacher = $DB->get_records_sql($sql_users_of_teacher, array($USER->id, Config::FIELD_GROUP_ID));
 
         $content .= html_writer::tag('h1', 'Студенты');
         
@@ -435,8 +433,8 @@ else{ // Main page for student with list of his works
     if($count_open_works === 0)
     {
         $sql_teachers = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname FROM {user}, {user_info_data} WHERE mdl_user.deleted = 0 AND 
-              mdl_user_info_data.userid = mdl_user.id AND mdl_user_info_data.fieldid = 2 AND mdl_user_info_data.data = 1";
-        $teachers = $DB->get_records_sql($sql_teachers);
+              mdl_user_info_data.userid = mdl_user.id AND mdl_user_info_data.fieldid = ? AND mdl_user_info_data.data = ?";
+        $teachers = $DB->get_records_sql($sql_teachers, array(Config::FIELD_USER_TYPE_ID, Config::USER_TYPE_TEACHER));
         // Modal window for create work
         $content = render_modal_dialog_create_work($teachers, $USER->id);
     }

@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/renderer.php');
 require_once(dirname(__FILE__) . '/helpers.php');
+require_once('class.config.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['work_id']) || intval($_POST['work_id']) == 0){
@@ -21,7 +22,7 @@ if(!$work_plan_info){
     exit();
 }
 
-if($USER->profile['isTeacher'] !== "666"){
+if($USER->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_KAFEDRA){
     echo json_encode(array('status' => "You are not a representative of the department"));
     exit();
 }

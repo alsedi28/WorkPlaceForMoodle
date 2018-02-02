@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/helpers.php');
+require_once('class.config.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['file_id']) || intval($_POST['file_id']) == 0){
@@ -13,7 +14,7 @@ $file_id = $_POST['file_id'];
 $sql_work = "SELECT nir_id, type, is_sign_teacher FROM {nir_files} WHERE id = ?";
 $work = $DB->get_record_sql($sql_work, array($file_id));
 
-if($work && $USER->profile['isTeacher'] === "1"){
+if($work && $USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER){
     
     if($work->is_sign_teacher == 1){
         $update_record = new stdClass();

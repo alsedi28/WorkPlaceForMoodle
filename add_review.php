@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
+require_once('class.config.php');
 header('Content-type: application/json');
 
 $id = isset($_POST['id']) ? intval($_POST['id']) : null;
@@ -7,7 +8,7 @@ $review = isset($_POST['review']) ? $_POST['review'] : "";
 $mark = isset($_POST['mark']) ? intval($_POST['mark']) : null;
 
 if($id === null || !$id || $review === "" || $mark === null ||
-    !($mark >= 1 && $mark <= 5) || $USER->profile['isTeacher'] !== "1"){
+    !($mark >= 1 && $mark <= 5) || $USER->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_TEACHER){
     echo json_encode(array('status' => "Validation error"));
     exit();
 }

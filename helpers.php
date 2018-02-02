@@ -1,4 +1,5 @@
 <?php
+require_once('class.config.php');
 
 function update_work_plan_items($items_current, $items_new,  $work_plan_id, $item_type){
     global $DB;
@@ -172,13 +173,12 @@ function get_messages_for_kaf($work_id, $type, $last_date){
 }
 
 function render_messages($messages, $is_for_kaf = false){
-    $ADMIN = 2;
     $messages_data = '';
 
     foreach ($messages as $m){
         $messages_data .= html_writer::start_tag('div', array('class' => 'message'));
-        $messages_data .= html_writer::start_tag('div', array('class' => ($m->id == $ADMIN || $is_for_kaf) ? 'header_message header_message_kaf' : 'header_message'));
-        $messages_data .= html_writer::tag('p', ($m->id == $ADMIN || $is_for_kaf) ? 'Кафедра' : $m->lastname." ".$m->firstname, array('class' => 'header_message_name'));
+        $messages_data .= html_writer::start_tag('div', array('class' => ($m->id == Config::ADMIN || $is_for_kaf) ? 'header_message header_message_kaf' : 'header_message'));
+        $messages_data .= html_writer::tag('p', ($m->id == Config::ADMIN || $is_for_kaf) ? 'Кафедра' : $m->lastname." ".$m->firstname, array('class' => 'header_message_name'));
         $messages_data .= html_writer::tag('p', $m->date, array('class' => 'header_message_date'));
         $messages_data .= html_writer::tag('div', '', array('style' => 'clear:both;'));
         $messages_data .= html_writer::end_tag('div');
