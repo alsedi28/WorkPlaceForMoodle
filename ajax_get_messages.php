@@ -15,7 +15,7 @@ $work_id = $_GET['work_id'];
 $date = $_GET['date'];
 $type = $_GET['type'];
 
-$nir = DataGateway::get_nir_by_user($USER->id, $work_id);
+$nir = DataGateway::get_nir_by_user($USER->id, $work_id, false);
 
 if(!$nir){
     echo json_encode(array('status' => "Work does not exist"));

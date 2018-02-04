@@ -194,7 +194,7 @@ function render_kafedra_tab_work_plan($messages, $is_closed, $work_id){
     $tab_content .= render_message_container($work_plan_info->is_sign_user, $work_plan_info->is_sign_teacher, $work_plan_info->is_sign_kaf);
 
     if($work_plan_info->is_sign_user && $work_plan_info->is_sign_teacher)
-        $tab_content .= render_work_plan_view($work_id);
+        $tab_content .= render_work_plan_view($work_id, $is_closed);
 
     $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => 'h_work', 'value' => $work_id)); // h_work h_work_2 h_work_3
     $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work_type', 'id' => 'h_work_type', 'value' => 'Z'));
@@ -383,25 +383,27 @@ function render_work_plan($work_id){
     $content = '';
     $content .= html_writer::tag('h2', 'Задание на НИР', array('class' => '', 'style' => 'text-align: center; color: rgba(0,0,0,.54);'));
 
-    $work_plan = DataGateway::get_work_plan_by_nir_and_user($work_id, $USER->id);
+    $work_plan = DataGateway::get_work_plan_by_nir_and_user($work_id, $USER->id, false);
+    $nir = DataGateway::get_nir_by_id($work_id);
 
-    if(!$work_plan)
+    if($nir->is_closed == 1)
+        $content .= render_message_container_with_text("Работа закрыта.");
+    else if(!$work_plan)
         $content .= render_message_container(false, false, false, false);
     else
         $content .= render_message_container($work_plan->is_sign_user, $work_plan->is_sign_teacher, $work_plan->is_sign_kaf);
 
-    if(!$work_plan){
-        if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_STUDENT)
-            $content .= render_work_plan_create($work_id);
+    if($work_plan){
+        $content .= render_work_plan_view($work_id, $nir->is_closed);
     }
-    else{
-        $content .= render_work_plan_view($work_id);
+    else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_STUDENT && $nir->is_closed == 0){
+        $content .= render_work_plan_create($work_id);
     }
 
     return $content;
 }
 
-function render_work_plan_view($work_id){
+function render_work_plan_view($work_id, $is_closed){
     global $USER;
 
     //JOIN
@@ -476,18 +478,20 @@ function render_work_plan_view($work_id){
 
     $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'work_id', 'value' => $work_id));
 
-    if($work_plan_info->is_sign_teacher == 0 && (($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER && $work_plan_info->is_sign_user == 1) ||
-            ($USER->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_TEACHER && $work_plan_info->is_sign_user == 0)))
-        $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Редактировать', 'id' => 'edit_button_work_plan', 'class' => 'work_plan_edit_button'));
+    if($is_closed == 0) {
+        if($work_plan_info->is_sign_teacher == 0 && (($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER && $work_plan_info->is_sign_user == 1) ||
+                ($USER->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_TEACHER && $work_plan_info->is_sign_user == 0)))
+            $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Редактировать', 'id' => 'edit_button_work_plan', 'class' => 'work_plan_edit_button'));
 
-    if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER && $work_plan_info->is_sign_user == 1 && $work_plan_info->is_sign_teacher == 0){
-        $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отправить на согласование кафедре', 'id' => 'send_work_plan_kaf',
-            'action_type' => 'only_send_to_kaf', 'class' => 'work_plan_edit_button'));
-    }
+        if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER && $work_plan_info->is_sign_user == 1 && $work_plan_info->is_sign_teacher == 0) {
+            $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отправить на согласование кафедре', 'id' => 'send_work_plan_kaf',
+                'action_type' => 'only_send_to_kaf', 'class' => 'work_plan_edit_button'));
+        }
 
-    if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA && $work_plan_info->is_sign_user == 1 && $work_plan_info->is_sign_teacher == 1 && $work_plan_info->is_sign_kaf == 0){
-        $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Подтвердить', 'id' => 'approve_work_plan_kaf', 'class' => 'work_plan_edit_button'));
-        $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отклонить', 'id' => 'cancel_work_plan_kaf', 'class' => 'work_plan_edit_button'));
+        if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA && $work_plan_info->is_sign_user == 1 && $work_plan_info->is_sign_teacher == 1 && $work_plan_info->is_sign_kaf == 0) {
+            $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Подтвердить', 'id' => 'approve_work_plan_kaf', 'class' => 'work_plan_edit_button'));
+            $content .= html_writer::empty_tag('input', array('type' => 'button', 'value' => 'Отклонить', 'id' => 'cancel_work_plan_kaf', 'class' => 'work_plan_edit_button'));
+        }
     }
 
     $content .= html_writer::end_tag('div');
@@ -932,6 +936,17 @@ function render_message_container($is_sign_user, $is_sign_teacher, $is_sign_kaf,
             $text = "Задание на НИР еще не было загружено студентом.";
         }
     }
+
+    $content .= html_writer::start_tag('div', array('class' => 'message_container_block message_container'));
+    $content .= html_writer::empty_tag('img', array('src' => 'img/information.png', 'class' => 'message_icon'));
+    $content .= html_writer::tag('p', $text, array('class' => 'message_text'));
+    $content .= html_writer::end_tag('div');
+
+    return $content;
+}
+
+function render_message_container_with_text($text){
+    $content = '';
 
     $content .= html_writer::start_tag('div', array('class' => 'message_container_block message_container'));
     $content .= html_writer::empty_tag('img', array('src' => 'img/information.png', 'class' => 'message_icon'));

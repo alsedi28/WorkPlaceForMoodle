@@ -21,10 +21,14 @@ class DataGateway
     table: mdl_nir
     fields: id
     */
-    public static function get_nir_by_user($user_id, $nir_id){
+    public static function get_nir_by_user($user_id, $nir_id, $only_active = true){
         global $DB;
 
-        $sql_nir = "SELECT mdl_nir.id FROM {nir} WHERE (mdl_nir.user_id = ? OR mdl_nir.teacher_id = ?) AND mdl_nir.id = ? AND mdl_nir.is_closed = 0";
+        $sql_nir = "SELECT mdl_nir.id FROM {nir} WHERE (mdl_nir.user_id = ? OR mdl_nir.teacher_id = ?) AND mdl_nir.id = ?";
+
+        if($only_active)
+            $sql_nir .= " AND mdl_nir.is_closed = 0";
+
         $nir = $DB->get_record_sql($sql_nir, array($user_id, $user_id, $nir_id));
 
         return $nir;
@@ -75,12 +79,15 @@ class DataGateway
     table: mdl_nir, mdl_nir_work_plans
     fields: ***
     */
-    public static function get_work_plan_by_nir_and_user($nir_id, $user_id){
+    public static function get_work_plan_by_nir_and_user($nir_id, $user_id, $only_active = true){
         global $DB;
 
         $sql_work_plan = "SELECT mdl_nir.id, mdl_nir_work_plans.is_sign_user, mdl_nir_work_plans.is_sign_teacher, mdl_nir_work_plans.is_sign_kaf 
                         FROM {nir}, {nir_work_plans} WHERE (mdl_nir.user_id = ? OR mdl_nir.teacher_id = ?) AND mdl_nir.id = ?  
-                        AND mdl_nir_work_plans.nir_id = mdl_nir.id AND mdl_nir.is_closed = 0";
+                        AND mdl_nir_work_plans.nir_id = mdl_nir.id";
+
+        if($only_active)
+            $sql_work_plan .= " AND mdl_nir.is_closed = 0";
 
         $work_plan = $DB->get_record_sql($sql_work_plan, array($user_id, $user_id, $nir_id));
 
