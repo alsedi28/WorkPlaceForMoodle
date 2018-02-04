@@ -1,5 +1,6 @@
 <?php
 require_once('class.config.php');
+require_once('class.datagateway.php');
 
 function update_work_plan_items($items_current, $items_new,  $work_plan_id, $item_type){
     global $DB;
@@ -127,46 +128,30 @@ function update_teacher_info($teacher_info, $data){
 }
 
 function get_messages($work_id, $type, $last_date){
-    global $DB;
-
+    $messages = null;
     if ($last_date != NULL){
-        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname, mdl_user.id FROM {nir_messages}, {user} WHERE 
-                          mdl_nir_messages.date > ? AND mdl_nir_messages.nir_id = ? AND mdl_user.id = mdl_nir_messages.user_id AND 
-                          mdl_nir_messages.nir_type = ?";
-
-        $params = array($last_date, $work_id, $type);
+        $messages = DataGateway::get_comments_by_date($last_date, $work_id, $type);
     }
     else{
-        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname FROM {nir_messages}, {user} WHERE 
-                          mdl_nir_messages.nir_id = ? AND mdl_user.id = mdl_nir_messages.user_id AND mdl_nir_messages.nir_type = ?";
-
-        $params = array($work_id, $type);
+        $messages = DataGateway::get_comments($last_date, $work_id, $type);
     }
 
-    $messages = $DB->get_records_sql($sql_messages, $params);
     $messages_data = render_messages($messages);
 
     return $messages_data;
 }
 
 function get_messages_for_kaf($work_id, $type, $last_date){
-    global $DB;
     global $USER;
+    $messages = null;
 
     if ($last_date != NULL){
-        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date FROM {nir_messages} WHERE mdl_nir_messages.date > ? AND 
-                            mdl_nir_messages.nir_id = ? AND mdl_nir_messages.user_id = ? AND mdl_nir_messages.nir_type = ?";
-
-        $params = array($last_date, $work_id, $USER->id, $type);
+        $messages = DataGateway::get_comments_for_kafedra_by_date($last_date, $work_id, $USER->id, $type);
     }
     else{
-        $sql_messages = "SELECT mdl_nir_messages.text, mdl_nir_messages.date FROM {nir_messages} WHERE mdl_nir_messages.nir_id = ? AND 
-                            mdl_nir_messages.user_id = ? AND mdl_nir_messages.nir_type = ?";
-
-        $params = array($work_id, $USER->id, $type);
+        $messages = DataGateway::get_comments_for_kafedra($work_id, $USER->id, $type);
     }
 
-    $messages = $DB->get_records_sql($sql_messages, $params);
     $messages_data = render_messages($messages, true);
 
     return $messages_data;

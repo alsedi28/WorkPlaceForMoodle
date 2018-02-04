@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
+require_once('class.datagateway.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['id']) || intval($_POST['id']) == 0){
@@ -9,8 +10,7 @@ if(!isset($_POST['id']) || intval($_POST['id']) == 0){
 
 $file_id = $_POST['id'];
 
-$sql_file = "SELECT * FROM {nir_files} WHERE id = ?";
-$file = $DB->get_record_sql($sql_file, array($file_id));
+$file = DataGateway::get_file_by_id($file_id);
 
 if($file && $file->user_id !== $USER->id){
     $update_record = new stdClass();

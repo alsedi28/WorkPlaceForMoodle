@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
 require_once('class.config.php');
+require_once('class.datagateway.php');
 header('Content-type: application/json');
 
 $id = isset($_POST['id']) ? intval($_POST['id']) : null;
@@ -13,7 +14,7 @@ if($id === null || !$id || $review === "" || $mark === null ||
     exit();
 }
 
-$work = $DB->get_record_sql("SELECT id, teacher_id, mark, review FROM {nir} WHERE id = ?", array($id));
+$work = DataGateway::get_nir_by_id($id);
 
 if($work && $work->teacher_id == $USER->id && $work->review === null && $work->mark === null){
     $update_record = new stdClass();

@@ -1,5 +1,5 @@
 <?php
-
+    require_once('class.datagateway.php');
     require_once('class.uploader.php');
     require_once(dirname(__FILE__) . '/../config.php');
 
@@ -38,11 +38,10 @@
         
         $work_id = (int) $_POST['work'];
         $type = $_POST['type'];
+
+        $rs = DataGateway::get_nir_by_user($USER->id, $work_id);
         
-        $sql_work = "SELECT mdl_nir.id FROM mdl_nir WHERE (mdl_nir.user_id=".$USER->id." OR mdl_nir.teacher_id=".$USER->id.") AND mdl_nir.id=".$work_id;
-        $rs = $DB->get_records_sql($sql_work);
-        
-        if(count($rs) == 0){
+        if(!$rs){
             echo "Error";
             exit;
         }

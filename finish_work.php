@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
 require_once('class.config.php');
+require_once('class.datagateway.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['id']) || intval($_POST['id']) == 0){
@@ -10,8 +11,7 @@ if(!isset($_POST['id']) || intval($_POST['id']) == 0){
 
 $id = $_POST['id'];
 
-$sql_work = "SELECT id FROM {nir} WHERE id =?  AND teacher_id = ?";
-$work = $DB->get_record_sql($sql_work, array($id, $USER->id));
+$work = DataGateway::get_nir_by_user($USER->id, $id);
 
 if($work && $USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER){
     $update_record = new stdClass();

@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/renderer.php');
 require_once(dirname(__FILE__) . '/helpers.php');
+require_once('class.datagateway.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['work_id']) || intval($_POST['work_id']) == 0){
@@ -11,10 +12,7 @@ if(!isset($_POST['work_id']) || intval($_POST['work_id']) == 0){
 
 $work_id = $_POST['work_id'];
 
-$sql_work_plan_info = "SELECT mdl_nir_work_plans.id FROM {nir_work_plans}, {nir} WHERE 
-                        mdl_nir_work_plans.nir_id = ? AND mdl_nir.id = mdl_nir_work_plans.nir_id AND mdl_nir.teacher_id = ?";
-
-$work_plan_info = $DB->get_record_sql($sql_work_plan_info, array($work_id, $USER->id));
+$work_plan_info = DataGateway::get_work_plan_by_nir_and_teacher($work_id, $USER->id);
 
 if(!$work_plan_info){
     echo json_encode(array('status' => "Work plan does not exist"));

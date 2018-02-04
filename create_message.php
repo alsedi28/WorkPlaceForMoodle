@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/helpers.php');
 require_once('class.config.php');
+require_once('class.datagateway.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['nir']) || intval($_POST['nir']) == 0 || !isset($_POST['type']) || !isset($_POST['text'])){
@@ -22,8 +23,7 @@ $is_kaf = false;
 if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA)
     $is_kaf = true;
 
-$sql_work = "SELECT id, user_id, teacher_id FROM {nir} WHERE id = ?";
-$work = $DB->get_record_sql($sql_work, array($work_id));
+$work = DataGateway::get_nir_by_id($work_id);
 
 if(!$work || ($work->user_id != $USER->id && $work->teacher_id != $USER->id && !$is_kaf)){
     echo json_encode(array('status' => "Validation error"));

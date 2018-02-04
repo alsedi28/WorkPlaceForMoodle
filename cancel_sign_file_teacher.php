@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/helpers.php');
 require_once('class.config.php');
+require_once('class.datagateway.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['file_id']) || intval($_POST['file_id']) == 0){
@@ -11,12 +12,11 @@ if(!isset($_POST['file_id']) || intval($_POST['file_id']) == 0){
 
 $file_id = $_POST['file_id'];
 
-$sql_work = "SELECT nir_id, type, is_sign_teacher FROM {nir_files} WHERE id = ?";
-$work = $DB->get_record_sql($sql_work, array($file_id));
+$file = DataGateway::get_file_by_id($file_id);
 
-if($work && $USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER){
+if($file && $USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER){
     
-    if($work->is_sign_teacher == 1){
+    if($file->is_sign_teacher == 1){
         $update_record = new stdClass();
         $update_record->id = $file_id;
         $update_record->is_sign_teacher = 0;
@@ -27,8 +27,8 @@ if($work && $USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_T
         
         $record = new stdClass();
         $record->user_id = $USER->id;
-        $record->nir_id = $work->nir_id;
-        $record->nir_type = $work->type;
+        $record->nir_id = $file->nir_id;
+        $record->nir_type = $file->type;
         $record->text = $message;
         
         $DB->insert_record('nir_messages', $record, false);
@@ -37,7 +37,7 @@ if($work && $USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_T
         if (isset($_POST['last_date_message']))
             $last_date = $_POST['last_date_message'];
 
-        $messages_data = get_messages($work->nir_id, $work->type, $last_date);
+        $messages_data = get_messages($file->nir_id, $file->type, $last_date);
 
         echo json_encode(array('status' => "Ok", 'messages' => $messages_data));
         exit();

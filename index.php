@@ -4,6 +4,7 @@
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/renderer.php');
 require_once('class.config.php');
+require_once('class.datagateway.php');
 
 $context = context_user::instance($USER->id);
 $PAGE->set_blocks_editing_capability('moodle/my:manageblocks');
@@ -52,10 +53,8 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
         }
 
         $student_id = $_GET["std"];
-        
-        $sql_student = "SELECT mdl_user.firstname, mdl_user.lastname, mdl_user.id, mdl_user_info_data.data FROM {user}, {user_info_data} 
-                          WHERE mdl_user.id = ? AND mdl_user_info_data.userid = mdl_user.id AND mdl_user_info_data.fieldid = ?";
-        $student_info = $DB->get_record_sql($sql_student, array($student_id, Config::FIELD_GROUP_ID));
+
+        $student_info = DataGateway::get_student_info($student_id);
 
         if(!$student_info){
             echo html_writer::tag('h3', '404 NOT FOUND');
@@ -86,24 +85,10 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
 
             $content .= html_writer::tag('h1', 'Научно-исследовательская работа');
 
-            $sql_work_plan = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.date, mdl_nir_files.is_new, mdl_nir_files.is_sign_kaf, mdl_user.firstname, mdl_user.lastname 
-                                FROM {nir_files}, {nir}, {user} WHERE mdl_nir.id = ? AND mdl_nir_files.nir_id = ? AND mdl_nir_files.type='Z' 
-                                AND mdl_user.id = mdl_nir_files.user_id AND mdl_nir_files.is_sign_teacher = 1";
-            $work_plan_result = $DB->get_record_sql($sql_work_plan, array($work_id, $work_id));
+            $messages_type_z = DataGateway::get_comments_for_kafedra($work_id, $USER->id, 'Z');
 
-            $sql_messages_type_z = "SELECT mdl_nir_messages.id, mdl_nir_messages.text, mdl_nir_messages.date FROM {nir_messages}
-                                        WHERE mdl_nir_messages.nir_id = ? AND mdl_nir_messages.user_id = ? AND mdl_nir_messages.nir_type = 'Z' 
-                                        ORDER BY mdl_nir_messages.date";
-            $messages_type_z = $DB->get_records_sql($sql_messages_type_z, array($work_id, $USER->id));
-
-            $sql_file_type_o = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.date, mdl_nir_files.is_new, mdl_nir_files.is_sign_kaf, mdl_user.firstname, mdl_user.lastname 
-                                  FROM {nir_files}, {nir}, {user} WHERE mdl_nir.id = ? AND mdl_nir_files.nir_id = ? AND mdl_nir_files.type = 'O' 
-                                  AND mdl_user.id = mdl_nir_files.user_id AND mdl_nir_files.is_sign_teacher = 1";
-            $file_type_o = $DB->get_record_sql($sql_file_type_o, array($work_id, $work_id));
-            $sql_messages_type_o = "SELECT mdl_nir_messages.id, mdl_nir_messages.text, mdl_nir_messages.date FROM {nir_messages} 
-                                        WHERE mdl_nir_messages.nir_id = ? AND mdl_nir_messages.user_id = ? AND mdl_nir_messages.nir_type = 'O' 
-                                        ORDER BY mdl_nir_messages.date";
-            $messages_type_o = $DB->get_records_sql($sql_messages_type_o, array($work_id, $USER->id));
+            $file_type_o = DataGateway::get_file_for_kafedra($work_id, 'O');
+            $messages_type_o = DataGateway::get_comments_for_kafedra($work_id, $USER->id, 'O');
 
             $content .= html_writer::start_tag('p', array('class' => 'single_work_teacher'));
             $content .= html_writer::tag('span', 'Научный руководитель: ', array('class' => 'single_work_teacher_title'));
@@ -142,10 +127,8 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
             $content .= html_writer::tag('h1', 'Научно-исследовательские работы');
 
             $content .= render_student_info($student_info);
-            
-            $sql_works = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_user.firstname, mdl_user.lastname FROM {nir}, {user} 
-                            WHERE mdl_nir.user_id = ? AND  mdl_user.id = mdl_nir.teacher_id";
-            $works = $DB->get_records_sql($sql_works, array($student_id));
+
+            $works = DataGateway::get_list_nir_by_student($student_id);
         
             foreach ($works as $wk){
                 $url = "/nir/index.php?std=".$student_id."&id=".$wk->id;
@@ -162,9 +145,8 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
     }
     else{ // Main page kafedra with list of students
         $content .= html_writer::tag('h1', 'Научно-исследовательская работа');
-        
-        $sql_groups = "SELECT DISTINCT data FROM mdl_user_info_data WHERE fieldid = ?  AND data != '' ORDER BY data";
-        $groups = $DB->get_records_sql($sql_groups, array(Config::FIELD_GROUP_ID));
+
+        $groups = DataGateway::get_groups();
 
         $content .= html_writer::start_tag('div', array('id' => 'cssmenu'));
         $content .= html_writer::start_tag('ul');
@@ -250,24 +232,17 @@ else if(isset($_GET["id"])){ // Page of work for teacher and student
         exit();
     }
 
-    $sql_messages_type_z = "SELECT * FROM (SELECT mdl_nir_messages.id, mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname, mdl_user.id as user_id FROM 
-                            mdl_nir_messages, mdl_user WHERE mdl_nir_messages.nir_id=".$work_id." AND mdl_user.id=mdl_nir_messages.user_id AND mdl_nir_messages.nir_type='Z' 
-                            ORDER BY mdl_nir_messages.id DESC LIMIT 6) as tmp ORDER BY tmp.date";
-    $messages_type_z = $DB->get_records_sql($sql_messages_type_z);
+    $messages_type_z = DataGateway::get_comments_limit($work_id, 'Z');
 
     $sql_files_type_o = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.is_sign_teacher, mdl_nir_files.date, mdl_nir_files.is_new, mdl_user.firstname, mdl_user.lastname, mdl_user.id as user_id FROM mdl_nir_files, mdl_nir, mdl_user WHERE mdl_nir.id=".$work_id." AND (mdl_nir.teacher_id=".$USER->id." OR  mdl_nir.user_id=".$USER->id.") AND mdl_nir_files.nir_id=".$work_id." AND mdl_nir_files.type='O' AND mdl_user.id=mdl_nir_files.user_id ORDER BY mdl_nir_files.date";
     $files_type_o = $DB->get_records_sql($sql_files_type_o);
-    $sql_messages_type_o = "SELECT * FROM (SELECT mdl_nir_messages.id, mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname, mdl_user.id as user_id FROM 
-                            mdl_nir_messages, mdl_user WHERE mdl_nir_messages.nir_id=".$work_id." AND mdl_user.id=mdl_nir_messages.user_id AND mdl_nir_messages.nir_type='O' 
-                            ORDER BY mdl_nir_messages.id DESC LIMIT 6) as tmp ORDER BY tmp.date";
-    $messages_type_o = $DB->get_records_sql($sql_messages_type_o);
+
+    $messages_type_o = DataGateway::get_comments_limit($work_id, 'O');
 
     $sql_files_type_p = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.is_sign_teacher, mdl_nir_files.date, mdl_nir_files.is_new, mdl_user.firstname, mdl_user.lastname, mdl_user.id as user_id FROM mdl_nir_files, mdl_nir, mdl_user WHERE mdl_nir.id=".$work_id." AND (mdl_nir.teacher_id=".$USER->id." OR  mdl_nir.user_id=".$USER->id.") AND mdl_nir_files.nir_id=".$work_id." AND mdl_nir_files.type='P' AND mdl_user.id=mdl_nir_files.user_id ORDER BY mdl_nir_files.date";
     $files_type_p = $DB->get_records_sql($sql_files_type_p);
-    $sql_messages_type_p = "SELECT * FROM (SELECT mdl_nir_messages.id, mdl_nir_messages.text, mdl_nir_messages.date, mdl_user.firstname, mdl_user.lastname, mdl_user.id as user_id FROM 
-                            mdl_nir_messages, mdl_user WHERE mdl_nir_messages.nir_id=".$work_id." AND mdl_user.id=mdl_nir_messages.user_id AND mdl_nir_messages.nir_type='P' 
-                            ORDER BY mdl_nir_messages.id DESC LIMIT 6) as tmp ORDER BY tmp.date";
-    $messages_type_p = $DB->get_records_sql($sql_messages_type_p);
+
+    $messages_type_p = DataGateway::get_comments_limit($work_id, 'P');
 
     $content .= html_writer::tag('h1', 'Научно-исследовательская работа');
 
@@ -335,10 +310,8 @@ else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACH
         }
 
         $student_id = $_GET["std"];
-        
-        $sql_works = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_user.firstname, mdl_user.lastname, mdl_user.id as student_id 
-                        FROM {nir}, {user} WHERE mdl_nir.user_id = ? AND mdl_nir.teacher_id = ? AND  mdl_user.id = mdl_nir.user_id";
-        $works = $DB->get_records_sql($sql_works, array($student_id, $USER->id));
+
+        $works = DataGateway::get_list_nir_by_student_and_teacher($student_id, $USER->id);
 
         $content .= html_writer::tag('h1', 'Научно-исследовательские работы');
     
@@ -397,9 +370,7 @@ else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACH
     }
 }
 else{ // Main page for student with list of his works
-    $sql_works = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_user.firstname, mdl_user.lastname FROM {nir}, {user} 
-                    WHERE mdl_nir.user_id = ? AND mdl_user.id = mdl_nir.teacher_id";
-    $works = $DB->get_records_sql($sql_works, array($USER->id));
+    $works = DataGateway::get_list_nir_by_student($USER->id);
 
     $content .= html_writer::tag('h1', 'Научно-исследовательские работы');
     
@@ -432,11 +403,9 @@ else{ // Main page for student with list of his works
     
     if($count_open_works === 0)
     {
-        $sql_teachers = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname FROM {user}, {user_info_data} WHERE mdl_user.deleted = 0 AND 
-              mdl_user_info_data.userid = mdl_user.id AND mdl_user_info_data.fieldid = ? AND mdl_user_info_data.data = ?";
-        $teachers = $DB->get_records_sql($sql_teachers, array(Config::FIELD_USER_TYPE_ID, Config::USER_TYPE_TEACHER));
+        $teachers = DataGateway::get_teachers();
         // Modal window for create work
-        $content = render_modal_dialog_create_work($teachers, $USER->id);
+        $content .= render_modal_dialog_create_work($teachers, $USER->id);
     }
 }
 

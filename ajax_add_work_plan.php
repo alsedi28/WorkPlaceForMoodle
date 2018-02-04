@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/renderer.php');
+require_once('class.datagateway.php');
 header('Content-type: application/json');
 
 if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_patronymic'])&& isset($_POST['ex_phone_number']) && isset($_POST['ex_email']) &&
@@ -78,18 +79,16 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
         }
     }
 
-    $sql_nir = "SELECT mdl_nir.id FROM {nir} WHERE mdl_nir.user_id = ? AND mdl_nir.id = ? AND mdl_nir.is_closed = 0";
-    $rs = $DB->get_records_sql($sql_nir, array($USER->id, $work_id));
+    $nir = DataGateway::get_nir_by_user($USER->id, $work_id);
 
-    if(count($rs) == 0){
+    if(!$nir){
         echo json_encode(array('status' => "Validation error"));
         exit();
     }
 
-    $sql_work_plan = "SELECT mdl_nir_work_plans.id FROM {nir_work_plans} WHERE mdl_nir_work_plans.nir_id = ?";
-    $rs = $DB->get_records_sql($sql_work_plan, array($work_id));
+    $work_plan = DataGateway::get_work_plan_by_nir($work_id);
 
-    if(count($rs) > 0){
+    if($work_plan){
         echo json_encode(array('status' => "Validation error"));
         exit();
     }

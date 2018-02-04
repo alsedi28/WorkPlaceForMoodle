@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/helpers.php');
 require_once('class.config.php');
+require_once('class.datagateway.php');
 
 function render_modal_dialog_create_work($teachers, $user_id){
     $dialog = '';
@@ -8,7 +9,7 @@ function render_modal_dialog_create_work($teachers, $user_id){
     $dialog .= html_writer::tag('div', 'Создать НИР', array('id' => 'button_create_nir'));
     $dialog .= html_writer::end_tag('a');
 
-    $dialog .= html_writer::tag('a', array('href' => '#x', 'class' => 'overlay', 'id' => 'win1'));
+    $dialog .= html_writer::tag('a','', array('href' => '#x', 'class' => 'overlay', 'id' => 'win1'));
 
     $dialog .= html_writer::start_tag('div', array('class' => 'popup'));
     $dialog .= html_writer::start_tag('div');
@@ -184,14 +185,11 @@ function render_kafedra_tab_report($file, $messages, $result, $work_id){
 }
 
 function render_kafedra_tab_work_plan($messages, $is_closed, $work_id){
-    global $DB;
-
     $tab_content = '';
     $tab_content .= html_writer::start_tag('div', array('id' => 'content'));
     $tab_content .= html_writer::start_tag('div', array('class' => 'block_work_plan'));
 
-    $sql_work_plan_info = "SELECT is_sign_user, is_sign_teacher, is_sign_kaf FROM {nir_work_plans} WHERE mdl_nir_work_plans.nir_id = ?";
-    $work_plan_info = $DB->get_record_sql($sql_work_plan_info, array($work_id));
+    $work_plan_info = DataGateway::get_work_plan_by_nir($work_id);
 
     $tab_content .= render_message_container($work_plan_info->is_sign_user, $work_plan_info->is_sign_teacher, $work_plan_info->is_sign_kaf);
 
@@ -381,22 +379,18 @@ function render_tab($files, $messages, $result, $user, $work_id, $options){
 }
 
 function render_work_plan($work_id){
-    global $DB, $USER;
+    global $USER;
     $content = '';
     $content .= html_writer::tag('h2', 'Задание на НИР', array('class' => '', 'style' => 'text-align: center; color: rgba(0,0,0,.54);'));
 
-    $sql_work_plan = "SELECT mdl_nir.id, mdl_nir_work_plans.is_sign_user, mdl_nir_work_plans.is_sign_teacher, mdl_nir_work_plans.is_sign_kaf 
-                        FROM {nir}, {nir_work_plans} WHERE (mdl_nir.user_id = ? OR mdl_nir.teacher_id = ?) AND mdl_nir.id = ?  
-                        AND mdl_nir_work_plans.nir_id = mdl_nir.id AND mdl_nir.is_closed = 0";
+    $work_plan = DataGateway::get_work_plan_by_nir_and_user($work_id, $USER->id);
 
-    $rs = $DB->get_records_sql($sql_work_plan, array($USER->id, $USER->id, $work_id));
-
-    if(count($rs) == 0)
+    if(!$work_plan)
         $content .= render_message_container(false, false, false, false);
     else
-        $content .= render_message_container($rs[$work_id]->is_sign_user, $rs[$work_id]->is_sign_teacher, $rs[$work_id]->is_sign_kaf);
+        $content .= render_message_container($work_plan->is_sign_user, $work_plan->is_sign_teacher, $work_plan->is_sign_kaf);
 
-    if(count($rs) == 0){
+    if(!$work_plan){
         if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_STUDENT)
             $content .= render_work_plan_create($work_id);
     }
@@ -408,7 +402,6 @@ function render_work_plan($work_id){
 }
 
 function render_work_plan_view($work_id){
-    global $DB;
     global $USER;
 
     //JOIN
@@ -416,20 +409,11 @@ function render_work_plan_view($work_id){
               JOIN mdl_nir_user_info AS ui ON ui.work_plan_id = wp.id 
               JOIN mdl_nir_teacher_info AS ti ON ti.work_plan_id = wp.id AND ti.type = 'T' WHERE wp.nir_id = ?";*/
 
-    $sql_work_plan_info = "SELECT * FROM {nir_work_plans} WHERE mdl_nir_work_plans.nir_id = ?";
-    $work_plan_info = $DB->get_record_sql($sql_work_plan_info, array($work_id));
-
-    $sql_user_info = "SELECT * FROM {nir_user_info} WHERE mdl_nir_user_info.work_plan_id = ?";
-    $user_info = $DB->get_record_sql($sql_user_info, array($work_plan_info->id));
-
-    $sql_teacher_info = "SELECT * FROM {nir_teacher_info} WHERE mdl_nir_teacher_info.work_plan_id = ? AND mdl_nir_teacher_info.type = 'T'";
-    $teacher_info = $DB->get_record_sql($sql_teacher_info, array($work_plan_info->id));
-
-    $sql_consultant_info = "SELECT * FROM {nir_teacher_info} WHERE mdl_nir_teacher_info.work_plan_id = ? AND mdl_nir_teacher_info.type = 'C'";
-    $consultant_info = $DB->get_record_sql($sql_consultant_info, array($work_plan_info->id));
-
-    $sql_work_plan_items = "SELECT * FROM {nir_work_plan_items} WHERE mdl_nir_work_plan_items.work_plan_id = ?";
-    $work_plan_items = $DB->get_records_sql($sql_work_plan_items, array($work_plan_info->id));
+    $work_plan_info = DataGateway::get_work_plan_by_nir($work_id);
+    $user_info = DataGateway::get_student_info_by_work_plan($work_plan_info->id);
+    $teacher_info = DataGateway::get_teacher_info_by_work_plan($work_plan_info->id);
+    $consultant_info = DataGateway::get_consultant_info_by_work_plan($work_plan_info->id);
+    $work_plan_items = DataGateway::get_work_plan_items_by_id($work_plan_info->id);
 
     $content = '';
     $content .= html_writer::start_tag('div', array('class' => 'form_work_plan'));
@@ -512,23 +496,13 @@ function render_work_plan_view($work_id){
 }
 
 function render_work_plan_edit($work_id){
-    global $DB;
     global $USER;
 
-    $sql_work_plan_info = "SELECT * FROM {nir_work_plans} WHERE mdl_nir_work_plans.nir_id = ?";
-    $work_plan_info = $DB->get_record_sql($sql_work_plan_info, array($work_id));
-
-    $sql_user_info = "SELECT * FROM {nir_user_info} WHERE mdl_nir_user_info.work_plan_id = ?";
-    $user_info = $DB->get_record_sql($sql_user_info, array($work_plan_info->id));
-
-    $sql_teacher_info = "SELECT * FROM {nir_teacher_info} WHERE mdl_nir_teacher_info.work_plan_id = ? AND mdl_nir_teacher_info.type = 'T'";
-    $teacher_info = $DB->get_record_sql($sql_teacher_info, array($work_plan_info->id));
-
-    $sql_consultant_info = "SELECT * FROM {nir_teacher_info} WHERE mdl_nir_teacher_info.work_plan_id = ? AND mdl_nir_teacher_info.type = 'C'";
-    $consultant_info = $DB->get_record_sql($sql_consultant_info, array($work_plan_info->id));
-
-    $sql_work_plan_items = "SELECT * FROM {nir_work_plan_items} WHERE mdl_nir_work_plan_items.work_plan_id = ?";
-    $work_plan_items = $DB->get_records_sql($sql_work_plan_items, array($work_plan_info->id));
+    $work_plan_info = DataGateway::get_work_plan_by_nir($work_id);
+    $user_info = DataGateway::get_student_info_by_work_plan($work_plan_info->id);
+    $teacher_info = DataGateway::get_teacher_info_by_work_plan($work_plan_info->id);
+    $consultant_info = DataGateway::get_consultant_info_by_work_plan($work_plan_info->id);
+    $work_plan_items = DataGateway::get_work_plan_items_by_id($work_plan_info->id);
 
     $content = '';
     $content .= html_writer::start_tag('form', array('class' => 'form_work_plan', 'action' => 'javascript:void(null);', 'id' => 'form_plan_edit'));
@@ -618,13 +592,9 @@ function render_work_plan_edit($work_id){
 }
 
 function render_work_plan_create($work_id){
-    global $DB;
     global $USER;
 
-    $sql_info = "SELECT mdl_user.firstname, mdl_user.lastname, mdl_user.email FROM {nir}, {user} 
-                            WHERE mdl_nir.id = ? AND mdl_user.id = mdl_nir.teacher_id";
-
-    $rs = $DB->get_record_sql($sql_info, array($work_id));
+    $teacher_info = DataGateway::get_teacher_info_by_nir($work_id);
 
     $content = '';
     $content .= html_writer::start_tag('form', array('class' => 'form_work_plan', 'action' => 'javascript:void(null);', 'id' => 'form_plan'));
@@ -645,11 +615,11 @@ function render_work_plan_create($work_id){
 
     $content .= html_writer::tag('h3', 'Научный руководитель', array('class' => 'header_block'));
 
-    $content .= render_work_plan_input_block('Фамилия', 'th_surname', true, $rs->lastname, true,'text', 25, 'letters');
-    $content .= render_work_plan_input_block('Имя', 'th_name', true, $rs->firstname, true,'text', 25, 'letters');
+    $content .= render_work_plan_input_block('Фамилия', 'th_surname', true, $teacher_info->lastname, true,'text', 25, 'letters');
+    $content .= render_work_plan_input_block('Имя', 'th_name', true, $teacher_info->firstname, true,'text', 25, 'letters');
     $content .= render_work_plan_input_block('Отчество', 'th_patronymic', true, '', false, 'text', 25, 'letters');
     $content .= render_work_plan_input_block('Номер телефона', 'th_phone_number', true, '', false, 'tel', 20, 'numbers');
-    $content .= render_work_plan_input_block('Электронная почта', 'th_email', true, $rs->email, false, 'email', 30);
+    $content .= render_work_plan_input_block('Электронная почта', 'th_email', true, $teacher_info->email, false, 'email', 30);
     $content .= render_work_plan_input_block('Место работы', 'th_place_work', true, '', false, 'text', 50);
     $content .= render_work_plan_input_block('Должность', 'th_position_work', true, '', false, 'text', 50);
     $content .= render_work_plan_selected_block('Учёное звание', 'th_academic_title', array('Доцент', 'Профессор',
@@ -865,7 +835,7 @@ function render_work_plan_textarea_many_block($label, $textarea_name, $rows, $re
     if($required)
         $content .= html_writer::tag('span', ' *', array('style' => 'color:red;'));
     $content .= html_writer::empty_tag('br');
-    $content .= html_writer::tag('span','Каждый пункт необходимо вводить в новое поле. Номера пунктов указать не нужно.', array('class' => 'title_many_textarea'));
+    $content .= html_writer::tag('span','Каждый пункт необходимо вводить в новое поле. Номера пунктов указывать не нужно.', array('class' => 'title_many_textarea'));
     $content .= html_writer::end_tag('label');
 
     $count = $items == null ? 3 : count($items);

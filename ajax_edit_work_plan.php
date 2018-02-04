@@ -3,6 +3,7 @@ require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/renderer.php');
 require_once(dirname(__FILE__) . '/helpers.php');
 require_once(dirname(__FILE__) . '/constants.php');
+require_once('class.datagateway.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['work_id']) || intval($_POST['work_id']) == 0){
@@ -23,17 +24,10 @@ if(!$work_plan_info){
     exit();
 }
 
-$sql_user_info = "SELECT * FROM {nir_user_info} WHERE mdl_nir_user_info.work_plan_id = ?";
-$user_info = $DB->get_record_sql($sql_user_info, array($work_plan_info->id));
-
-$sql_teacher_info = "SELECT * FROM {nir_teacher_info} WHERE mdl_nir_teacher_info.work_plan_id = ? AND mdl_nir_teacher_info.type = 'T'";
-$teacher_info = $DB->get_record_sql($sql_teacher_info, array($work_plan_info->id));
-
-$sql_consultant_info = "SELECT * FROM {nir_teacher_info} WHERE mdl_nir_teacher_info.work_plan_id = ? AND mdl_nir_teacher_info.type = 'C'";
-$consultant_info = $DB->get_record_sql($sql_consultant_info, array($work_plan_info->id));
-
-$sql_work_plan_items = "SELECT * FROM {nir_work_plan_items} WHERE mdl_nir_work_plan_items.work_plan_id = ?";
-$work_plan_items = $DB->get_records_sql($sql_work_plan_items, array($work_plan_info->id));
+$user_info = DataGateway::get_student_info_by_work_plan($work_plan_info->id);
+$teacher_info = DataGateway::get_teacher_info_by_work_plan($work_plan_info->id);
+$consultant_info = DataGateway::get_consultant_info_by_work_plan($work_plan_info->id);
+$work_plan_items = DataGateway::get_work_plan_items_by_id($work_plan_info->id);
 
 if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_patronymic'])&& isset($_POST['ex_phone_number']) && isset($_POST['ex_email']) &&
     isset($_POST['th_surname']) && isset($_POST['th_name']) && isset($_POST['th_patronymic']) && isset($_POST['th_phone_number']) && isset($_POST['th_email']) &&
