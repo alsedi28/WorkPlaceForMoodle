@@ -73,9 +73,7 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
 
             $work_id = $_GET["id"];
 
-            $sql_work = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_nir.review, mdl_nir.mark, mdl_user.firstname, mdl_user.lastname 
-                            FROM {nir}, {user} WHERE mdl_nir.user_id = ? AND mdl_user.id = mdl_nir.teacher_id AND mdl_nir.id = ?";
-            $work = $DB->get_record_sql($sql_work, array($student_id, $work_id));
+            $work = DataGateway::get_nir_by_student($student_id, $work_id);
 
             if(!$work){
                 echo html_writer::tag('h3', '404 NOT FOUND');
@@ -159,9 +157,7 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
 
             $content .= html_writer::start_tag('ul');
 
-            $sql_users_groups = "SELECT mdl_user.firstname, mdl_user.lastname, mdl_user.id FROM {user}, {user_info_data} 
-                                    WHERE mdl_user.id = mdl_user_info_data.userid AND mdl_user_info_data.data = ?";
-            $users_group = $DB->get_records_sql($sql_users_groups, array($grp->data));
+            $users_group = DataGateway::get_students_by_group($grp->data);
             
             foreach($users_group as $u){
                 $sql_users_count_files = "SELECT COUNT(mdl_nir_files.id) as count FROM {nir}, {nir_files} WHERE mdl_nir.user_id = ? AND 
@@ -215,15 +211,11 @@ else if(isset($_GET["id"])){ // Page of work for teacher and student
         }
 
         $student_id = $_GET["std"];
-        $sql_work = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_nir.review, mdl_nir.mark, mdl_user.firstname, mdl_user.lastname, mdl_user_info_data.data 
-                      FROM {nir}, {user}, {user_info_data} WHERE mdl_nir.user_id = ? AND mdl_nir.teacher_id = ?  AND 
-                      mdl_user.id = mdl_nir.user_id AND mdl_nir.id = ? AND mdl_user_info_data.userid = ? AND mdl_user_info_data.fieldid = ?";
-        $work = $DB->get_record_sql($sql_work, array($student_id, $USER->id, $work_id, $student_id, Config::FIELD_GROUP_ID));
+
+        $work = DataGateway::get_nir_by_student_and_teacher($student_id, $USER->id, $work_id);
     }
     else{
-        $sql_work = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_nir.review, mdl_nir.mark, mdl_user.firstname, mdl_user.lastname 
-                        FROM {nir}, {user} WHERE mdl_nir.user_id = ? AND mdl_user.id = mdl_nir.teacher_id AND mdl_nir.id = ?";
-        $work = $DB->get_record_sql($sql_work, array($USER->id, $work_id));
+        $work = DataGateway::get_nir_by_student($USER->id, $work_id);
     }
 
     if(!$work){
@@ -234,14 +226,10 @@ else if(isset($_GET["id"])){ // Page of work for teacher and student
 
     $messages_type_z = DataGateway::get_comments_limit($work_id, 'Z');
 
-    $sql_files_type_o = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.is_sign_teacher, mdl_nir_files.date, mdl_nir_files.is_new, mdl_user.firstname, mdl_user.lastname, mdl_user.id as user_id FROM mdl_nir_files, mdl_nir, mdl_user WHERE mdl_nir.id=".$work_id." AND (mdl_nir.teacher_id=".$USER->id." OR  mdl_nir.user_id=".$USER->id.") AND mdl_nir_files.nir_id=".$work_id." AND mdl_nir_files.type='O' AND mdl_user.id=mdl_nir_files.user_id ORDER BY mdl_nir_files.date";
-    $files_type_o = $DB->get_records_sql($sql_files_type_o);
-
+    $files_type_o = DataGateway::get_files_by_type($USER->id, $work_id, 'O');
     $messages_type_o = DataGateway::get_comments_limit($work_id, 'O');
 
-    $sql_files_type_p = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.is_sign_teacher, mdl_nir_files.date, mdl_nir_files.is_new, mdl_user.firstname, mdl_user.lastname, mdl_user.id as user_id FROM mdl_nir_files, mdl_nir, mdl_user WHERE mdl_nir.id=".$work_id." AND (mdl_nir.teacher_id=".$USER->id." OR  mdl_nir.user_id=".$USER->id.") AND mdl_nir_files.nir_id=".$work_id." AND mdl_nir_files.type='P' AND mdl_user.id=mdl_nir_files.user_id ORDER BY mdl_nir_files.date";
-    $files_type_p = $DB->get_records_sql($sql_files_type_p);
-
+    $files_type_o = DataGateway::get_files_by_type($USER->id, $work_id, 'P');
     $messages_type_p = DataGateway::get_comments_limit($work_id, 'P');
 
     $content .= html_writer::tag('h1', 'Научно-исследовательская работа');
@@ -336,10 +324,7 @@ else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACH
     
     }
     else{ // List of teacher's students
-        $sql_users_of_teacher = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname, mdl_user_info_data.data FROM {nir}, {user}, {user_info_data} 
-                                    WHERE mdl_nir.teacher_id = ? AND mdl_user.id = mdl_nir.user_id AND mdl_user_info_data.userid = mdl_nir.user_id AND 
-                                    mdl_user_info_data.fieldid = ?";
-        $users_of_teacher = $DB->get_records_sql($sql_users_of_teacher, array($USER->id, Config::FIELD_GROUP_ID));
+        $users_of_teacher = DataGateway::get_students_by_teacher($USER->id);
 
         $content .= html_writer::tag('h1', 'Студенты');
         

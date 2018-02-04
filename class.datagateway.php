@@ -36,6 +36,36 @@ class DataGateway
 
     /*
     table: mdl_nir, mdl_user
+    fields: nir_id, title, is_closed, mark, review, student_firstname, student_lastname
+    */
+    public static function get_nir_by_student($student_id, $nir_id){
+        global $DB;
+
+        $sql_nir = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_nir.review, mdl_nir.mark, mdl_user.firstname, mdl_user.lastname 
+                            FROM {nir}, {user} WHERE mdl_nir.user_id = ? AND mdl_user.id = mdl_nir.teacher_id AND mdl_nir.id = ?";
+        $nir = $DB->get_record_sql($sql_nir, array($student_id, $nir_id));
+
+        return $nir;
+    }
+
+    /*
+    table: mdl_nir, mdl_user
+    fields: nir_id, title, is_closed, mark, review, student_firstname, student_lastname
+    */
+    public static function get_nir_by_student_and_teacher($student_id, $teacher_id, $nir_id){
+        global $DB;
+
+        $sql_nir = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_nir.review, mdl_nir.mark, mdl_user.firstname, mdl_user.lastname, mdl_user_info_data.data 
+                      FROM {nir}, {user}, {user_info_data} WHERE mdl_nir.user_id = ? AND mdl_nir.teacher_id = ?  AND 
+                      mdl_user.id = mdl_nir.user_id AND mdl_nir.id = ? AND mdl_user_info_data.userid = ? AND mdl_user_info_data.fieldid = ?";
+
+        $nir = $DB->get_record_sql($sql_nir, array($student_id, $teacher_id, $nir_id, $student_id, Config::FIELD_GROUP_ID));
+
+        return $nir;
+    }
+
+    /*
+    table: mdl_nir, mdl_user
     fields: nir_id, title, is_closed, teacher_firstname, teacher_lastname
     */
     public static function get_list_nir_by_student($student_id){
@@ -82,9 +112,10 @@ class DataGateway
     public static function get_work_plan_by_nir_and_user($nir_id, $user_id, $only_active = true){
         global $DB;
 
-        $sql_work_plan = "SELECT mdl_nir.id, mdl_nir_work_plans.is_sign_user, mdl_nir_work_plans.is_sign_teacher, mdl_nir_work_plans.is_sign_kaf 
-                        FROM {nir}, {nir_work_plans} WHERE (mdl_nir.user_id = ? OR mdl_nir.teacher_id = ?) AND mdl_nir.id = ?  
-                        AND mdl_nir_work_plans.nir_id = mdl_nir.id";
+        $sql_work_plan = "SELECT mdl_nir_work_plans.id, mdl_nir_work_plans.is_sign_user, mdl_nir_work_plans.is_sign_teacher, mdl_nir_work_plans.is_sign_kaf, 
+                            mdl_nir_work_plans.theme, mdl_nir_work_plans.goal, mdl_nir.teacher_id 
+                            FROM {nir}, {nir_work_plans} WHERE (mdl_nir.user_id = ? OR mdl_nir.teacher_id = ?) AND mdl_nir.id = ?  
+                            AND mdl_nir_work_plans.nir_id = mdl_nir.id";
 
         if($only_active)
             $sql_work_plan .= " AND mdl_nir.is_closed = 0";
@@ -212,11 +243,29 @@ class DataGateway
         global $DB;
 
         $sql_file = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.date, mdl_nir_files.is_new, mdl_nir_files.is_sign_kaf, mdl_user.firstname, mdl_user.lastname 
-                                  FROM {nir_files}, {nir}, {user} WHERE mdl_nir.id = ? AND mdl_nir_files.nir_id = ? AND mdl_nir_files.type = ? 
-                                  AND mdl_user.id = mdl_nir_files.user_id AND mdl_nir_files.is_sign_teacher = 1";
+                          FROM {nir_files}, {nir}, {user} WHERE mdl_nir.id = ? AND mdl_nir_files.nir_id = ? AND mdl_nir_files.type = ? 
+                          AND mdl_user.id = mdl_nir_files.user_id AND mdl_nir_files.is_sign_teacher = 1";
         $file = $DB->get_record_sql($sql_file, array($nir_id, $nir_id, $type));
 
         return $file;
+    }
+
+    /*
+    table: mdl_nir_files, mdl_nir, mdl_user
+    fields: ***
+    */
+    public static function get_files_by_type($user_id, $work_id, $type){
+        global $DB;
+
+        $sql_files = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.is_sign_teacher, mdl_nir_files.date, mdl_nir_files.is_new, mdl_user.firstname,
+                          mdl_user.lastname, mdl_user.id as user_id FROM {nir_files}, {nir}, {user} WHERE mdl_nir.id = ? AND 
+                          (mdl_nir.teacher_id = ? OR  mdl_nir.user_id = ?) AND mdl_nir_files.nir_id = ? AND mdl_nir_files.type= ? 
+                          AND mdl_user.id = mdl_nir_files.user_id ORDER BY mdl_nir_files.date";
+
+
+        $files = $DB->get_records_sql($sql_files, array($work_id, $user_id, $user_id, $work_id, $type));
+
+        return $files;
     }
 
     /*
@@ -351,5 +400,36 @@ class DataGateway
         $teachers = $DB->get_records_sql($sql_teachers, array(Config::FIELD_USER_TYPE_ID, Config::USER_TYPE_TEACHER));
 
         return $teachers;
+    }
+
+    /*
+    table: mdl_user_info_data, mdl_user
+    fields: ***
+    */
+    public static function get_students_by_group($group){
+        global $DB;
+
+        $sql_users = "SELECT mdl_user.firstname, mdl_user.lastname, mdl_user.id FROM {user}, {user_info_data} 
+                                    WHERE mdl_user.id = mdl_user_info_data.userid AND mdl_user_info_data.data = ?";
+
+        $users = $DB->get_records_sql($sql_users, array($group));
+
+        return $users;
+    }
+
+    /*
+    table: mdl_user_info_data, mdl_nir, mdl_user
+    fields: ***
+    */
+    public static function get_students_by_teacher($teacher_id){
+        global $DB;
+
+        $sql_users = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname, mdl_user_info_data.data FROM {nir}, {user}, {user_info_data} 
+                                    WHERE mdl_nir.teacher_id = ? AND mdl_user.id = mdl_nir.user_id AND mdl_user_info_data.userid = mdl_nir.user_id AND 
+                                    mdl_user_info_data.fieldid = ?";
+
+        $users = $DB->get_records_sql($sql_users, array($teacher_id, Config::FIELD_GROUP_ID));
+
+        return $users;
     }
 }
