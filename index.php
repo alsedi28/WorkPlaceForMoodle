@@ -160,9 +160,7 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
             $users_group = DataGateway::get_students_by_group($grp->data);
             
             foreach($users_group as $u){
-                $sql_users_count_files = "SELECT COUNT(mdl_nir_files.id) as count FROM {nir}, {nir_files} WHERE mdl_nir.user_id = ? AND 
-                                            mdl_nir_files.nir_id = mdl_nir.id AND mdl_nir_files.is_sign_teacher = 1 AND mdl_nir_files.is_sign_kaf = 0";
-                $count = $DB->get_record_sql($sql_users_count_files, array($u->id));
+                $count = DataGateway::get_number_files_student_signed_teacher($u->id);
 
                 $sql_work_plan = "SELECT mdl_nir_work_plans.id FROM {nir}, {nir_work_plans} WHERE mdl_nir.user_id = ? AND mdl_nir.is_closed = 0 
                                     AND mdl_nir_work_plans.nir_id = mdl_nir.id AND mdl_nir_work_plans.is_sign_user = 1 AND mdl_nir_work_plans.is_sign_teacher = 1 
@@ -304,11 +302,10 @@ else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACH
         $content .= html_writer::tag('h1', 'Научно-исследовательские работы');
     
         foreach ($works as $wk){
-            $sql_new_files_amount = "SELECT COUNT(*) as count FROM {nir_files} WHERE nir_id = ? AND user_id != ? AND is_new = 1";
-            $count_new_file = $DB->get_record_sql($sql_new_files_amount, array($wk->id, $USER->id));
+            $count_new_file = DataGateway::get_number_new_files_uploaded_user_by_nir($wk->id, $USER->id);
 
-            $sql_work_plan = "SELECT id FROM {nir_work_plans} WHERE nir_id = ? AND is_sign_user = 1 AND is_sign_teacher = 0 AND is_sign_kaf = 0";
-            $work_plan = $DB->get_record_sql($sql_work_plan, array($wk->id));
+            $work_plan = DataGateway::get_work_plan_by_nir($wk->id);
+            $work_plan_exist = ($work_plan->is_sign_user == 1 && $work_plan->is_sign_teacher == 0 && $work_plan->is_sign_kaf == 0) ? true : false;
 
             $url = '/nir/index.php?std='.$wk->student_id.'&id='.$wk->id;
 
@@ -316,7 +313,7 @@ else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACH
             $content .= html_writer::start_tag('div', array('class' => $wk->is_closed == 1 ? 'work_block work_block_closed' : 'work_block'));
 
             $content .= render_header_work_block($wk, true);
-            $content .= render_work_block_title_new_files($count_new_file, $work_plan);
+            $content .= render_work_block_title_new_files($count_new_file, $work_plan_exist);
 
             $content .= html_writer::end_tag('div');
             $content .= html_writer::end_tag('a');
@@ -329,9 +326,7 @@ else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACH
         $content .= html_writer::tag('h1', 'Студенты');
         
         foreach ($users_of_teacher as $us){
-            $sql_count_n_f = "SELECT COUNT(*) as count FROM {nir_files}, {nir} WHERE mdl_nir_files.user_id = ? AND mdl_nir.teacher_id = ? 
-                                AND mdl_nir_files.is_new = 1 AND mdl_nir_files.nir_id = mdl_nir.id";
-            $count_n_f = $DB->get_record_sql($sql_count_n_f, array($us->id, $USER->id));
+            $count_n_f = DataGateway::get_number_new_files_uploaded_student($us->id, $USER->id);
 
             $sql_work_plan = "SELECT mdl_nir_work_plans.id FROM {nir}, {nir_work_plans} WHERE mdl_nir.user_id = ? AND mdl_nir.is_closed = 0 AND mdl_nir.teacher_id = ? 
                                 AND mdl_nir_work_plans.nir_id = mdl_nir.id AND mdl_nir_work_plans.is_sign_user = 1 AND mdl_nir_work_plans.is_sign_teacher = 0 AND 
@@ -362,11 +357,10 @@ else{ // Main page for student with list of his works
     $count_open_works = 0;
     
     foreach ($works as $wk){
-        $sql_new_files_amount = "SELECT COUNT(*) as count FROM {nir_files} WHERE nir_id = ? AND user_id != ? AND is_new = 1";
-        $count_new_file = $DB->get_record_sql($sql_new_files_amount, array($wk->id, $USER->id));
+        $count_new_file = DataGateway::get_number_new_files_uploaded_user_by_nir($USER->id, $wk->id);
 
-        $sql_work_plan = "SELECT id FROM {nir_work_plans} WHERE nir_id = ? AND is_sign_user = 0 AND is_sign_teacher = 0 AND is_sign_kaf = 0";
-        $work_plan = $DB->get_record_sql($sql_work_plan, array($wk->id));
+        $work_plan = DataGateway::get_work_plan_by_nir($wk->id);
+        $work_plan_exist = ($work_plan->is_sign_user == 0 && $work_plan->is_sign_teacher == 0 && $work_plan->is_sign_kaf == 0) ? true : false;
 
         $url = '/nir/index.php?id='.$wk->id;
 
@@ -377,7 +371,7 @@ else{ // Main page for student with list of his works
             $count_open_works++;
 
         $content .= render_header_work_block($wk);
-        $content .= render_work_block_title_new_files($count_new_file, $work_plan);
+        $content .= render_work_block_title_new_files($count_new_file, $work_plan_exist);
 
         $content .= html_writer::end_tag('div');
         $content .= html_writer::end_tag('a');
