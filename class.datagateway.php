@@ -140,6 +140,38 @@ class DataGateway
     }
 
     /*
+    table: mdl_nir, mdl_nir_work_plans
+    fields: ***
+    */
+    public static function get_work_plan_by_student_and_teacher($student_id, $teacher_id){
+        global $DB;
+
+        $sql_work_plan = "SELECT mdl_nir_work_plans.id, mdl_nir_work_plans.is_sign_user, mdl_nir_work_plans.is_sign_teacher, mdl_nir_work_plans.is_sign_kaf, 
+                                mdl_nir_work_plans.theme, mdl_nir_work_plans.goal, mdl_nir.teacher_id FROM {nir}, {nir_work_plans} WHERE mdl_nir.user_id = ? AND 
+                                mdl_nir.is_closed = 0 AND mdl_nir.teacher_id = ? AND mdl_nir_work_plans.nir_id = mdl_nir.id";
+
+        $work_plan = $DB->get_record_sql($sql_work_plan, array($student_id, $teacher_id));
+
+        return $work_plan;
+    }
+
+    /*
+    table: mdl_nir, mdl_nir_work_plans
+    fields: ***
+    */
+    public static function get_work_plan_by_student($student_id){
+        global $DB;
+
+        $sql_work_plan = "SELECT mdl_nir_work_plans.id, mdl_nir_work_plans.is_sign_user, mdl_nir_work_plans.is_sign_teacher, mdl_nir_work_plans.is_sign_kaf, 
+                                mdl_nir_work_plans.theme, mdl_nir_work_plans.goal, mdl_nir.teacher_id FROM {nir}, {nir_work_plans} WHERE mdl_nir.user_id = ? AND 
+                                mdl_nir.is_closed = 0 AND mdl_nir_work_plans.nir_id = mdl_nir.id";
+
+        $work_plan = $DB->get_record_sql($sql_work_plan, array($student_id));
+
+        return $work_plan;
+    }
+
+    /*
     table: mdl_nir_user_info
     fields: id, user_id, work_plan_id, name, surname, patronymic, phone_number, mail
     */
@@ -259,7 +291,7 @@ class DataGateway
 
         $sql_files = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.is_sign_teacher, mdl_nir_files.date, mdl_nir_files.is_new, mdl_user.firstname,
                           mdl_user.lastname, mdl_user.id as user_id FROM {nir_files}, {nir}, {user} WHERE mdl_nir.id = ? AND 
-                          (mdl_nir.teacher_id = ? OR  mdl_nir.user_id = ?) AND mdl_nir_files.nir_id = ? AND mdl_nir_files.type= ? 
+                          (mdl_nir.teacher_id = ? OR  mdl_nir.user_id = ?) AND mdl_nir_files.nir_id = ? AND mdl_nir_files.type = ? 
                           AND mdl_user.id = mdl_nir_files.user_id ORDER BY mdl_nir_files.date";
 
 

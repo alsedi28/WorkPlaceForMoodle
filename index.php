@@ -161,11 +161,7 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
             
             foreach($users_group as $u){
                 $count = DataGateway::get_number_files_student_signed_teacher($u->id);
-
-                $sql_work_plan = "SELECT mdl_nir_work_plans.id FROM {nir}, {nir_work_plans} WHERE mdl_nir.user_id = ? AND mdl_nir.is_closed = 0 
-                                    AND mdl_nir_work_plans.nir_id = mdl_nir.id AND mdl_nir_work_plans.is_sign_user = 1 AND mdl_nir_work_plans.is_sign_teacher = 1 
-                                    AND mdl_nir_work_plans.is_sign_kaf = 0";
-                $work_plan = $DB->get_record_sql($sql_work_plan, array($u->id));
+                $work_plan = DataGateway::get_work_plan_by_student($u->id);
 
                 $url = "/nir/index.php?std=".$u->id;
 
@@ -173,7 +169,7 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
                 $content .= html_writer::start_tag('a', array('href' => $url));
                 $content .= html_writer::tag('span', $u->lastname." ".$u->firstname);
 
-                if($count->count > 0 || $work_plan){
+                if($count->count > 0 || ($work_plan->is_sign_user == 1 && $work_plan->is_sign_teacher == 1 && $work_plan->is_sign_kaf == 0)){
                     $content .= html_writer::start_tag('div', array('class' => 'sign_files_kaf_icon'));
                     $content .= html_writer::empty_tag('img', array('src' => 'img/report-3-xxl.png', 'height' => '25px', 'title' => 'Добавлен новый документ'));
                     $content .= html_writer::end_tag('div');
@@ -227,7 +223,7 @@ else if(isset($_GET["id"])){ // Page of work for teacher and student
     $files_type_o = DataGateway::get_files_by_type($USER->id, $work_id, 'O');
     $messages_type_o = DataGateway::get_comments_limit($work_id, 'O');
 
-    $files_type_o = DataGateway::get_files_by_type($USER->id, $work_id, 'P');
+    $files_type_p = DataGateway::get_files_by_type($USER->id, $work_id, 'P');
     $messages_type_p = DataGateway::get_comments_limit($work_id, 'P');
 
     $content .= html_writer::tag('h1', 'Научно-исследовательская работа');
@@ -318,7 +314,6 @@ else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACH
             $content .= html_writer::end_tag('div');
             $content .= html_writer::end_tag('a');
         }
-    
     }
     else{ // List of teacher's students
         $users_of_teacher = DataGateway::get_students_by_teacher($USER->id);
@@ -327,11 +322,7 @@ else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACH
         
         foreach ($users_of_teacher as $us){
             $count_n_f = DataGateway::get_number_new_files_uploaded_student($us->id, $USER->id);
-
-            $sql_work_plan = "SELECT mdl_nir_work_plans.id FROM {nir}, {nir_work_plans} WHERE mdl_nir.user_id = ? AND mdl_nir.is_closed = 0 AND mdl_nir.teacher_id = ? 
-                                AND mdl_nir_work_plans.nir_id = mdl_nir.id AND mdl_nir_work_plans.is_sign_user = 1 AND mdl_nir_work_plans.is_sign_teacher = 0 AND 
-                                mdl_nir_work_plans.is_sign_kaf = 0";
-            $work_plan = $DB->get_record_sql($sql_work_plan, array($us->id, $USER->id));
+            $work_plan = DataGateway::get_work_plan_by_student_and_teacher($us->id, $USER->id);
 
             $url = '/nir/index.php?std='.$us->id;
 
@@ -340,7 +331,7 @@ else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACH
             $content .= html_writer::tag('span', $us->lastname." ".$us->firstname, array('style' => 'float:left'));
             $content .= $us->data;
 
-            if($count_n_f->count > 0 || $work_plan){
+            if($count_n_f->count > 0 || ($work_plan->is_sign_user == 1 && $work_plan->is_sign_teacher == 0 && $work_plan->is_sign_kaf == 0)){
                 $content .= html_writer::empty_tag('img', array('src' => 'img/report-3-xxl.png', 'height' => '25px', 'title' => 'Добавлен новый документ'));
             }
 
