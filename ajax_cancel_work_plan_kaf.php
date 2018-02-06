@@ -1,7 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/renderer.php');
-require_once(dirname(__FILE__) . '/helpers.php');
+require_once('class.helper.php');
 require_once('class.datagateway.php');
 require_once('class.config.php');
 header('Content-type: application/json');
@@ -47,7 +47,7 @@ $last_date = NULL;
 if (isset($_POST['last_date_message']))
     $last_date = $_POST['last_date_message'];
 
-$messages_data = get_messages_for_kaf($work_id, 'Z', $last_date);
+$messages_data = Helper::get_messages_for_kaf($work_id, 'Z', $last_date);
 
 echo json_encode(array('status' => "Ok", 'messages' => $messages_data, 'alert' => $message));
 ?>

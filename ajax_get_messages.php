@@ -1,7 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/renderer.php');
-require_once(dirname(__FILE__) . '/helpers.php');
+require_once('class.helper.php');
 require_once('class.datagateway.php');
 header('Content-type: application/json');
 
@@ -28,7 +28,7 @@ $count_messages = count($messages);
 if($count_messages > 5)
     array_shift($messages);
 
-$messages_data = render_messages($messages);
+$messages_data = Helper::render_messages($messages);
 
 echo json_encode(array('status' => "Ok", 'messages' => $messages_data, 'count' => $count_messages));
 ?>

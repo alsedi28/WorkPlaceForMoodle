@@ -1,8 +1,8 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
 require_once(dirname(__FILE__) . '/renderer.php');
-require_once(dirname(__FILE__) . '/helpers.php');
 require_once(dirname(__FILE__) . '/constants.php');
+require_once('class.helper.php');
 require_once('class.datagateway.php');
 header('Content-type: application/json');
 
@@ -149,7 +149,7 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
         $need_update_user_info = true;
     }
 
-    $changed_teacher_fields = update_teacher_info($teacher_info, array('patronymic' => $th_patronymic, 'phone_number' => $th_phone_number,
+    $changed_teacher_fields = Helper::update_teacher_info($teacher_info, array('patronymic' => $th_patronymic, 'phone_number' => $th_phone_number,
         'email' => $th_email, 'place_work' => $th_place_work, 'position_work' => $th_position_work, 'academic_title' => $th_academic_title,
         'academic_degree' => $th_academic_degree));
 
@@ -170,7 +170,7 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
         $cn_academic_degree = htmlspecialchars($_POST['cn_academic_degree']);
 
         if($consultant_info){
-            $changed_consultant_fields = update_teacher_info($consultant_info, array('name' => $cn_name, 'surname' => $cn_surname, 'patronymic' => $cn_patronymic,
+            $changed_consultant_fields = Helper::update_teacher_info($consultant_info, array('name' => $cn_name, 'surname' => $cn_surname, 'patronymic' => $cn_patronymic,
                 'phone_number' => $cn_phone_number, 'email' => $cn_email, 'place_work' => $cn_place_work, 'position_work' => $cn_position_work,
                 'academic_title' => $cn_academic_title, 'academic_degree' => $cn_academic_degree));
         }
@@ -213,20 +213,20 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
         }
     }
 
-    usort($work_content_items_current, 'sort_items');
-    usort($work_result_items_current, 'sort_items');
-    usort($info_source_items_current, 'sort_items');
+    usort($work_content_items_current, array('Helper','sort_items'));
+    usort($work_result_items_current, array('Helper','sort_items'));
+    usort($info_source_items_current, array('Helper','sort_items'));
 
-    $changed_work_content = update_work_plan_items($work_content_items_current, $work_content_items, $work_plan_info->id, 'C');
-    $changed_work_result = update_work_plan_items($work_result_items_current, $work_result_items, $work_plan_info->id, 'R');
-    $changed_info_source = update_work_plan_items($info_source_items_current, $info_source_items, $work_plan_info->id, 'I');
+    $changed_work_content = Helper::update_work_plan_items($work_content_items_current, $work_content_items, $work_plan_info->id, 'C');
+    $changed_work_result = Helper::update_work_plan_items($work_result_items_current, $work_result_items, $work_plan_info->id, 'R');
+    $changed_info_source = Helper::update_work_plan_items($info_source_items_current, $info_source_items, $work_plan_info->id, 'I');
 
     $DB->update_record('nir_work_plans',$update_work_plan);
 
     if($need_update_user_info)
         $DB->update_record('nir_user_info',$update_user_info);
 
-    $message = build_message_edit_work_plan($alert_message, $changed_common_fields, $changed_executor_fields, $changed_teacher_fields,
+    $message = Helper::build_message_edit_work_plan($alert_message, $changed_common_fields, $changed_executor_fields, $changed_teacher_fields,
                     $changed_consultant_fields, $changed_work_content, $changed_work_result, $changed_info_source, $consultant_create);
 
     $record = new stdClass();
@@ -241,7 +241,7 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
     if (isset($_POST['last_date_message']))
         $last_date = $_POST['last_date_message'];
 
-    $messages_data = get_messages($work_id, 'Z', $last_date);
+    $messages_data = Helper::get_messages($work_id, 'Z', $last_date);
 
     echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id), 'messages' => $messages_data, 'alert' => $alert_message));
 }

@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__) . '/helpers.php');
+require_once('class.helper.php');
 require_once('class.config.php');
 require_once('class.datagateway.php');
 
@@ -723,7 +723,7 @@ function render_work_plan_list($items, $is_view = true){
 function render_list($label, $items){
     $content = '';
 
-    usort($items, 'sort_items');
+    usort($items, array('Helper','sort_items'));
     $text = '';
 
     $i = 1;
@@ -831,7 +831,7 @@ function render_work_plan_textarea_many_block($label, $textarea_name, $rows, $re
     $content = '';
 
     if($items !== null)
-        usort($items, 'sort_items');
+        usort($items, array('Helper','sort_items'));
 
     $content .= html_writer::start_tag('div', array('class' => $textarea_name.'_block root_block_point'));
     $content .= html_writer::start_tag('label',array('class' => 'label_block'));
