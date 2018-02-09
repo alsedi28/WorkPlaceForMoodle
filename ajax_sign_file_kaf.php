@@ -1,6 +1,5 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
-require_once(dirname(__FILE__) . '/renderer.php');
 require_once('class.helper.php');
 require_once('class.datagateway.php');
 require_once('class.config.php');

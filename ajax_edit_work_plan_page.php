@@ -1,7 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
-require_once(dirname(__FILE__) . '/renderer.php');
 require_once('class.datagateway.php');
+require_once('class.render.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['work_id']) || intval($_POST['work_id']) == 0){
@@ -25,6 +25,6 @@ if(!$work_plan){
     exit();
 }
 
-echo json_encode(array('status' => "Ok", 'data' => render_work_plan_edit($work_id), 'alert' => 'Можете начать редактирование задания на НИР.'));
+echo json_encode(array('status' => "Ok", 'data' => Render::render_work_plan_edit($work_id), 'alert' => 'Можете начать редактирование задания на НИР.'));
 
 ?>

@@ -2,9 +2,9 @@
 
 // The number of lines in front of config file determine the // hierarchy of files. 
 require_once(dirname(__FILE__) . '/../config.php');
-require_once(dirname(__FILE__) . '/renderer.php');
 require_once('class.config.php');
 require_once('class.datagateway.php');
+require_once('class.render.php');
 
 $context = context_user::instance($USER->id);
 $PAGE->set_blocks_editing_capability('moodle/my:manageblocks');
@@ -93,7 +93,7 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
             $content .= $work->lastname." ".$work->firstname;
             $content .= html_writer::end_tag('p');
 
-            $content .= render_student_info($student_info);
+            $content .= Render::render_student_info($student_info);
 
             $content .= html_writer::start_tag('div', array('class' => 'tabs'));
 
@@ -109,13 +109,13 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
             $content .= html_writer::start_tag('div', array('class' => 'tab-content'));
             $content .= html_writer::start_tag('div', array('class' => 'tab active', 'id' => 'tab1'));
 
-            $content .= render_kafedra_tab_work_plan($messages_type_z, $work->is_closed, $work_id);
+            $content .= Render::render_kafedra_tab_work_plan($messages_type_z, $work->is_closed, $work_id);
 
             $content .= html_writer::end_tag('div');
 
             $content .= html_writer::start_tag('div', array('class' => 'tab', 'id' => 'tab2'));
 
-            $content .= render_kafedra_tab_report($file_type_o, $messages_type_o, $work, $work_id); // tab2
+            $content .= Render::render_kafedra_tab_report($file_type_o, $messages_type_o, $work, $work_id); // tab2
 
             $content .= html_writer::end_tag('div');
 
@@ -124,7 +124,7 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
         else{ // List of student's works
             $content .= html_writer::tag('h1', 'Научно-исследовательские работы');
 
-            $content .= render_student_info($student_info);
+            $content .= Render::render_student_info($student_info);
 
             $works = DataGateway::get_list_nir_by_student($student_id);
         
@@ -134,7 +134,7 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
                 $content .= html_writer::start_tag('a', array('href' => $url));
                 $content .= html_writer::start_tag('div', array('class' => $wk->is_closed == 1 ? 'work_block work_block_closed' : 'work_block'));
 
-                $content .= render_header_work_block($wk);
+                $content .= Render::render_header_work_block($wk);
 
                 $content .= html_writer::end_tag('div');
                 $content .= html_writer::end_tag('a');
@@ -234,7 +234,7 @@ else if(isset($_GET["id"])){ // Page of work for teacher and student
     $content .= html_writer::end_tag('p');
 
     if(isset($_GET["std"])){
-        $content .= render_student_info($work);
+        $content .= Render::render_student_info($work);
     }
     else{
         $content .= html_writer::start_tag('p', array('class' => 'single_work_teacher'));
@@ -259,15 +259,15 @@ else if(isset($_GET["id"])){ // Page of work for teacher and student
 
     $content .= html_writer::start_tag('div', array('class' => 'tab-content'));
 
-    $content .= render_tab(null, $messages_type_z, $work, $USER, $work_id, array ('tab_id' => 'tab1', 'tab_number' => 1, 'image_path' => 'img/Filetype-Docs-icon.png',
+    $content .= Render::render_tab(null, $messages_type_z, $work, $USER, $work_id, array ('tab_id' => 'tab1', 'tab_number' => 1, 'image_path' => 'img/Filetype-Docs-icon.png',
         'file_type_name' => 'Задание', 'filer_input_id' => 'filer_input2', 'work_input_id' => 'h_work', 'work_input_type' => 'h_work_type', 'work_type' => 'Z',
         'message_textarea_id' => 'message_textarea_tab1', 'send_message_id' => 'send_message_tab1'));
 
-    $content .= render_tab($files_type_o, $messages_type_o, $work, $USER, $work_id, array ('tab_id' => 'tab2', 'tab_number' => 2, 'image_path' => 'img/Filetype-Docs-icon.png',
+    $content .= Render::render_tab($files_type_o, $messages_type_o, $work, $USER, $work_id, array ('tab_id' => 'tab2', 'tab_number' => 2, 'image_path' => 'img/Filetype-Docs-icon.png',
         'file_type_name' => 'Отчет', 'filer_input_id' => 'filer_input1', 'work_input_id' => 'h_work_2', 'work_input_type' => 'h_work_type_2', 'work_type' => 'O',
         'message_textarea_id' => 'message_textarea_tab2', 'send_message_id' => 'send_message_tab2'));
 
-    $content .= render_tab($files_type_p, $messages_type_p, $work, $USER, $work_id, array ('tab_id' => 'tab3', 'tab_number' => 3, 'image_path' => 'img/Filetype-Docs-icon.png',
+    $content .= Render::render_tab($files_type_p, $messages_type_p, $work, $USER, $work_id, array ('tab_id' => 'tab3', 'tab_number' => 3, 'image_path' => 'img/Filetype-Docs-icon.png',
         'file_type_name' => 'Презентация', 'filer_input_id' => 'filer_input3', 'work_input_id' => 'h_work_3', 'work_input_type' => 'h_work_type_3', 'work_type' => 'P',
         'message_textarea_id' => 'message_textarea_tab3', 'send_message_id' => 'send_message_tab3'));
 
@@ -308,8 +308,8 @@ else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACH
             $content .= html_writer::start_tag('a', array('href' => $url));
             $content .= html_writer::start_tag('div', array('class' => $wk->is_closed == 1 ? 'work_block work_block_closed' : 'work_block'));
 
-            $content .= render_header_work_block($wk, true);
-            $content .= render_work_block_title_new_files($count_new_file, $work_plan_exist);
+            $content .= Render::render_header_work_block($wk, true);
+            $content .= Render::render_work_block_title_new_files($count_new_file, $work_plan_exist);
 
             $content .= html_writer::end_tag('div');
             $content .= html_writer::end_tag('a');
@@ -361,8 +361,8 @@ else{ // Main page for student with list of his works
         if($wk->is_closed != 1)
             $count_open_works++;
 
-        $content .= render_header_work_block($wk);
-        $content .= render_work_block_title_new_files($count_new_file, $work_plan_exist);
+        $content .= Render::render_header_work_block($wk);
+        $content .= Render::render_work_block_title_new_files($count_new_file, $work_plan_exist);
 
         $content .= html_writer::end_tag('div');
         $content .= html_writer::end_tag('a');
@@ -375,7 +375,7 @@ else{ // Main page for student with list of his works
     {
         $teachers = DataGateway::get_teachers();
         // Modal window for create work
-        $content .= render_modal_dialog_create_work($teachers, $USER->id);
+        $content .= Render::render_modal_dialog_create_work($teachers, $USER->id);
     }
 }
 

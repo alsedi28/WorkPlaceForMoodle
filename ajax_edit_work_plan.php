@@ -1,9 +1,9 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
-require_once(dirname(__FILE__) . '/renderer.php');
 require_once(dirname(__FILE__) . '/constants.php');
 require_once('class.helper.php');
 require_once('class.datagateway.php');
+require_once('class.render.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['work_id']) || intval($_POST['work_id']) == 0){
@@ -243,7 +243,7 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
 
     $messages_data = Helper::get_messages($work_id, 'Z', $last_date);
 
-    echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id), 'messages' => $messages_data, 'alert' => $alert_message));
+    echo json_encode(array('status' => "Ok", 'data' => Render::render_work_plan_view($work_id), 'messages' => $messages_data, 'alert' => $alert_message));
 }
 else{
     echo json_encode(array('status' => "Validation error"));

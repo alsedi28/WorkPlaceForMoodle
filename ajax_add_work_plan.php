@@ -1,7 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/../config.php');
-require_once(dirname(__FILE__) . '/renderer.php');
 require_once('class.datagateway.php');
+require_once('class.render.php');
 header('Content-type: application/json');
 
 if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_patronymic'])&& isset($_POST['ex_phone_number']) && isset($_POST['ex_email']) &&
@@ -204,7 +204,7 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
 
     $messages_data = Helper::get_messages($work_id, 'Z', $last_date);
 
-    echo json_encode(array('status' => "Ok", 'data' => render_work_plan_view($work_id), 'messages' => $messages_data,
+    echo json_encode(array('status' => "Ok", 'data' => Render::render_work_plan_view($work_id), 'messages' => $messages_data,
         'alert' => "Задание на НИР создано и отправлено научному руководителю."));
 }
 else {
