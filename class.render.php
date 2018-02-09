@@ -105,7 +105,7 @@ class Render
             $tab_content .= html_writer::start_tag('a', array('class' => 'a_file_block a_file_block_kaf', 'target' => '_blank', 'href' => $file->filename));
             $tab_content .= html_writer::start_tag('div', array('class' => 'block_file_prev_kaf'));
 
-            $tab_content .= html_writer::empty_tag('img', array('src' => 'img/Filetype-Docs-icon.png', 'height' => '110px', 'class' => 'img_files_prev'));
+            $tab_content .= html_writer::empty_tag('img', array('src' => 'img/docs_icon.png', 'height' => '110px', 'class' => 'img_files_prev'));
             $tab_content .= html_writer::start_tag('p', array('class' => 'file_date'));
             $tab_content .= html_writer::tag('span', 'Дата загрузки: ', array('style' => 'font-weight: bold'));
             $tab_content .= $file->date;
@@ -257,7 +257,7 @@ class Render
                 }
                 $tab_content .= html_writer::start_tag('div', array('class' => 'block_file_prev', 'style' => $height_block));
                 $tab_content .= html_writer::start_tag('a', array('class' => 'a_file_block', 'target' => '_blank', 'href' => $file->filename));
-                $tab_content .= html_writer::empty_tag('img', array('src' => $options["image_path"], 'height' => '110px', 'class' => 'img_files_prev'));//img/Filetype-Docs-icon.png
+                $tab_content .= html_writer::empty_tag('img', array('src' => $options["image_path"], 'height' => '110px', 'class' => 'img_files_prev'));
                 $tab_content .= html_writer::tag('p', $options["file_type_name"] . ' ' . $i, array('class' => 'file_name'));//Задание Отчет Презентация
 
                 $tab_content .= html_writer::start_tag('p', array('class' => 'file_date'));
@@ -602,7 +602,7 @@ class Render
             $content .= html_writer::start_tag('div', array('class' => 'plus_input_block'));
             if($i !== 4 && $i == $count - 1){
                 $content .= html_writer::start_tag('div', array('class' => 'plus_input', 'title' => 'Добавить пункт'));
-                $content .= html_writer::empty_tag('img', array('src' => 'img/PlusIcon_Small_Gray.png', 'height' => '26px'));
+                $content .= html_writer::empty_tag('img', array('src' => 'img/plus.png', 'height' => '26px'));
                 $content .= html_writer::end_tag('div');
             }
             $content .= html_writer::end_tag('div');

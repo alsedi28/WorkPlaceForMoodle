@@ -460,7 +460,7 @@ $(document).ready(function(){
         }
 
         $($(prev_point).find('.plus_input_block')[0]).append("<div class='plus_input' title='" + loc.AddItem + "'>" +
-            "<img src='img/PlusIcon_Small_Gray.png' height='26px'/></div>");
+            "<img src='img/plus.png' height='26px'/></div>");
     }
 
     function render_partial_form_consultant(){

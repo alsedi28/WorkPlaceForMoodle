@@ -171,7 +171,7 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
 
                 if($count->count > 0 || ($work_plan->is_sign_user == 1 && $work_plan->is_sign_teacher == 1 && $work_plan->is_sign_kaf == 0)){
                     $content .= html_writer::start_tag('div', array('class' => 'sign_files_kaf_icon'));
-                    $content .= html_writer::empty_tag('img', array('src' => 'img/report-3-xxl.png', 'height' => '25px', 'title' => 'Добавлен новый документ'));
+                    $content .= html_writer::empty_tag('img', array('src' => 'img/report.png', 'height' => '25px', 'title' => 'Добавлен новый документ'));
                     $content .= html_writer::end_tag('div');
                 }
                 $content .= html_writer::end_tag('a');
@@ -259,15 +259,15 @@ else if(isset($_GET["id"])){ // Page of work for teacher and student
 
     $content .= html_writer::start_tag('div', array('class' => 'tab-content'));
 
-    $content .= Render::render_tab(null, $messages_type_z, $work, $USER, $work_id, array ('tab_id' => 'tab1', 'tab_number' => 1, 'image_path' => 'img/Filetype-Docs-icon.png',
+    $content .= Render::render_tab(null, $messages_type_z, $work, $USER, $work_id, array ('tab_id' => 'tab1', 'tab_number' => 1, 'image_path' => 'img/docs_icon.png',
         'file_type_name' => 'Задание', 'filer_input_id' => 'filer_input2', 'work_input_id' => 'h_work', 'work_input_type' => 'h_work_type', 'work_type' => 'Z',
         'message_textarea_id' => 'message_textarea_tab1', 'send_message_id' => 'send_message_tab1'));
 
-    $content .= Render::render_tab($files_type_o, $messages_type_o, $work, $USER, $work_id, array ('tab_id' => 'tab2', 'tab_number' => 2, 'image_path' => 'img/Filetype-Docs-icon.png',
+    $content .= Render::render_tab($files_type_o, $messages_type_o, $work, $USER, $work_id, array ('tab_id' => 'tab2', 'tab_number' => 2, 'image_path' => 'img/docs_icon.png',
         'file_type_name' => 'Отчет', 'filer_input_id' => 'filer_input1', 'work_input_id' => 'h_work_2', 'work_input_type' => 'h_work_type_2', 'work_type' => 'O',
         'message_textarea_id' => 'message_textarea_tab2', 'send_message_id' => 'send_message_tab2'));
 
-    $content .= Render::render_tab($files_type_p, $messages_type_p, $work, $USER, $work_id, array ('tab_id' => 'tab3', 'tab_number' => 3, 'image_path' => 'img/Filetype-Docs-icon.png',
+    $content .= Render::render_tab($files_type_p, $messages_type_p, $work, $USER, $work_id, array ('tab_id' => 'tab3', 'tab_number' => 3, 'image_path' => 'img/presentation_icon.png',
         'file_type_name' => 'Презентация', 'filer_input_id' => 'filer_input3', 'work_input_id' => 'h_work_3', 'work_input_type' => 'h_work_type_3', 'work_type' => 'P',
         'message_textarea_id' => 'message_textarea_tab3', 'send_message_id' => 'send_message_tab3'));
 
@@ -332,7 +332,7 @@ else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACH
             $content .= $us->data;
 
             if($count_n_f->count > 0 || ($work_plan->is_sign_user == 1 && $work_plan->is_sign_teacher == 0 && $work_plan->is_sign_kaf == 0)){
-                $content .= html_writer::empty_tag('img', array('src' => 'img/report-3-xxl.png', 'height' => '25px', 'title' => 'Добавлен новый документ'));
+                $content .= html_writer::empty_tag('img', array('src' => 'img/report.png', 'height' => '25px', 'title' => 'Добавлен новый документ'));
             }
 
             $content .= html_writer::end_tag('div');
