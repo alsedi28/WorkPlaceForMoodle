@@ -108,6 +108,12 @@ $(document).ready(function(){
     }
 
     function sign_work_plan_kaf(type){
+        var question = type === 'approve' ?  loc.AnswerDoYouWantToApproveWork : loc.AnswerDoYouWantToRejectWork;
+        var isQuestionYes = confirm(question);
+
+        if(!isQuestionYes)
+            return false;
+
         messageArea.AddLoading(loc.Waiting);
         $('body').scrollTop(0);
 

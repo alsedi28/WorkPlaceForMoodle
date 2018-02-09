@@ -26,3 +26,4 @@ loc.FilesSelected = 'файлы выбраны';
 loc.DragTheFileHereToDownload = 'Перетащите файл сюда, чтобы загрузить';
 loc.AnswerDoYouWantToDeleteFile = 'Вы уверены, что хотите удалить этот файл?';
 loc.AnswerDoYouWantToSentWork = 'Вы действительно хотите отправить работу?';
+loc.AnswerDoYouWantToApproveWork = 'Вы действительно хотите подтвердить работу?';
