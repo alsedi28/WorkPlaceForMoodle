@@ -28,7 +28,7 @@ $(document).ready(function(){
         var id = this.querySelector('#file_id').value;
 
         $.ajax({
-            url: 'update_file.php',
+            url: 'ajax/update_file.php',
             type: 'POST',
             data: {'id': id},
             success: function(data){
@@ -126,7 +126,8 @@ $(document).ready(function(){
             params_obj.last_date_message = date;
         }
 
-        var url = type === 'approve' ? 'ajax_sign_work_plan_kaf.php' : 'ajax_cancel_work_plan_kaf.php';
+        var url = type === 'approve' ? 'sign_work_plan_kaf.php' : 'cancel_work_plan_kaf.php';
+        url = 'ajax/' + url;
 
         $.ajax({
             type: 'POST',
@@ -172,7 +173,7 @@ $(document).ready(function(){
         }
 
         $.ajax({
-            url: 'ajax_get_messages.php',
+            url: 'ajax/get_messages.php',
             type: 'GET',
             data: {'type': type, 'date': date, 'work_id': work_id},
             success: function(data){
@@ -197,7 +198,7 @@ $(document).ready(function(){
 
         $.ajax({
             type: 'POST',
-            url: 'ajax_edit_work_plan_page.php',
+            url: 'ajax/edit_work_plan_page.php',
             data: { 'work_id' : work_id },
             success: function (data) {
                 if(data.status == 'Ok'){
@@ -245,7 +246,7 @@ $(document).ready(function(){
 
         $.ajax({
             type: 'POST',
-            url: 'ajax_add_work_plan.php',
+            url: 'ajax/add_work_plan.php',
             data: msg,
             success: function (data) {
                 if(data.status == 'Ok'){
@@ -294,7 +295,7 @@ $(document).ready(function(){
 
         $.ajax({
             type: 'POST',
-            url: 'ajax_sign_work_plan_teacher.php',
+            url: 'ajax/sign_work_plan_teacher.php',
             data: $.param(params_obj),
             success: function (data) {
                 if(data.status == 'Ok'){
@@ -348,7 +349,7 @@ $(document).ready(function(){
 
         $.ajax({
             type: 'POST',
-            url: 'ajax_edit_work_plan.php',
+            url: 'ajax/edit_work_plan.php',
             data: msg,
             success: function (data) {
                 if(data.status == 'Ok'){
@@ -388,7 +389,7 @@ $(document).ready(function(){
 
         $.ajax({
             type: 'POST',
-            url: 'ajax_view_work_plan_page.php',
+            url: 'ajax/view_work_plan_page.php',
             data: { 'work_id' : work_id },
             success: function (data) {
                 if(data.status == 'Ok'){
@@ -498,7 +499,7 @@ $(document).ready(function(){
             }
 
             $.ajax({
-                url: 'sign_file_teacher.php',
+                url: 'ajax/sign_file_teacher.php',
                 type: 'POST',
                 data: $.param(params_obj),
                 success: function(data){
@@ -535,7 +536,7 @@ $(document).ready(function(){
             }
 
             $.ajax({
-                url: 'cancel_sign_file_teacher.php',
+                url: 'ajax/cancel_sign_file_teacher.php',
                 type: 'POST',
                 data: $.param(params_obj),
                 success: function(data){
@@ -572,7 +573,7 @@ $(document).ready(function(){
             }
 
             $.ajax({
-                url: 'ajax_sign_file_kaf.php',
+                url: 'ajax/sign_file_kaf.php',
                 type: 'POST',
                 data: $.param(params_obj),
                 success: function(data){
@@ -611,7 +612,7 @@ $(document).ready(function(){
             }
 
             $.ajax({
-                url: 'cancel_sign_file.php',
+                url: 'ajax/cancel_sign_file.php',
                 type: 'POST',
                 data: $.param(params_obj),
                 success: function(result){
@@ -649,7 +650,7 @@ $(document).ready(function(){
         }
 
         $.ajax({
-            url: 'add_review.php',
+            url: 'ajax/add_review.php',
             type: 'POST',
             data: {'id': nir_id,
                 'review': review,
@@ -696,7 +697,7 @@ $(document).ready(function(){
         $("#" + current_tab_id + " [name='message']").attr("disabled", true);
 
         $.ajax({
-            url: 'create_message.php',
+            url: 'ajax/create_message.php',
             type: 'POST',
             data: $.param(params_obj),
             success: function(data){
@@ -736,7 +737,7 @@ $(document).ready(function(){
             var id = document.querySelector('#work_f').value;
 
             $.ajax({
-                url: 'finish_work.php',
+                url: 'ajax/finish_work.php',
                 type: 'POST',
                 data: {'id': id},
                 success: function(data){
@@ -831,7 +832,7 @@ $(document).ready(function(){
                 dragContainer: null,
             },
             uploadFile: {
-                url: "ajax_upload_file.php",
+                url: "ajax/upload_file.php",
                 data: data,
                 type: 'POST',
                 enctype: 'multipart/form-data',
@@ -873,7 +874,7 @@ $(document).ready(function(){
                 var filerKit = inputEl.prop("jFiler"),
                     file_name = filerKit.files_list[id].name;
 
-                $.post('ajax_remove_file.php', {file: file_name, work_id: data.work, type: data.type});
+                $.post('ajax/remove_file.php', {file: file_name, work_id: data.work, type: data.type});
             },
             onEmpty: null,
             options: null,

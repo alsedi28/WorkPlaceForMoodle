@@ -1,8 +1,8 @@
 <?php
-require_once(dirname(__FILE__) . '/../config.php');
-require_once('class.helper.php');
-require_once('class.config.php');
-require_once('class.datagateway.php');
+require_once(dirname(__FILE__) . '/../../config.php');
+require_once('../class.helper.php');
+require_once('../class.config.php');
+require_once('../class.datagateway.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['file_id']) || intval($_POST['file_id']) == 0){

@@ -1,7 +1,7 @@
 <?php
-    require_once('class.datagateway.php');
-    require_once('class.uploader.php');
-    require_once(dirname(__FILE__) . '/../config.php');
+    require_once('../class.datagateway.php');
+    require_once('../class.uploader.php');
+    require_once(dirname(__FILE__) . '/../../config.php');
 
     $uploader = new Uploader();
     $data = $uploader->upload($_FILES['files'], array(

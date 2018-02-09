@@ -1,9 +1,9 @@
 <?php
-require_once(dirname(__FILE__) . '/../config.php');
-require_once(dirname(__FILE__) . '/constants.php');
-require_once('class.helper.php');
-require_once('class.datagateway.php');
-require_once('class.render.php');
+require_once(dirname(__FILE__) . '/../../config.php');
+require_once(dirname(__FILE__) . '/../constants.php');
+require_once('../class.helper.php');
+require_once('../class.datagateway.php');
+require_once('../class.render.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['work_id']) || intval($_POST['work_id']) == 0){

@@ -18,7 +18,7 @@ class Render
         $dialog .= html_writer::start_tag('div');
         $dialog .= html_writer::tag('h2', 'Создание НИР', array('style' => 'text-align:center'));
 
-        $dialog .= html_writer::start_tag('form', array('id' => 'form_create_nir', 'method' => 'post', 'action' => 'create_work.php'));
+        $dialog .= html_writer::start_tag('form', array('id' => 'form_create_nir', 'method' => 'post', 'action' => 'ajax/create_work.php'));
         $dialog .= html_writer::tag('p', 'Выберите научного руководителя:', array('id' => 'modal_d_teacher'));
 
         $dialog .= html_writer::start_tag('p');

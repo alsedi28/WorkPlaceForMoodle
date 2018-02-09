@@ -1,7 +1,7 @@
 <?php
 
 // The number of lines in front of config file determine the // hierarchy of files. 
-require_once(dirname(__FILE__) . '/../config.php');
+require_once(dirname(__FILE__) . '/../../config.php');
 
 $teacher = isset($_POST['teacher']) ? $_POST['teacher'] : 0;
 $title = isset($_POST['title']) ? $_POST['title'] : "";

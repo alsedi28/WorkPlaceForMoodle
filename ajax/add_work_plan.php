@@ -1,7 +1,7 @@
 <?php
-require_once(dirname(__FILE__) . '/../config.php');
-require_once('class.datagateway.php');
-require_once('class.render.php');
+require_once(dirname(__FILE__) . '/../../config.php');
+require_once('../class.datagateway.php');
+require_once('../class.render.php');
 header('Content-type: application/json');
 
 if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_patronymic'])&& isset($_POST['ex_phone_number']) && isset($_POST['ex_email']) &&

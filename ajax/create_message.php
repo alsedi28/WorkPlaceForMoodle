@@ -1,8 +1,8 @@
 <?php
-require_once(dirname(__FILE__) . '/../config.php');
-require_once('class.helper.php');
-require_once('class.config.php');
-require_once('class.datagateway.php');
+require_once(dirname(__FILE__) . '/../../config.php');
+require_once('../class.helper.php');
+require_once('../class.config.php');
+require_once('../class.datagateway.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['nir']) || intval($_POST['nir']) == 0 || !isset($_POST['type']) || !isset($_POST['text'])){

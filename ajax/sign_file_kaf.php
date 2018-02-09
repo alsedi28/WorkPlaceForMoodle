@@ -1,8 +1,8 @@
 <?php
-require_once(dirname(__FILE__) . '/../config.php');
-require_once('class.helper.php');
-require_once('class.datagateway.php');
-require_once('class.config.php');
+require_once(dirname(__FILE__) . '/../../config.php');
+require_once('../class.helper.php');
+require_once('../class.datagateway.php');
+require_once('../class.config.php');
 header('Content-type: application/json');
 
 if($USER->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_KAFEDRA){
