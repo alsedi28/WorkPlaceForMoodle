@@ -43,6 +43,7 @@ $(document).ready(function(){
     });
 
     $(".block_work_plan").on('click', '#button_add_consultant',  render_partial_form_consultant);
+    $(".block_work_plan").on('click', '.remove_block',  close_consultant_block);
 
     $(".tab").on('click', '#send_review', add_review);
 
@@ -464,9 +465,13 @@ $(document).ready(function(){
             "<img src='img/plus.png' height='26px'/></div>");
     }
 
+    function close_consultant_block(){
+        $('#consultant_block').html("<div id='button_add_consultant'>Добавить консультанта</div>");
+    }
+
     function render_partial_form_consultant(){
         $('#button_add_consultant').remove();
-        $('#consultant_block').append("<h3 class='header_block'>Консультант</h3>" +
+        $('#consultant_block').append("<div><h3 class='header_block_consultant'>Консультант</h3><div class='remove_block' title='Удалить'></div></div>" +
             "<div><label class='label_block'>Фамилия<span style='color:red'> *</span></label><input type='text' name='cn_surname' id='cn_surname' class='input_block' required maxlength='25' data-validation='letters'/><div style='clear:both'></div></div>" +
             "<div><label class='label_block'>Имя<span style='color:red'> *</span></label><input type='text' name='cn_name' id='cn_name' class='input_block' required maxlength='25' data-validation='letters'/><div style='clear:both'></div></div>" +
             "<div><label class='label_block'>Отчество<span style='color:red'> *</span></label><input type='text' name='cn_patronymic' id='cn_patronymic' class='input_block' required maxlength='25' data-validation='letters'/><div style='clear:both'></div></div>" +

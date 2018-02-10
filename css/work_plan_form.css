@@ -15,6 +15,27 @@
     text-align: center;
 }
 
+.form_work_plan .header_block_consultant{
+    width: 270px;
+    text-align: right;
+    float: left;
+}
+
+.form_work_plan .remove_block{
+    height: 30px;
+    margin-top: 10px;
+    float: right;
+    width: 30px;
+    background-image: url(../img/delete.png);<!-- Путь другой на сервере -->
+    background-size: 30px auto;
+    background-repeat: no-repeat;
+}
+
+.form_work_plan .remove_block:hover{
+    cursor: pointer;
+    background-image: url(../img/delete_red.png);<!-- Путь другой на сервере -->
+}
+
 .label_block{
     width: 175px;
     float:left;
