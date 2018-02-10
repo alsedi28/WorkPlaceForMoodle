@@ -1,10 +1,12 @@
 <?php
-require_once('get_styles.php');
 // The number of lines in front of config file determine the // hierarchy of files.
 require_once(dirname(__FILE__) . '/../config.php');
 require_once('class.config.php');
 require_once('class.datagateway.php');
 require_once('class.render.php');
+require_once('class.cssbuilder.php');
+
+CssBuilder::build(array("menu_kaf", "modal_dialog", "tabs", "main"));
 
 $context = context_user::instance($USER->id);
 $PAGE->set_blocks_editing_capability('moodle/my:manageblocks');
@@ -16,13 +18,8 @@ $PAGE->set_title("НИР");
 $PAGE->set_heading($header);
 $PAGE->set_url($CFG->wwwroot.'/nirtest/index.php');
 
-/*$PAGE->requires->css('/nirtest/css/menu_kaf.css');
-$PAGE->requires->css('/nirtest/css/modal_dialog.css');
-$PAGE->requires->css('/nirtest/css/tabs.css');
-$PAGE->requires->css('/nirtest/css/main.css');*/
 $PAGE->requires->css('/nirtest/material/jquery.filer.css');
 $PAGE->requires->css('/nirtest/material/jquery.filer-dragdropbox-theme.css');
-$PAGE->requires->css('/nirtest/work_plan_form.css');
 $PAGE->requires->js('/nirtest/js/jquery-3.2.0.min.js', true);
 $PAGE->requires->js('/nirtest/material/jquery.filer.min.js', true);
 $PAGE->requires->js('/nirtest/js/MessageArea.js', true);

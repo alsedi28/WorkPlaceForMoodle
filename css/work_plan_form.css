@@ -26,14 +26,14 @@
     margin-top: 10px;
     float: right;
     width: 30px;
-    background-image: url(../img/delete.png);<!-- Путь другой на сервере -->
+    background-image: url(img/delete.png);
     background-size: 30px auto;
     background-repeat: no-repeat;
 }
 
 .form_work_plan .remove_block:hover{
     cursor: pointer;
-    background-image: url(../img/delete_red.png);<!-- Путь другой на сервере -->
+    background-image: url(img/delete_red.png);
 }
 
 .label_block{
