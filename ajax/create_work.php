@@ -14,5 +14,5 @@ $record->title = htmlspecialchars($title);
 
 $DB->insert_record('nir', $record, false);
 
-header( 'Location: /nir/index.php' );
+header( 'Location: /nirtest/index.php' );
 ?>
