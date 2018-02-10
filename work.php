@@ -30,8 +30,26 @@ if ($CFG->forcelogin) {
     require_login();
 }
 
-$previewnode = $PAGE->navigation->add("НИР", new moodle_url('/nirtest/index.php'), navigation_node::TYPE_CONTAINER);
-$previewnode->make_active();
+$mainnode = $PAGE->navigation->add("НИР", new moodle_url('/nirtest/index.php'), navigation_node::TYPE_CONTAINER);
+
+$node_current_work = $mainnode->add("Открытая работа", new moodle_url('/nirtest/work.php?id='.(isset($_GET["id"]) ? $_GET["id"] : "error").(isset($_GET["std"]) ? "&std=".$_GET["std"] : "")));
+$node_current_work->make_active();
+
+if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA || $USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER){
+    $node_students_list = $mainnode->add("Список студентов", new moodle_url('/nirtest/index.php'));
+    $node_students_list->make_inactive();
+}
+
+$url_works_list = '/nirtest/works.php?std='.(isset($_GET["std"]) ? $_GET["std"] : "error");
+$url_works_list_title = "Список работ студента";
+
+if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_STUDENT){
+    $url_works_list = '/nirtest/index.php';
+    $url_works_list_title = "Список работ";
+}
+
+$node_works_list = $mainnode->add($url_works_list_title, new moodle_url($url_works_list));
+$node_works_list->make_inactive();
 
 echo $OUTPUT->header();
 

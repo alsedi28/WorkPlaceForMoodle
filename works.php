@@ -30,8 +30,11 @@ if ($CFG->forcelogin) {
     require_login();
 }
 
-$previewnode = $PAGE->navigation->add("НИР", new moodle_url('/nirtest/index.php'), navigation_node::TYPE_CONTAINER);
-$previewnode->make_active();
+$mainnode = $PAGE->navigation->add("НИР", new moodle_url('/nirtest/index.php'), navigation_node::TYPE_CONTAINER);
+$node_works_list = $mainnode->add("Список работ студента", new moodle_url('/nirtest/works.php?std='.(isset($_GET["std"]) ? $_GET["std"] : "error")));
+$node_works_list->make_active();
+$node_students_list = $mainnode->add("Список студентов", new moodle_url('/nirtest/index.php'));
+$node_students_list->make_inactive();
 
 echo $OUTPUT->header();
 
