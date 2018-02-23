@@ -540,3 +540,39 @@ li.active a, li.active a:hover{
 .download_messages_block:hover {
 	background-color: rgba(70, 182, 172, 0.85);
 }
+
+.hint_modal_finish_work{
+	font-size: 15px;
+	text-align: center;
+}
+
+.title_mark_kaf_modal{
+	font-size: 17px;
+	margin-right: 25px;
+}
+
+.title_comment_modal{
+	font-size: 17px;
+}
+
+.title_status_modal{
+	font-size: 17px;
+}
+
+.modal_point_status{
+	margin-right: 60px;
+}
+
+.submit_modal_finish{
+	background-color: rgba(70,182,172, 0.35) !important;
+	margin:auto !important;
+	width: 200px !important;
+	display: block !important;
+	margin-top: 20px !important;
+	color: #333 !important;
+	font-size: 19px !important;
+}
+
+.submit_modal_finish:hover{
+	background-color: rgba(70,182,172, 0.85) !important;
+}

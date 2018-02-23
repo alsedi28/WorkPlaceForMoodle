@@ -126,7 +126,8 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA) {
 
     if ($work->is_closed == 0){
         $content .= html_writer::tag('p', 'Завершить работу', array('class' => 'finish_work_button'));
-        $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'work_f', 'id' => 'work_f', 'value' => $work_id));
+
+        $content .= Render::render_modal_dialog_finish_work($work_id);
     }
 }
 else{ //Page for teacher and student

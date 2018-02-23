@@ -585,6 +585,46 @@ class Render
         return $content;
     }
 
+    public static function render_modal_dialog_finish_work($work_id){
+        $dialog = '';
+        $dialog .= html_writer::tag('a','', array('href' => '#x', 'class' => 'overlay', 'id' => 'win1'));
+
+        $dialog .= html_writer::start_tag('div', array('class' => 'popup'));
+        $dialog .= html_writer::start_tag('div');
+        $dialog .= html_writer::tag('h2', 'Завершение работы', array('style' => 'text-align:center'));
+        $dialog .= html_writer::tag('p', 'Для того, чтобы завершить работу необходимо заполнить форму.', array('class' => 'hint_modal_finish_work') );
+
+        $dialog .= html_writer::start_tag('form', array('id' => 'form_finish_nir', 'method' => 'post', 'action' => 'ajax/finish_work.php'));
+
+        $dialog .= html_writer::tag('span', 'Оценка (по сто балльной шкале)', array('class' => 'title_mark_kaf_modal'));
+        $dialog .= html_writer::empty_tag('input', array('type' => 'number', 'name' => 'mark', 'value' => '50', 'min' => '0', 'max' => '100', 'size' => '4', 'step' => '5'));
+        $dialog .= html_writer::empty_tag('br');
+
+        $dialog .= html_writer::tag('p', 'Комментарий:', array('class' => 'title_comment_modal'));
+        $dialog .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'comment', 'placeholder' => 'Введите комментарий...', 'style' => 'resize: none; width: 600px;', 'required' => true));
+        $dialog .= html_writer::empty_tag('br');
+
+        $dialog .= html_writer::tag('p', 'Статус защиты:', array('class' => 'title_status_modal'));
+
+        $dialog .= html_writer::empty_tag('input', array('type' => 'radio', 'name' => 'status', 'id' => 'main', 'value' => 'Основная сдача', 'checked' => true));
+        $dialog .= html_writer::tag('label', 'Основная сдача', array('for' => 'main', 'class' => 'modal_point_status'));
+
+        $dialog .= html_writer::empty_tag('input', array('type' => 'radio', 'name' => 'status', 'id' => 'retake', 'value' => 'Пересдача'));
+        $dialog .= html_writer::tag('label', 'Пересдача', array('for' => 'retake', 'class' => 'modal_point_status'));
+
+        $dialog .= html_writer::empty_tag('input', array('type' => 'radio', 'name' => 'status', 'id' => 'commission', 'value' => 'Комиссия'));
+        $dialog .= html_writer::tag('label', 'Комиссия', array('for' => 'commission', 'class' => 'modal_point_status'));
+        $dialog .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'id', 'value' => $work_id));
+
+        $dialog .= html_writer::empty_tag('input', array('type' => 'submit', 'class' => 'submit_modal_finish', 'value' => 'Завершить'));
+
+        $dialog .= html_writer::end_tag('form');
+        $dialog .= html_writer::end_tag('div');
+        $dialog .= html_writer::end_tag('div');
+
+        return $dialog;
+    }
+
     private static function render_work_plan_textarea_many_block($label, $textarea_name, $rows, $required = true, $items = null){
         $content = '';
 

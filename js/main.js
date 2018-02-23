@@ -695,23 +695,8 @@ $(document).ready(function(){
     function finish_work(){
         var isSignYes = confirm(loc.AnswerDoYouWantToFinishWork);
 
-        if(isSignYes){
-            var id = document.querySelector('#work_f').value;
-
-            $.ajax({
-                url: 'ajax/finish_work.php',
-                type: 'POST',
-                data: {'id': id},
-                success: function(data){
-                    if(data.status === "Ok"){
-                        window.location.reload()
-                    }
-                    else{
-                        alert(loc.UnknownError);
-                    }
-                }
-            });
-        }
+        if(isSignYes)
+            window.location.hash="win1";
     }
 
     function get_obj_settings_download_file(data, extensions){
