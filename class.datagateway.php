@@ -308,8 +308,8 @@ class DataGateway
     public static function get_number_files_student_signed_teacher($student_id){
         global $DB;
 
-        $sql_count_files = "SELECT COUNT(*) as count FROM {nir}, {nir_files} WHERE mdl_nir.user_id = ? AND 
-                                            mdl_nir_files.nir_id = mdl_nir.id AND mdl_nir_files.is_sign_teacher = 1 AND mdl_nir_files.is_sign_kaf = 0";
+        $sql_count_files = "SELECT COUNT(*) as count FROM {nir}, {nir_files} WHERE mdl_nir.user_id = ? AND mdl_nir.is_closed = 0
+                                AND mdl_nir_files.nir_id = mdl_nir.id AND mdl_nir_files.is_sign_teacher = 1 AND mdl_nir_files.is_sign_kaf = 0";
         $count = $DB->get_record_sql($sql_count_files, array($student_id));
 
         return $count;
@@ -336,7 +336,7 @@ class DataGateway
         global $DB;
 
         $sql_count = "SELECT COUNT(*) as count FROM {nir_files}, {nir} WHERE mdl_nir_files.user_id = ? AND mdl_nir.teacher_id = ? 
-                                AND mdl_nir_files.is_new = 1 AND mdl_nir_files.nir_id = mdl_nir.id";
+                                AND mdl_nir.is_closed = 0 AND mdl_nir_files.is_new = 1 AND mdl_nir_files.nir_id = mdl_nir.id";
         $count = $DB->get_record_sql($sql_count, array($student_id, $teacher_id));
 
         return $count;
