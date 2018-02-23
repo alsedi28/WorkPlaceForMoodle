@@ -310,6 +310,7 @@ li.active a, li.active a:hover{
 	text-align: center;
 	font-weight: bold;
 	font-style: italic;
+	margin-top: 15px;
 }
 
 .messages{

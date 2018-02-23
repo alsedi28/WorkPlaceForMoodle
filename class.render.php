@@ -279,8 +279,6 @@ class Render
                 }
 
                 if ($options["tab_number"] === 2 && ($file->is_sign_teacher == 1 || $file->is_rejected == 1)) {
-                    $tab_content .= html_writer::empty_tag('br');
-
                     $flag = true;
                     $text = 'Файл подписан научным руководителем. Ожидает подтверждения от кафедры.';
 
