@@ -126,11 +126,12 @@ else{ // Page for student with list of his works
         $content .= html_writer::start_tag('a', array('href' => $url));
         $content .= html_writer::start_tag('div', array('class' => $wk->is_closed == 1 ? 'work_block work_block_closed' : 'work_block'));
 
-        if($wk->is_closed != 1)
-            $count_open_works++;
-
         $content .= Render::render_header_work_block($wk);
-        $content .= Render::render_work_block_title_new_files($count_new_file, $work_plan_exist);
+
+        if($wk->is_closed == 0){
+            $content .= Render::render_work_block_title_new_files($count_new_file, $work_plan_exist);
+            $count_open_works++;
+        }
 
         $content .= html_writer::end_tag('div');
         $content .= html_writer::end_tag('a');

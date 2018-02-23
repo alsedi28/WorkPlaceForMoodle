@@ -33,6 +33,7 @@ if($file && $USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_K
         $update_record = new stdClass();
         $update_record->id = $file_id;
         $update_record->is_sign_teacher = 0;
+        $update_record->is_rejected = 1;
         
         $DB->update_record('nir_files', $update_record);
         

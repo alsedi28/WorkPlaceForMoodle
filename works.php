@@ -83,7 +83,7 @@ else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACH
     $content .= html_writer::tag('h1', 'Научно-исследовательские работы');
 
     foreach ($works as $wk){
-        $count_new_file = DataGateway::get_number_new_files_uploaded_user_by_nir($wk->id, $USER->id);
+        $count_new_file = DataGateway::get_number_new_files_uploaded_user_by_nir($USER->id, $wk->id);
 
         $work_plan = DataGateway::get_work_plan_by_nir($wk->id);
         $work_plan_exist = ($work_plan->is_sign_user == 1 && $work_plan->is_sign_teacher == 0 && $work_plan->is_sign_kaf == 0) ? true : false;
@@ -94,7 +94,9 @@ else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACH
         $content .= html_writer::start_tag('div', array('class' => $wk->is_closed == 1 ? 'work_block work_block_closed' : 'work_block'));
 
         $content .= Render::render_header_work_block($wk, true);
-        $content .= Render::render_work_block_title_new_files($count_new_file, $work_plan_exist);
+
+        if($wk->is_closed == 0)
+            $content .= Render::render_work_block_title_new_files($count_new_file, $work_plan_exist);
 
         $content .= html_writer::end_tag('div');
         $content .= html_writer::end_tag('a');

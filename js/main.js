@@ -61,10 +61,6 @@ $(document).ready(function(){
 
     $(".tab").on('click', '.cancel_kaf_button', cancel_sign_nir_kaf);
 
-    if($("#tab2 .cancel_button_teacher").is('.cancel_button_teacher') && !document.querySelector('#tab2 .cancel_button_teacher').classList.contains("sign_teacher_button_not_active")){
-        $("#tab2 .cancel_button_teacher").on("click", cancel_sign_nir_teacher);
-    }
-
     $(".block_work_plan").on('click', '.work_info_block .plus_input', add_point);
 
     $(".block_work_plan").on('click', '.work_info_block .minus_input', remove_point);
@@ -513,46 +509,7 @@ $(document).ready(function(){
                         $('body').scrollTop(0);
 
                         document.querySelector('#' + current_tab_id + ' .sign_button_teacher').classList.add("sign_teacher_button_not_active");
-                        document.querySelector('#' + current_tab_id + ' .cancel_button_teacher').classList.remove("sign_teacher_button_not_active");
                         $('#' + current_tab_id + ' .sign_button_teacher').off();
-                        $('#' + current_tab_id + ' .cancel_button_teacher').on("click", cancel_sign_nir_teacher);
-                        $("#" + current_tab_id + " .textar_message_new").before(data.messages);
-                    }
-                }
-            });
-        }
-    }
-
-    function cancel_sign_nir_teacher(event){
-        var isCancelSignYes = confirm(loc.AnswerDoYouWantToCancelSignature);
-
-        if(isCancelSignYes){
-            var tabs = $(event.target).closest('.tab');
-            var current_tab_id = tabs[0].id;
-
-            var file_id = $('#' + current_tab_id + ' .cancel_button_teacher').parent().parent().find("#file_id").val();
-
-            var params_obj = {'file_id' : file_id};
-
-            var date_lst = $('#' + current_tab_id + ' .message .header_message_date');
-            if (date_lst.length !== 0){
-                var date = date_lst[date_lst.length - 1].innerText;
-                params_obj.last_date_message = date;
-            }
-
-            $.ajax({
-                url: 'ajax/cancel_sign_file_teacher.php',
-                type: 'POST',
-                data: $.param(params_obj),
-                success: function(data){
-                    if(data.status === "Ok"){
-                        messageAreaReport.AddSuccess(loc.SignatureCanceled);
-                        $('body').scrollTop(0);
-
-                        document.querySelector('#' + current_tab_id + ' .sign_button_teacher').classList.remove("sign_teacher_button_not_active");
-                        document.querySelector('#' + current_tab_id + ' .cancel_button_teacher').classList.add("sign_teacher_button_not_active");
-                        $('#' + current_tab_id + ' .sign_button_teacher').on("click", sign_nir_teacher);
-                        $('#' + current_tab_id + ' .cancel_button_teacher').off();
                         $("#" + current_tab_id + " .textar_message_new").before(data.messages);
                     }
                 }

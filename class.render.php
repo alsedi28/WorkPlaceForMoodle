@@ -128,7 +128,7 @@ class Render
         $tab_content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
         $tab_content .= html_writer::end_tag('div');
 
-        if($file){
+        if($file && $result->is_closed == 0){
             $tab_content .= html_writer::start_tag('div', array('class' => 'block_files_sign_kaf'));
             $tab_content .= html_writer::tag('div', 'Подписать', array('class' => $file->is_sign_kaf == 1 ? 'sign_kaf_button sign_kaf_button_not_active' : 'sign_kaf_button'));
             $tab_content .= html_writer::tag('div', 'Отклонить', array('class' => 'cancel_kaf_button'));
@@ -157,7 +157,7 @@ class Render
             $tab_content .= html_writer::end_tag('div');
         }
 
-        if(!(count($messages) == 0 && $result->is_closed == 1)){
+        if(!(count($messages) == 0)){
             $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
 
             foreach ($messages as $mz){
@@ -171,7 +171,7 @@ class Render
                 $tab_content .= html_writer::end_tag('div');
             }
 
-            if($result->is_closed != 1){
+            if($result->is_closed == 0){
                 $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
                 $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => 'message_textarea_tab2', 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));
                 $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => 'send_message_tab2'));
@@ -240,21 +240,23 @@ class Render
         $tab_content .= html_writer::start_tag('div', array('id' => 'content'));
         $tab_content .= html_writer::start_tag('div', array('class' => $options["tab_number"] === 1 ? 'block_work_plan' : 'block_files'));
 
+        $flag = false;
+
         if($options["tab_number"] === 1){
             $tab_content .= self::render_work_plan($work_id);
         }
         else {
             $i = 1;
             $total = count($files);
-            $flag = true;
 
             $tab_content .= html_writer::tag('div', '', array('class' => 'message_container_block'));
 
             foreach ($files as $file) {
                 $height_block = '';
-                if ($options["tab_number"] !== 3 && $result->is_closed == 0 && (($total == $i || $file->is_sign_teacher == 1) && $user->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER && $flag) || ($file->is_sign_teacher == 1 && $user->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_TEACHER && $user->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_KAFEDRA)) {
-                    $height_block = 'height:340px';
+                if ($options["tab_number"] === 2 && ($file->is_sign_teacher == 1 || $file->is_rejected == 1 || ($total == $i && $result->is_closed == 0))) {
+                    $height_block = 'height:330px';
                 }
+                $tab_content .= html_writer::start_tag('div', array('class' => 'block_file_prev_main'));
                 $tab_content .= html_writer::start_tag('div', array('class' => 'block_file_prev', 'style' => $height_block));
                 $tab_content .= html_writer::start_tag('a', array('class' => 'a_file_block', 'target' => '_blank', 'href' => $file->filename));
                 $tab_content .= html_writer::empty_tag('img', array('src' => $options["image_path"], 'height' => '110px', 'class' => 'img_files_prev'));
@@ -276,23 +278,34 @@ class Render
                     $tab_content .= html_writer::empty_tag('img', array('src' => 'img/new.gif', 'height' => '30px', 'class' => 'img_new'));
                 }
 
-                if ($options["tab_number"] !== 3 && $file->is_sign_teacher == 1 && $user->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_TEACHER && $user->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_KAFEDRA) {
-                    $tab_content .= html_writer::tag('br');
-                    $tab_content .= html_writer::tag('p', 'Файл подписан научным руководителем. Ожидает подтверждения от кафедры.', array('class' => 'file_date'));
+                if ($options["tab_number"] === 2 && ($file->is_sign_teacher == 1 || $file->is_rejected == 1)) {
+                    $tab_content .= html_writer::empty_tag('br');
+
+                    $flag = true;
+                    $text = 'Файл подписан научным руководителем. Ожидает подтверждения от кафедры.';
+
+                    if($file->is_sign_kaf == 1)
+                        $text = 'Файл утвержден кафедрой.';
+                    else if($file->is_rejected == 1){
+                        $text = 'Файл отклонен кафедрой.';
+                        $flag = false;
+                    }
+
+                    $tab_content .= html_writer::tag('p', $text, array('class' => 'file_info_sign'));
                 }
 
                 $tab_content .= html_writer::end_tag('a');
 
-                if ($options["tab_number"] !== 3 && $result->is_closed == 0 && ($total == $i || $file->is_sign_teacher == 1) && $user->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER && $flag) {
-                    if ($total != $i)
-                        $flag = false;
+                if ($options["tab_number"] === 2 && $result->is_closed == 0 && $total == $i && !$flag &&
+                    $file->is_rejected == 0 && $user->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER) {
 
                     $tab_content .= html_writer::start_tag('div', array('class' => 'block_files_sign_teacher'));
-                    $tab_content .= html_writer::tag('div', 'Подписать', array('class' => ($file->is_sign_teacher == 1 || ($options["tab_number"] === 2 && ($result->review == "" || $result->mark == ""))) ? 'sign_button_teacher sign_teacher_button_not_active' : 'sign_button_teacher'));
-                    $tab_content .= html_writer::tag('div', 'Отклонить', array('class' => $file->is_sign_teacher == 0 ? 'cancel_button_teacher sign_teacher_button_not_active' : 'cancel_button_teacher'));
+                    $tab_content .= html_writer::tag('div', 'Подписать', array('class' => ($result->review == "" || $result->mark == "") ?
+                        'sign_button_teacher sign_teacher_button_not_active' : 'sign_button_teacher'));
                     $tab_content .= html_writer::end_tag('div');
                 }
 
+                $tab_content .= html_writer::end_tag('div');
                 $tab_content .= html_writer::end_tag('div');
 
                 $i++;
@@ -302,14 +315,14 @@ class Render
         $tab_content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
         $tab_content .= html_writer::end_tag('div');
 
-        if($result->is_closed != 1 && $options["tab_number"] !== 1){
+        if($result->is_closed == 0 && ($options["tab_number"] === 3 || ($options["tab_number"] === 2 && !$flag))){
             $tab_content .= html_writer::empty_tag('input', array('type' => 'file', 'name' => 'files[]', 'id' => $options["filer_input_id"]));//filer_input2 filer_input1 filer_input3
         }
 
         $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => $options["work_input_id"], 'value' => $work_id)); // h_work h_work_2 h_work_3
         $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work_type', 'id' => $options["work_input_type"], 'value' => $options["work_type"]));// h_work_type h_work_type_2 h_work_type_3 Z O P
 
-        if($options["tab_number"] === 2){
+        if($options["tab_number"] === 2 && ($result->is_closed == 0 || ($result->is_closed == 1 && $result->review != "" || $result->mark != ""))){
             if($user->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER){
                 $tab_content .= html_writer::start_tag('div', array('id' => 'review_block_header'));
                 $tab_content .= html_writer::tag('p', 'Отзыв научного руководителя', array('class' => 'review_header_title'));
@@ -344,7 +357,7 @@ class Render
             }
         }
 
-        if(!(count($messages) == 0 && $result->is_closed == 1)){
+        if(!(count($messages) == 0)){
             $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
 
             if(count($messages) > 5){
@@ -363,7 +376,7 @@ class Render
                 $tab_content .= html_writer::end_tag('div');
             }
 
-            if($result->is_closed != 1){
+            if($result->is_closed == 0){
                 $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
                 $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => $options["message_textarea_id"], 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));//message_textarea_tab1 message_textarea_tab2 message_textarea_tab3
                 $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => $options["send_message_id"]));//send_message_tab1 send_message_tab2 send_message_tab3

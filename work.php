@@ -122,8 +122,12 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA) {
     $content .= Render::render_kafedra_tab_report($file_type_o, $messages_type_o, $work, $work_id); // tab2
 
     $content .= html_writer::end_tag('div');
-
     $content .= html_writer::end_tag('div');
+
+    if ($work->is_closed == 0){
+        $content .= html_writer::tag('p', 'Завершить работу', array('class' => 'finish_work_button'));
+        $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'work_f', 'id' => 'work_f', 'value' => $work_id));
+    }
 }
 else{ //Page for teacher and student
     if(isset($_GET["std"])){
@@ -197,11 +201,6 @@ else{ //Page for teacher and student
 
     $content .= html_writer::end_tag('div');
     $content .= html_writer::end_tag('div');
-
-    if ($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER && $work->is_closed == 0){
-        $content .= html_writer::tag('p', 'Завершить работу', array('class' => 'finish_work_button'));
-        $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'work_f', 'id' => 'work_f', 'value' => $work_id));
-    }
 }
 
 echo $content;

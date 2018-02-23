@@ -289,7 +289,8 @@ class DataGateway
     public static function get_files_by_type($user_id, $work_id, $type){
         global $DB;
 
-        $sql_files = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.is_sign_teacher, mdl_nir_files.date, mdl_nir_files.is_new, mdl_user.firstname,
+        $sql_files = "SELECT mdl_nir_files.id, mdl_nir_files.filename, mdl_nir_files.is_sign_teacher, mdl_nir_files.is_sign_kaf, mdl_nir_files.date, 
+                          mdl_nir_files.is_new, mdl_nir_files.is_rejected, mdl_user.firstname,
                           mdl_user.lastname, mdl_user.id as user_id FROM {nir_files}, {nir}, {user} WHERE mdl_nir.id = ? AND 
                           (mdl_nir.teacher_id = ? OR  mdl_nir.user_id = ?) AND mdl_nir_files.nir_id = ? AND mdl_nir_files.type = ? 
                           AND mdl_user.id = mdl_nir_files.user_id ORDER BY mdl_nir_files.date";

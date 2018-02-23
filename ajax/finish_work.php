@@ -11,9 +11,9 @@ if(!isset($_POST['id']) || intval($_POST['id']) == 0){
 
 $id = $_POST['id'];
 
-$work = DataGateway::get_nir_by_user($USER->id, $id);
+$work = DataGateway::get_nir_by_id($id);
 
-if($work && $USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER){
+if($work && $USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
     $update_record = new stdClass();
     $update_record->id = $id;
     $update_record->is_closed = 1;
