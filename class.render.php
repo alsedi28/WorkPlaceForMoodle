@@ -249,7 +249,8 @@ class Render
 
             foreach ($files as $file) {
                 $height_block = '';
-                if ($options["tab_number"] === 2 && ($file->is_sign_teacher == 1 || $file->is_rejected == 1 || ($total == $i && $result->is_closed == 0))) {
+                if ($options["tab_number"] === 2 && ($file->is_sign_teacher == 1 || $file->is_rejected == 1 ||
+                    ($total == $i && $result->is_closed == 0 && $user->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER))) {
                     $height_block = 'height:330px';
                 }
                 $tab_content .= html_writer::start_tag('div', array('class' => 'block_file_prev_main'));
