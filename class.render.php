@@ -157,29 +157,31 @@ class Render
             $tab_content .= html_writer::end_tag('div');
         }
 
-        $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
+        if($result->is_closed == 0 || ($result->is_closed == 1 && count($messages) > 0)) {
+            $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
 
-        foreach ($messages as $mz){
-            $tab_content .= html_writer::start_tag('div', array('class' => 'message'));
-            $tab_content .= html_writer::start_tag('div', array('class' => 'header_message header_message_kaf'));
-            $tab_content .= html_writer::tag('p', 'Кафедра', array('class' => 'header_message_name'));
-            $tab_content .= html_writer::tag('p', $mz->date, array('class' => 'header_message_date'));
-            $tab_content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
-            $tab_content .= html_writer::end_tag('div');
-            $tab_content .= html_writer::tag('p', $mz->text, array('class' => 'message_text'));
+            foreach ($messages as $mz) {
+                $tab_content .= html_writer::start_tag('div', array('class' => 'message'));
+                $tab_content .= html_writer::start_tag('div', array('class' => 'header_message header_message_kaf'));
+                $tab_content .= html_writer::tag('p', 'Кафедра', array('class' => 'header_message_name'));
+                $tab_content .= html_writer::tag('p', $mz->date, array('class' => 'header_message_date'));
+                $tab_content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
+                $tab_content .= html_writer::end_tag('div');
+                $tab_content .= html_writer::tag('p', $mz->text, array('class' => 'message_text'));
+                $tab_content .= html_writer::end_tag('div');
+            }
+
+            if ($result->is_closed == 0) {
+                $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
+                $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => 'message_textarea_tab2', 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));
+                $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => 'send_message_tab2'));
+                $tab_content .= html_writer::empty_tag('img', array('class' => 'send_icon', 'src' => 'img/send_icon.png', 'width' => '50px'));
+                $tab_content .= html_writer::end_tag('button');
+                $tab_content .= html_writer::end_tag('div');
+            }
+
             $tab_content .= html_writer::end_tag('div');
         }
-
-        if($result->is_closed == 0){
-            $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
-            $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => 'message_textarea_tab2', 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));
-            $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => 'send_message_tab2'));
-            $tab_content .= html_writer::empty_tag('img', array('class' => 'send_icon', 'src' => 'img/send_icon.png', 'width' => '50px'));
-            $tab_content .= html_writer::end_tag('button');
-            $tab_content .= html_writer::end_tag('div');
-        }
-
-        $tab_content .= html_writer::end_tag('div');
 
         $tab_content .= html_writer::end_tag('div');
         return $tab_content;
@@ -200,29 +202,31 @@ class Render
         $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => 'h_work', 'value' => $work_id)); // h_work h_work_2 h_work_3
         $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work_type', 'id' => 'h_work_type', 'value' => 'Z'));
 
-        $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
+        if($is_closed == 0 || ($is_closed == 1 && count($messages) > 0)) {
+            $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
 
-        foreach ($messages as $mz){
-            $tab_content .= html_writer::start_tag('div', array('class' => 'message'));
-            $tab_content .= html_writer::start_tag('div', array('class' => 'header_message header_message_kaf'));
-            $tab_content .= html_writer::tag('p', 'Кафедра', array('class' => 'header_message_name'));
-            $tab_content .= html_writer::tag('p', $mz->date, array('class' => 'header_message_date'));
-            $tab_content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
-            $tab_content .= html_writer::end_tag('div');
-            $tab_content .= html_writer::tag('p', $mz->text, array('class' => 'message_text'));
+            foreach ($messages as $mz) {
+                $tab_content .= html_writer::start_tag('div', array('class' => 'message'));
+                $tab_content .= html_writer::start_tag('div', array('class' => 'header_message header_message_kaf'));
+                $tab_content .= html_writer::tag('p', 'Кафедра', array('class' => 'header_message_name'));
+                $tab_content .= html_writer::tag('p', $mz->date, array('class' => 'header_message_date'));
+                $tab_content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
+                $tab_content .= html_writer::end_tag('div');
+                $tab_content .= html_writer::tag('p', $mz->text, array('class' => 'message_text'));
+                $tab_content .= html_writer::end_tag('div');
+            }
+
+            if ($is_closed == 0) {
+                $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
+                $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => 'message_textarea_tab1', 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));
+                $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => 'send_message_tab1'));
+                $tab_content .= html_writer::empty_tag('img', array('class' => 'send_icon', 'src' => 'img/send_icon.png', 'width' => '50px'));
+                $tab_content .= html_writer::end_tag('button');
+                $tab_content .= html_writer::end_tag('div');
+            }
+
             $tab_content .= html_writer::end_tag('div');
         }
-
-        if($is_closed != 1){
-            $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
-            $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => 'message_textarea_tab1', 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));
-            $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => 'send_message_tab1'));
-            $tab_content .= html_writer::empty_tag('img', array('class' => 'send_icon', 'src' => 'img/send_icon.png', 'width' => '50px'));
-            $tab_content .= html_writer::end_tag('button');
-            $tab_content .= html_writer::end_tag('div');
-        }
-
-        $tab_content .= html_writer::end_tag('div');
 
         $tab_content .= html_writer::end_tag('div');
         $tab_content .= html_writer::end_tag('div');
@@ -352,34 +356,36 @@ class Render
             }
         }
 
-        $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
+        if($result->is_closed == 0 || ($result->is_closed == 1 && count($messages) > 0)) {
+            $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
 
-        if(count($messages) > 5){
-            array_shift($messages);
-            $tab_content .= html_writer::tag('div', 'Загрузить еще сообщения', array('class' => 'download_messages_block'));
-        }
+            if (count($messages) > 5) {
+                array_shift($messages);
+                $tab_content .= html_writer::tag('div', 'Загрузить еще сообщения', array('class' => 'download_messages_block'));
+            }
 
-        foreach ($messages as $mz){
-            $tab_content .= html_writer::start_tag('div', array('class' => 'message'));
-            $tab_content .= html_writer::start_tag('div', array('class' => $mz->user_id == Config::ADMIN ? 'header_message header_message_kaf' :'header_message'));
-            $tab_content .= html_writer::tag('p', $mz->user_id == Config::ADMIN ? 'Кафедра' : $mz->lastname." ".$mz->firstname, array('class' => 'header_message_name'));
-            $tab_content .= html_writer::tag('p', $mz->date, array('class' => 'header_message_date'));
-            $tab_content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
+            foreach ($messages as $mz) {
+                $tab_content .= html_writer::start_tag('div', array('class' => 'message'));
+                $tab_content .= html_writer::start_tag('div', array('class' => $mz->user_id == Config::ADMIN ? 'header_message header_message_kaf' : 'header_message'));
+                $tab_content .= html_writer::tag('p', $mz->user_id == Config::ADMIN ? 'Кафедра' : $mz->lastname . " " . $mz->firstname, array('class' => 'header_message_name'));
+                $tab_content .= html_writer::tag('p', $mz->date, array('class' => 'header_message_date'));
+                $tab_content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
+                $tab_content .= html_writer::end_tag('div');
+                $tab_content .= html_writer::tag('p', $mz->text, array('class' => 'message_text'));
+                $tab_content .= html_writer::end_tag('div');
+            }
+
+            if ($result->is_closed == 0) {
+                $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
+                $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => $options["message_textarea_id"], 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));//message_textarea_tab1 message_textarea_tab2 message_textarea_tab3
+                $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => $options["send_message_id"]));//send_message_tab1 send_message_tab2 send_message_tab3
+                $tab_content .= html_writer::empty_tag('img', array('class' => 'send_icon', 'src' => 'img/send_icon.png', 'width' => '50px'));
+                $tab_content .= html_writer::end_tag('button');
+                $tab_content .= html_writer::end_tag('div');
+            }
+
             $tab_content .= html_writer::end_tag('div');
-            $tab_content .= html_writer::tag('p', $mz->text, array('class' => 'message_text'));
-            $tab_content .= html_writer::end_tag('div');
         }
-
-        if($result->is_closed == 0){
-            $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
-            $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => $options["message_textarea_id"], 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));//message_textarea_tab1 message_textarea_tab2 message_textarea_tab3
-            $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => $options["send_message_id"]));//send_message_tab1 send_message_tab2 send_message_tab3
-            $tab_content .= html_writer::empty_tag('img', array('class' => 'send_icon', 'src' => 'img/send_icon.png', 'width' => '50px'));
-            $tab_content .= html_writer::end_tag('button');
-            $tab_content .= html_writer::end_tag('div');
-        }
-
-        $tab_content .= html_writer::end_tag('div');
 
         $tab_content .= html_writer::end_tag('div');
         $tab_content .= html_writer::end_tag('div');
