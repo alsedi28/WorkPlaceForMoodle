@@ -135,7 +135,7 @@ class Helper
             $messages = DataGateway::get_comments_by_date($last_date, $work_id, $type);
         }
         else{
-            $messages = DataGateway::get_comments($last_date, $work_id, $type);
+            $messages = DataGateway::get_comments($work_id, $type);
         }
 
         $messages_data = self::render_messages($messages);
