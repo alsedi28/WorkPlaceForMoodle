@@ -32,7 +32,7 @@ class Render
         $dialog .= html_writer::end_tag('p');
 
         $dialog .= html_writer::tag('p', 'Введите название научно-исследовательской работы:', array('id' => 'modal_d_title'));
-        $dialog .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'cols', 'required' => true, 'style' => 'resize: none;', 'cols' => '55'));
+        $dialog .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'title', 'required' => true, 'style' => 'resize: none;', 'cols' => '55'));
         $dialog .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'user', 'value' => $user_id));
         $dialog .= html_writer::tag('br');
         $dialog .= html_writer::empty_tag('input', array('type' => 'submit', 'id' => 'submit_modal_form', 'value' => 'Создать'));

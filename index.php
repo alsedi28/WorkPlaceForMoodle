@@ -119,7 +119,7 @@ else{ // Page for student with list of his works
         $count_new_file = DataGateway::get_number_new_files_uploaded_user_by_nir($USER->id, $wk->id);
 
         $work_plan = DataGateway::get_work_plan_by_nir($wk->id);
-        $work_plan_exist = ($work_plan->is_sign_user == 0 && $work_plan->is_sign_teacher == 0 && $work_plan->is_sign_kaf == 0) ? true : false;
+        $work_plan_exist = ($work_plan && $work_plan->is_sign_user == 0 && $work_plan->is_sign_teacher == 0 && $work_plan->is_sign_kaf == 0) ? true : false;
 
         $url = '/nirtest/work.php?id='.$wk->id;
 
