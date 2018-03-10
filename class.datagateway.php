@@ -484,7 +484,7 @@ class DataGateway
         global $DB;
 
         $sql_users = "SELECT mdl_user.firstname, mdl_user.lastname, mdl_user.id FROM {user}, {user_info_data} 
-                                    WHERE mdl_user.id = mdl_user_info_data.userid AND mdl_user_info_data.data = ?";
+                                    WHERE mdl_user.id = mdl_user_info_data.userid AND mdl_user_info_data.data = ? ORDER BY mdl_user.lastname";
 
         $users = $DB->get_records_sql($sql_users, array($group));
 
@@ -500,7 +500,7 @@ class DataGateway
 
         $sql_users = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname, mdl_user_info_data.data FROM {nir}, {user}, {user_info_data} 
                                     WHERE mdl_nir.teacher_id = ? AND mdl_user.id = mdl_nir.user_id AND mdl_user_info_data.userid = mdl_nir.user_id AND 
-                                    mdl_user_info_data.fieldid = ?";
+                                    mdl_user_info_data.fieldid = ? ORDER BY mdl_user_info_data.data, mdl_user.lastname";
 
         $users = $DB->get_records_sql($sql_users, array($teacher_id, Config::FIELD_GROUP_ID));
 
