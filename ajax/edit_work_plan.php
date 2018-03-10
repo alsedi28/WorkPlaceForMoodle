@@ -7,7 +7,7 @@ require_once('../class.render.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['work_id']) || intval($_POST['work_id']) == 0){
-    echo json_encode(array('status' => "Validation error"));
+    echo json_encode(array('status' => "Validation error", 'code' => "307"));
     exit();
 }
 
@@ -16,7 +16,7 @@ $work_id = $_POST['work_id'];
 $work_plan_info = DataGateway::get_work_plan_by_nir_and_user($work_id, $USER->id);
 
 if(!$work_plan_info){
-    echo json_encode(array('status' => "Work plan does not exist"));
+    echo json_encode(array('status' => "Work plan does not exist", 'code' => "308"));
     exit();
 }
 
@@ -56,7 +56,7 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
             array_push($work_content_items, htmlspecialchars($_POST['work_content'][$i]));
             $i++;
         } else if ($i < 3) {
-            echo json_encode(array('status' => "Validation error"));
+            echo json_encode(array('status' => "Validation error", 'code' => "309"));
             exit();
         } else {
             break;
@@ -70,7 +70,7 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
             array_push($work_result_items, htmlspecialchars($_POST['work_result'][$i]));
             $i++;
         } else if ($i < 3) {
-            echo json_encode(array('status' => "Validation error"));
+            echo json_encode(array('status' => "Validation error", 'code' => "310"));
             exit();
         } else {
             break;
@@ -84,7 +84,7 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
             array_push($info_source_items, htmlspecialchars($_POST['info_source'][$i]));
             $i++;
         } else if ($i < 3) {
-            echo json_encode(array('status' => "Validation error"));
+            echo json_encode(array('status' => "Validation error", 'code' => "311"));
             exit();
         } else {
             break;
@@ -246,6 +246,6 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
     echo json_encode(array('status' => "Ok", 'data' => Render::render_work_plan_view($work_id), 'messages' => $messages_data, 'alert' => $alert_message));
 }
 else{
-    echo json_encode(array('status' => "Validation error"));
+    echo json_encode(array('status' => "Validation error", 'code' => "312"));
 }
 ?>

@@ -3,11 +3,6 @@ $(document).ready(function(){
     var messageAreaReport = new MessageArea(document.querySelector('.block_files .message_container_block'));
     var messageAreaReportKaf = new MessageArea(document.querySelector('#message_kaf'));
 
-    var dataObj = {
-        "work": document.getElementById("h_work").value,
-        "type": document.getElementById("h_work_type").value,
-    };
-
     var dataObj2 = {
         "work": document.getElementById("h_work_2").value,
         "type": document.getElementById("h_work_type_2").value,
@@ -256,7 +251,7 @@ $(document).ready(function(){
                         $("#tab1 .textar_message_new").before(data.messages);
                 }
                 else{
-                    messageArea.AddError(loc.UnknownError);
+                    messageArea.AddError(loc.UnknownErrorWithCode + data.code);
                 }
 
                 make_button_active('#form_plan', send_form_work_plan, 'submit');
@@ -358,7 +353,7 @@ $(document).ready(function(){
                         $("#tab1 .textar_message_new").before(data.messages);
                 }
                 else{
-                    messageArea.AddError(loc.UnknownError);
+                    messageArea.AddError(loc.UnknownErrorWithCode + data.code);
                 }
 
                 make_button_active('#form_plan_edit', send_edit_work_plan, 'submit');
@@ -849,7 +844,6 @@ $(document).ready(function(){
         }
     }
 
-    $("#filer_input2").filer(get_obj_settings_download_file(dataObj, ['txt', 'doc', 'docx', 'docm', 'odt', 'pages']));
     $("#filer_input1").filer(get_obj_settings_download_file(dataObj2, ['txt', 'doc', 'docx', 'docm', 'odt', 'pages']));
     $("#filer_input3").filer(get_obj_settings_download_file(dataObj3, ['pdf', 'ppt', 'pptx', 'key']));
 

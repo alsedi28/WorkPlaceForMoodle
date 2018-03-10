@@ -2,6 +2,7 @@ var loc = {};
 
 loc.Waiting = 'Подождите...';
 loc.UnknownError = 'Произошла непредвиденная ошибка';
+loc.UnknownErrorWithCode = 'Произошла непредвиденная ошибка с кодом ';
 loc.ErrorTitle = 'Возникла ошибка: ';
 loc.Error = 'Ошибка';
 loc.AnswerDoYouWantToSignWork = 'Вы действительно хотите подписать работу?';

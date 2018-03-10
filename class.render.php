@@ -315,7 +315,7 @@ class Render
         $tab_content .= html_writer::end_tag('div');
 
         if($result->is_closed == 0 && ($options["tab_number"] === 3 || ($options["tab_number"] === 2 && !$flag))){
-            $tab_content .= html_writer::empty_tag('input', array('type' => 'file', 'name' => 'files[]', 'id' => $options["filer_input_id"]));//filer_input2 filer_input1 filer_input3
+            $tab_content .= html_writer::empty_tag('input', array('type' => 'file', 'name' => 'files[]', 'id' => $options["filer_input_id"]));//filer_input1 filer_input3
         }
 
         $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => $options["work_input_id"], 'value' => $work_id)); // h_work h_work_2 h_work_3

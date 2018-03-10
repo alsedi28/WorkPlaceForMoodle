@@ -27,7 +27,7 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
     $work_goal = htmlspecialchars($_POST['work_goal']);
 
     if($work_id === 0){
-        echo json_encode(array('status' => "Validation error"));
+        echo json_encode(array('status' => "Validation error", 'code' => "203"));
         exit();
     }
 
@@ -39,7 +39,7 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
             $i++;
         }
         else if($i < 3){
-            echo json_encode(array('status' => "Validation error"));
+            echo json_encode(array('status' => "Validation error", 'code' => "204"));
             exit();
         }
         else{
@@ -55,7 +55,7 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
             $i++;
         }
         else if($i < 3){
-            echo json_encode(array('status' => "Validation error"));
+            echo json_encode(array('status' => "Validation error", 'code' => "205"));
             exit();
         }
         else{
@@ -71,7 +71,7 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
             $i++;
         }
         else if($i < 3){
-            echo json_encode(array('status' => "Validation error"));
+            echo json_encode(array('status' => "Validation error", 'code' => "206"));
             exit();
         }
         else{
@@ -82,14 +82,14 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
     $nir = DataGateway::get_nir_by_user($USER->id, $work_id);
 
     if(!$nir){
-        echo json_encode(array('status' => "Validation error"));
+        echo json_encode(array('status' => "Validation error", 'code' => "207"));
         exit();
     }
 
     $work_plan = DataGateway::get_work_plan_by_nir($work_id);
 
     if($work_plan){
-        echo json_encode(array('status' => "Validation error"));
+        echo json_encode(array('status' => "Validation error", 'code' => "208"));
         exit();
     }
 
@@ -208,7 +208,7 @@ if(isset($_POST['work_id']) && isset($_POST['ex_surname']) && isset($_POST['ex_n
         'alert' => "Задание на НИР создано и отправлено научному руководителю."));
 }
 else {
-    echo json_encode(array('status' => "Validation error"));
+    echo json_encode(array('status' => "Validation error", 'code' => "209"));
 }
 
 ?>

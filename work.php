@@ -187,8 +187,8 @@ else{ //Page for teacher and student
 
     $content .= html_writer::start_tag('div', array('class' => 'tab-content'));
 
-    $content .= Render::render_tab(null, $messages_type_z, $work, $USER, $work_id, array ('tab_id' => 'tab1', 'tab_number' => 1, 'image_path' => 'img/docs_icon.png',
-        'file_type_name' => 'Задание', 'filer_input_id' => 'filer_input2', 'work_input_id' => 'h_work', 'work_input_type' => 'h_work_type', 'work_type' => 'Z',
+    $content .= Render::render_tab(null, $messages_type_z, $work, $USER, $work_id, array ('tab_id' => 'tab1', 'tab_number' => 1,
+        'work_input_id' => 'h_work', 'work_input_type' => 'h_work_type', 'work_type' => 'Z',
         'message_textarea_id' => 'message_textarea_tab1', 'send_message_id' => 'send_message_tab1'));
 
     $content .= Render::render_tab($files_type_o, $messages_type_o, $work, $USER, $work_id, array ('tab_id' => 'tab2', 'tab_number' => 2, 'image_path' => 'img/docs_icon.png',
