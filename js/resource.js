@@ -14,6 +14,7 @@ loc.DocumentRejected = 'Документ отклонен';
 loc.ReviewAdded = 'Отзыв добавлен';
 loc.FieldReviewMustBeCompleted = 'Поле \'Отзыв\' должно быть заполнено!';
 loc.AnswerDoYouWantToFinishWork = 'Вы действительно хотите завершить работу?';
+loc.AnswerDoYouWantToDeleteWork = 'Вы действительно хотите удалить работу?';
 loc.Remove = 'Удалить';
 loc.AddItem = 'Добавить пункт';
 loc.Review = 'Отзыв';

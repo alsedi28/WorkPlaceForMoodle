@@ -135,6 +135,16 @@ else{ // Page for student with list of his works
 
         $content .= html_writer::end_tag('div');
         $content .= html_writer::end_tag('a');
+
+        if($wk->is_closed == 0 && !$work_plan) {
+            $count_files_in_nir = DataGateway::get_number_files_by_nir($wk->id);
+
+            if ($count_files_in_nir->count == 0) {
+                $content .= html_writer::start_tag('div', array('class' => 'button_delete_work', 'title' => 'Удалить'));
+                $content .= html_writer::empty_tag('input', array('type' => 'hidden', 'value' => $wk->id));
+                $content .= html_writer::end_tag('div');
+            }
+        }
     }
 
     $content .= html_writer::tag('div', '', array('style' => 'clear:both;'));

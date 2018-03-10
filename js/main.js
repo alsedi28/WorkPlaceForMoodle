@@ -4,13 +4,13 @@ $(document).ready(function(){
     var messageAreaReportKaf = new MessageArea(document.querySelector('#message_kaf'));
 
     var dataObj2 = {
-        "work": document.getElementById("h_work_2").value,
-        "type": document.getElementById("h_work_type_2").value,
+        "work": document.getElementById("h_work_2") ? document.getElementById("h_work_2").value : null,
+        "type": document.getElementById("h_work_type_2") ? document.getElementById("h_work_type_2").value : null,
     };
 
     var dataObj3 = {
-        "work": document.getElementById("h_work_3").value,
-        "type": document.getElementById("h_work_type_3").value,
+        "work": document.getElementById("h_work_3") ? document.getElementById("h_work_3").value : null,
+        "type": document.getElementById("h_work_type_3") ? document.getElementById("h_work_type_3").value : null,
     };
 
     $(document).on("click",".block_file_prev", function(){
@@ -53,6 +53,8 @@ $(document).ready(function(){
     if($("#tab2 .sign_button_teacher").is('.sign_button_teacher') && !document.querySelector('#tab2 .sign_button_teacher').classList.contains("sign_teacher_button_not_active")){
         $("#tab2 .sign_button_teacher").on("click", sign_nir_teacher);
     }
+
+    $("#region-main").on('click', '.button_delete_work', delete_work);
 
     $(".tab").on('click', '.cancel_kaf_button', cancel_sign_nir_kaf);
 
@@ -691,7 +693,26 @@ $(document).ready(function(){
         var isSignYes = confirm(loc.AnswerDoYouWantToFinishWork);
 
         if(isSignYes)
-            window.location.hash="win1";
+            window.location.hash = "win1";
+    }
+
+    function delete_work(event){
+        var isSignYes = confirm(loc.AnswerDoYouWantToDeleteWork);
+
+        if(isSignYes)
+        {
+            var work_id = event.target.querySelector("input").value;
+            var params_obj = {'work_id' : work_id};
+
+            $.ajax({
+                url: 'ajax/delete_work.php',
+                type: 'POST',
+                data: $.param(params_obj),
+                success: function(data){
+                    window.location = "/nirtest/index.php";
+                }
+            });
+        }
     }
 
     function get_obj_settings_download_file(data, extensions){

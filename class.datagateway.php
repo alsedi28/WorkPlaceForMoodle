@@ -302,6 +302,20 @@ class DataGateway
     }
 
     /*
+    table: mdl_nir_files
+    fields: ***
+    */
+    public static function get_number_files_by_nir($work_id){
+        global $DB;
+
+        $sql_count_files = "SELECT COUNT(*) as count FROM {nir_files} WHERE mdl_nir_files.nir_id = ?";
+
+        $count = $DB->get_record_sql($sql_count_files, array($work_id));
+
+        return $count;
+    }
+
+    /*
     table: mdl_nir_files, mdl_nir
     fields: count
     */
