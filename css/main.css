@@ -1,6 +1,6 @@
 .work_block{
 	 width: 300px;
-	 height: 230px;
+	 min-height: 230px;
 	 margin-left: 10px;
 	 margin-right: 10px;
 	 margin-bottom: 15px;

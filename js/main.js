@@ -13,6 +13,22 @@ $(document).ready(function(){
         "type": document.getElementById("h_work_type_3") ? document.getElementById("h_work_type_3").value : null,
     };
 
+    // Set the height of blocks
+    if($(".work_block").length > 0){
+        var max_height = 0;
+
+        $(".work_block").each(function(index, item) {
+            var element_height = $(item).height();
+
+            if(element_height > max_height)
+                max_height = element_height;
+        });
+
+        $(".work_block").each(function(index, item) {
+            $(item).height(max_height);
+        });
+    }
+
     $(document).on("click",".block_file_prev", function(){
         var img_n = this.querySelector('.img_new');
 
