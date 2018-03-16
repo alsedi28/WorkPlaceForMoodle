@@ -113,7 +113,7 @@ if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA) {
     $content .= html_writer::start_tag('div', array('class' => 'tab-content'));
     $content .= html_writer::start_tag('div', array('class' => 'tab active', 'id' => 'tab1'));
 
-    $content .= Render::render_kafedra_tab_work_plan($messages_type_z, $work->is_closed, $work_id);
+    $content .= Render::render_kafedra_tab_work_plan($messages_type_z, $work);
 
     $content .= html_writer::end_tag('div');
 

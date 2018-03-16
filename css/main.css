@@ -592,3 +592,22 @@ li.active a, li.active a:hover{
 	cursor: pointer;
 	background-image: url(img/delete_red.png);
 }
+
+#work_result_block{
+    margin-top: 25px;
+    margin-left: 45px;
+    margin-right: 45px;
+}
+
+#work_result_block_status_mark .work_result_item{
+    width: 50%;
+    float: left;
+}
+
+.work_result_item{
+    font-size: 20px;
+}
+
+.work_result_item_title{
+    font-weight: bold;
+}

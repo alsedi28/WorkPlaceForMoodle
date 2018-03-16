@@ -187,22 +187,46 @@ class Render
         return $tab_content;
     }
 
-    public static function render_kafedra_tab_work_plan($messages, $is_closed, $work_id){
+    public static function render_kafedra_tab_work_plan($messages, $work){
         $tab_content = '';
         $tab_content .= html_writer::start_tag('div', array('id' => 'content'));
         $tab_content .= html_writer::start_tag('div', array('class' => 'block_work_plan'));
 
-        $work_plan_info = DataGateway::get_work_plan_by_nir($work_id);
+        $work_plan_info = DataGateway::get_work_plan_by_nir($work->id);
 
         $tab_content .= self::render_message_container($work_plan_info->is_sign_user, $work_plan_info->is_sign_teacher, $work_plan_info->is_sign_kaf);
 
         if($work_plan_info->is_sign_user && $work_plan_info->is_sign_teacher)
-            $tab_content .= self::render_work_plan_view($work_id, $is_closed);
+            $tab_content .= self::render_work_plan_view($work->id, $work->is_closed);
 
-        $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => 'h_work', 'value' => $work_id)); // h_work h_work_2 h_work_3
+        $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work', 'id' => 'h_work', 'value' => $work->id)); // h_work h_work_2 h_work_3
         $tab_content .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'h_work_type', 'id' => 'h_work_type', 'value' => 'Z'));
 
-        if($is_closed == 0 || ($is_closed == 1 && count($messages) > 0)) {
+        if($work->is_closed == 1) {
+            $tab_content .= html_writer::start_tag('div', array('id' => 'work_result_block'));
+
+            $tab_content .= html_writer::start_tag('div', array('id' => 'work_result_block_status_mark'));
+            $tab_content .= html_writer::start_tag('p', array('class' => 'work_result_item'));
+            $tab_content .= html_writer::tag('span', 'Статус защиты: ', array('class' => 'work_result_item_title'));
+            $tab_content .= $work->status_completion;
+            $tab_content .= html_writer::end_tag('p');
+
+            $tab_content .= html_writer::start_tag('p', array('class' => 'work_result_item', 'style' => 'text-align: right;'));
+            $tab_content .= html_writer::tag('span', 'Оценка (по сто балльной шкале): ', array('class' => 'work_result_item_title'));
+            $tab_content .= $work->final_mark;
+            $tab_content .= html_writer::end_tag('p');
+            $tab_content .= html_writer::tag('div', '', array('style' => 'clear:both;'));
+            $tab_content .= html_writer::end_tag('div');
+
+            $tab_content .= html_writer::start_tag('p', array('class' => 'work_result_item'));
+            $tab_content .= html_writer::tag('span', 'Комментарий: ', array('class' => 'work_result_item_title'));
+            $tab_content .= $work->final_comment;
+            $tab_content .= html_writer::end_tag('p');
+
+            $tab_content .= html_writer::end_tag('div');
+        }
+
+        if($work->is_closed == 0 || ($work->is_closed == 1 && count($messages) > 0)) {
             $tab_content .= html_writer::start_tag('div', array('class' => 'messages'));
 
             foreach ($messages as $mz) {
@@ -216,7 +240,7 @@ class Render
                 $tab_content .= html_writer::end_tag('div');
             }
 
-            if ($is_closed == 0) {
+            if ($work->is_closed == 0) {
                 $tab_content .= html_writer::start_tag('div', array('class' => 'textar_message_new'));
                 $tab_content .= html_writer::tag('textarea', '', array('rows' => '3', 'name' => 'message', 'id' => 'message_textarea_tab1', 'class' => 'send_block_message', 'style' => 'resize: none;', 'required' => true));
                 $tab_content .= html_writer::start_tag('button', array('class' => 'send_message_button', 'id' => 'send_message_tab1'));

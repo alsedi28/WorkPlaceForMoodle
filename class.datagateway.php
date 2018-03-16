@@ -36,12 +36,13 @@ class DataGateway
 
     /*
     table: mdl_nir, mdl_user
-    fields: nir_id, title, is_closed, mark, review, student_firstname, student_lastname
+    fields: nir_id, title, is_closed, mark, review, student_firstname, student_lastname, final_mark, status_completion, final_comment
     */
     public static function get_nir_by_student($student_id, $nir_id){
         global $DB;
 
-        $sql_nir = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_nir.review, mdl_nir.mark, mdl_user.firstname, mdl_user.lastname 
+        $sql_nir = "SELECT mdl_nir.id, mdl_nir.title, mdl_nir.is_closed, mdl_nir.review, mdl_nir.mark, mdl_user.firstname, mdl_user.lastname, 
+                            mdl_nir.final_mark, mdl_nir.status_completion, mdl_nir.final_comment  
                             FROM {nir}, {user} WHERE mdl_nir.user_id = ? AND mdl_user.id = mdl_nir.teacher_id AND mdl_nir.id = ?";
         $nir = $DB->get_record_sql($sql_nir, array($student_id, $nir_id));
 
