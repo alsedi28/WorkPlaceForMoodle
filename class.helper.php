@@ -239,8 +239,55 @@ class Helper
         return $a->order_number > $b->order_number;
     }
 
+    public static function synchronization_groups(){
+        global $DB;
+
+        $nir_groups = DataGateway::get_nir_groups();
+        $groups = DataGateway::get_groups();
+
+        $nir_groups_names = array_map("self::get_nir_group_name", $nir_groups);
+        $groups_names = array_map("self::get_group_name", $groups);
+
+        $new_groups = array();
+
+        foreach ($groups_names as $group){
+            if (!in_array($group, $nir_groups_names)) {
+                $record = new stdClass();
+                $record->group_name = $group;
+                $record->is_active = 1;
+
+                array_push($new_groups, $record);
+            }
+        }
+
+        if(count($new_groups) > 0)
+            $DB->insert_records('nir_groups', $new_groups);
+    }
+
+    public static function prepare_groups_for_output($groups){
+        $active_groups = array();
+        $not_active_groups = array();
+
+        foreach ($groups as $group){
+            if($group->is_active == 1)
+                array_push($active_groups, $group);
+            else
+                array_push($not_active_groups, $group);
+        }
+
+        return array_merge($active_groups, $not_active_groups);
+    }
+
     private static function concat_changed_field_name(&$item, $key, $prefix)
     {
         $item = "$item $prefix";
+    }
+
+    private static function get_nir_group_name($group){
+        return $group->group_name;
+    }
+
+    private static function get_group_name($group){
+        return $group->data;
     }
 }

@@ -483,8 +483,23 @@ class DataGateway
     public static function get_groups(){
         global $DB;
 
-        $sql_groups = "SELECT DISTINCT data FROM mdl_user_info_data WHERE fieldid = ?  AND data != '' ORDER BY data";
+        $sql_groups = "SELECT DISTINCT mdl_user_info_data.data, mdl_nir_groups.is_active, mdl_nir_groups.id AS nir_group_id FROM mdl_user_info_data LEFT JOIN mdl_nir_groups 
+                        ON mdl_user_info_data.data = mdl_nir_groups.group_name WHERE mdl_user_info_data.fieldid = ?  AND mdl_user_info_data.data != '' 
+                        ORDER BY mdl_user_info_data.data";
         $groups = $DB->get_records_sql($sql_groups, array(Config::FIELD_GROUP_ID));
+
+        return $groups;
+    }
+
+    /*
+    table: mdl_nir_groups
+    fields: ***
+    */
+    public static function get_nir_groups(){
+        global $DB;
+
+        $sql_groups = "SELECT * FROM mdl_nir_groups";
+        $groups = $DB->get_records_sql($sql_groups);
 
         return $groups;
     }

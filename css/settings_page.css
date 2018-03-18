@@ -1,0 +1,27 @@
+#page_title{
+    text-align: center;
+    color: rgba(0,0,0,.54) !important;
+    font-weight: bold;
+}
+
+.settings_groups_title{
+    color: rgba(0,0,0,.54) !important;
+}
+
+.settings_groups_hr{
+    border-top: 2px solid #eee !important;
+    margin: 0px !important;
+}
+
+.groups_table{
+    width: 100%;
+}
+
+.groups_table th{
+    font-size: 19px;
+}
+
+.groups_table td{
+    font-size: 21px;
+    text-align: center;
+}

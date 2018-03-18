@@ -34,6 +34,11 @@ if ($CFG->forcelogin) {
 $previewnode = $PAGE->navigation->add("НИР", new moodle_url('/nirtest/index.php'), navigation_node::TYPE_CONTAINER);
 $previewnode->make_active();
 
+if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA){
+    $node_students_list = $previewnode->add("Настройки", new moodle_url('/nirtest/settings.php'));
+    $node_students_list->make_inactive();
+}
+
 echo $OUTPUT->header();
 
 $content = '';
