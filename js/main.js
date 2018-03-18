@@ -152,7 +152,7 @@ $(document).ready(function(){
                         $('#cancel_work_plan_kaf').remove();
                     }
 
-                    messageArea.AddInformation(data.alert);
+                    messageArea.AddSuccess(data.alert);
 
                     if(data.messages)
                         $("#tab1 .textar_message_new").before(data.messages);

@@ -3,6 +3,7 @@ require_once(dirname(__FILE__) . '/../../config.php');
 require_once('../class.helper.php');
 require_once('../class.config.php');
 require_once('../class.datagateway.php');
+require_once('../class.emailsender.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['file_id']) || intval($_POST['file_id']) == 0){
@@ -36,6 +37,8 @@ if($file && $USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_K
         $update_record->is_rejected = 1;
         
         $DB->update_record('nir_files', $update_record);
+
+        EmailSender::send_email_cancel_file_kafedra($file->nir_id, "file");
         
         $message = "Документ отклонён.";
 

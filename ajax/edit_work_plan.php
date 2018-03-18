@@ -4,6 +4,7 @@ require_once(dirname(__FILE__) . '/../constants.php');
 require_once('../class.helper.php');
 require_once('../class.datagateway.php');
 require_once('../class.render.php');
+require_once('../class.emailsender.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['work_id']) || intval($_POST['work_id']) == 0){
@@ -93,6 +94,8 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
 
     $alert_message = '';
 
+    $who_update = NULL;
+
     $update_work_plan = new stdClass();
     $update_work_plan->id=$work_plan_info->id;
 
@@ -100,15 +103,18 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
         if ($work_plan_info->teacher_id == $USER->id) {
             if ($_POST['action'] == "send_to_kaf") {
                 $update_work_plan->is_sign_teacher = 1;
+                $who_update = 1;
                 $alert_message = "Задание на НИР отредактировано и отправлено на кафедру.";
             } else if ($_POST['action'] == "send_to_user") {
                 $update_work_plan->is_sign_teacher = 0;
                 $update_work_plan->is_sign_user = 0;
+                $who_update = 2;
                 $alert_message = "Задание на НИР отредактировано и отправлено студенту для доработки.";
             }
         }
         else{
             $update_work_plan->is_sign_user = 1;
+            $who_update = 3;
             $alert_message = "Задание на НИР отредактировано и отправлено научному руководителю.";
         }
     }
@@ -242,6 +248,8 @@ if(isset($_POST['ex_surname']) && isset($_POST['ex_name'])&& isset($_POST['ex_pa
         $last_date = $_POST['last_date_message'];
 
     $messages_data = Helper::get_messages($work_id, 'Z', $last_date);
+
+    EmailSender::send_email_edit_work_plan($USER, $work_id, $who_update);
 
     echo json_encode(array('status' => "Ok", 'data' => Render::render_work_plan_view($work_id), 'messages' => $messages_data, 'alert' => $alert_message));
 }

@@ -1,6 +1,7 @@
 <?php
     require_once('../class.datagateway.php');
     require_once('../class.uploader.php');
+    require_once('../class.emailsender.php');
     require_once(dirname(__FILE__) . '/../../config.php');
 
     $uploader = new Uploader();
@@ -53,6 +54,7 @@
         $record->type = $type;
         
         $DB->insert_record('nir_files', $record, false);
+        EmailSender::send_email_upload_file($USER, $work_id, $type);
 
         //echo $file[0];
     }

@@ -3,6 +3,7 @@ require_once(dirname(__FILE__) . '/../../config.php');
 require_once('../class.helper.php');
 require_once('../class.config.php');
 require_once('../class.datagateway.php');
+require_once('../class.emailsender.php');
 header('Content-type: application/json');
 
 if(!isset($_POST['id']) || intval($_POST['id']) == 0){
@@ -36,6 +37,8 @@ if($file && $USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_T
     $messages_data = "";
 
     $messages_data = Helper::get_messages($file->nir_id, $file->type, $last_date);
+
+    EmailSender::send_email_sign_file_teacher($file->nir_id);
 
     echo json_encode(array('status' => "Ok", 'messages' => $messages_data));
 }

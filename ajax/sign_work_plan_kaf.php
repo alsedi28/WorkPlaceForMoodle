@@ -3,6 +3,7 @@ require_once(dirname(__FILE__) . '/../../config.php');
 require_once('../class.helper.php');
 require_once('../class.datagateway.php');
 require_once('../class.config.php');
+require_once('../class.emailsender.php');
 header('Content-type: application/json');
 
 if($USER->profile[Config::FIELD_USER_TYPE_NAME] !== Config::USER_TYPE_KAFEDRA){
@@ -45,6 +46,8 @@ if (isset($_POST['last_date_message']))
     $last_date = $_POST['last_date_message'];
 
 $messages_data = Helper::get_messages_for_kaf($work_id, 'Z', $last_date);
+
+EmailSender::send_email_approve_file_kafedra($work_id, "workplan");
 
 echo json_encode(array('status' => "Ok", 'messages' => $messages_data, 'alert' => $message));
 ?>
