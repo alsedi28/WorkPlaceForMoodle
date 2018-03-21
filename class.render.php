@@ -649,6 +649,100 @@ class Render
         return $dialog;
     }
 
+    public static function render_filter_block(){
+        $content = '';
+
+        $content .= html_writer::start_tag('div', array('class' => 'filter_group_block'));
+        $content .= html_writer::start_tag('div', array('class' => 'filter_group'));
+        $content .= html_writer::tag('p', "Не активные",array('class' => 'filter_title_not_active'));
+        $content .= html_writer::start_tag('label', array('class' => 'switch', 'style' => 'float: left;'));
+        $content .= html_writer::empty_tag('input', array('type' => 'checkbox', 'class' => 'switch_active_groups', 'checked' => 'checked'));
+        $content .= html_writer::tag('span','', array('class' => 'slider round'));
+        $content .= html_writer::end_tag('label');
+        $content .= html_writer::tag('p', "Активные",array('class' => 'filter_title_active'));
+        $content .= html_writer::end_tag('div');
+        $content .= html_writer::end_tag('div');
+
+        return $content;
+    }
+
+    public static function render_list_of_groups_and_students($groups, $active = true){
+        $content = '';
+
+        $content .= html_writer::start_tag('div', array('id' => 'cssmenu', 'class' => $active ? 'list_for_switch_active' : 'list_for_switch_not_active',
+                                            'style' => $active ? '' : 'display:none;'));
+        $content .= html_writer::start_tag('ul');
+
+        foreach ($groups as $grp) {
+            $content .= html_writer::start_tag('li', array('class' => 'has-sub'));
+            $content .= html_writer::start_tag('a', array('href' => '#'));
+            $content .= html_writer::tag('span', $grp->data, array('style' => $active ? '' : 'background-color: #eee; color: rgba(0,0,0,.54) !important;'));
+            $content .= html_writer::end_tag('a');
+
+            $content .= html_writer::start_tag('ul');
+
+            $users_group = DataGateway::get_students_by_group($grp->data);
+
+            foreach ($users_group as $u) {
+                $count = DataGateway::get_number_files_student_signed_teacher($u->id);
+                $work_plan = DataGateway::get_work_plan_by_student($u->id);
+
+                $url = "/nirtest/works.php?std=" . $u->id;
+
+                $content .= html_writer::start_tag('li');
+                $content .= html_writer::start_tag('a', array('href' => $url));
+                $content .= html_writer::tag('span', $u->lastname . " " . $u->firstname);
+
+                if ($count->count > 0 || ($work_plan->is_sign_user == 1 && $work_plan->is_sign_teacher == 1 && $work_plan->is_sign_kaf == 0)) {
+                    $content .= html_writer::start_tag('div', array('class' => 'sign_files_kaf_icon'));
+                    $content .= html_writer::empty_tag('img', array('src' => 'img/report.png', 'height' => '25px', 'title' => 'Добавлен новый документ'));
+                    $content .= html_writer::end_tag('div');
+                }
+                $content .= html_writer::end_tag('a');
+                $content .= html_writer::end_tag('li');
+            }
+
+            $content .= html_writer::end_tag('ul');
+            $content .= html_writer::end_tag('li');
+        }
+
+        $content .= html_writer::end_tag('ul');
+        $content .= html_writer::end_tag('div');
+
+        return $content;
+    }
+    public static function render_list_of_students($students, $teacher_id, $active = true){
+        $content = '';
+
+        $content .= html_writer::start_tag('div', array('class' => $active ? 'list_for_switch_active' : 'list_for_switch_not_active',
+            'style' => $active ? '' : 'display:none;'));
+
+        foreach ($students as $us) {
+            $count_n_f = DataGateway::get_number_new_files_uploaded_student($us->id, $teacher_id);
+            $work_plan = DataGateway::get_work_plan_by_student_and_teacher($us->id, $teacher_id);
+
+            $url = '/nirtest/works.php?std=' . $us->id;
+
+            $content .= html_writer::start_tag('a', array('href' => $url));
+
+            $content .= html_writer::start_tag('div', array('class' => $active ? 'users_list_el' : 'users_list_el_not_active'));
+            $content .= html_writer::tag('span', $us->lastname . " " . $us->firstname, array('style' => 'float:left'));
+            $content .= $us->data;
+
+            if ($count_n_f->count > 0 || ($work_plan->is_sign_user == 1 && $work_plan->is_sign_teacher == 0 && $work_plan->is_sign_kaf == 0)) {
+                $content .= html_writer::empty_tag('img', array('src' => 'img/report.png', 'height' => '25px', 'title' => 'Добавлен новый документ'));
+            }
+
+            $content .= html_writer::end_tag('div');
+            $content .= html_writer::end_tag('a');
+        }
+
+        $content .= html_writer::end_tag('div');
+
+        return $content;
+    }
+
+
     private static function render_work_plan_textarea_many_block($label, $textarea_name, $rows, $required = true, $items = null){
         $content = '';
 

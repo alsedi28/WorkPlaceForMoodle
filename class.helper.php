@@ -264,18 +264,23 @@ class Helper
             $DB->insert_records('nir_groups', $new_groups);
     }
 
-    public static function prepare_groups_for_output($groups){
-        $active_groups = array();
-        $not_active_groups = array();
+    public static function prepare_groups_for_output($all_groups){
+        $groups = self::get_divided_groups_by_type($all_groups);
 
-        foreach ($groups as $group){
+        return array_merge($groups["active"], $groups["not_active"]);
+    }
+
+    public static function get_divided_groups_by_type($all_groups){
+        $groups = array("active" => array(), "not_active" => array());
+
+        foreach ($all_groups as $group){
             if($group->is_active == 1)
-                array_push($active_groups, $group);
+                array_push($groups["active"], $group);
             else
-                array_push($not_active_groups, $group);
+                array_push($groups["not_active"], $group);
         }
 
-        return array_merge($active_groups, $not_active_groups);
+        return $groups;
     }
 
     private static function concat_changed_field_name(&$item, $key, $prefix)
@@ -283,11 +288,11 @@ class Helper
         $item = "$item $prefix";
     }
 
-    private static function get_nir_group_name($group){
+    public static function get_nir_group_name($group){
         return $group->group_name;
     }
 
-    private static function get_group_name($group){
+    public static function get_group_name($group){
         return $group->data;
     }
 }

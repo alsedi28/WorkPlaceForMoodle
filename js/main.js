@@ -112,6 +112,17 @@ $(document).ready(function(){
     $(".block_work_plan").on('submit', '#form_plan_edit', send_edit_work_plan);
     $(".block_work_plan").on('click', '#form_plan_edit #submit_edit_work_plan', set_action_edit_work_plan);
 
+    $(".switch_active_groups").click(function () {
+        if($(this).is(':checked')){
+            $(".list_for_switch_active").show();
+            $(".list_for_switch_not_active").hide();
+        }
+        else{
+            $(".list_for_switch_active").hide();
+            $(".list_for_switch_not_active").show();
+        }
+    });
+
     function set_action_edit_work_plan(event) {
         var action_type = $(event.target).attr('action_type');
         $("#form_plan_edit [name='action']").val(action_type);

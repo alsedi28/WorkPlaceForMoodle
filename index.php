@@ -6,7 +6,7 @@ require_once('class.datagateway.php');
 require_once('class.render.php');
 require_once('class.cssbuilder.php');
 
-CssBuilder::build(array("menu_kaf", "modal_dialog", "tabs", "main"));
+CssBuilder::build(array("menu_kaf", "modal_dialog", "tabs", "main", "switch_control"));
 
 $context = context_user::instance($USER->id);
 $PAGE->set_blocks_editing_capability('moodle/my:manageblocks');
@@ -47,46 +47,14 @@ $content = '';
 if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_KAFEDRA) {
     $content .= html_writer::tag('h1', 'Научно-исследовательская работа');
 
-    $groups = DataGateway::get_groups();
+    $all_groups = DataGateway::get_groups();
+    $groups = Helper::get_divided_groups_by_type($all_groups);
 
-    $content .= html_writer::start_tag('div', array('id' => 'cssmenu'));
-    $content .= html_writer::start_tag('ul');
+    $content .= Render::render_filter_block();
 
-    foreach ($groups as $grp) {
-        $content .= html_writer::start_tag('li', array('class' => 'has-sub'));
-        $content .= html_writer::start_tag('a', array('href' => '#'));
-        $content .= html_writer::tag('span', $grp->data);
-        $content .= html_writer::end_tag('a');
+    $content .= Render::render_list_of_groups_and_students($groups["active"]);
 
-        $content .= html_writer::start_tag('ul');
-
-        $users_group = DataGateway::get_students_by_group($grp->data);
-
-        foreach ($users_group as $u) {
-            $count = DataGateway::get_number_files_student_signed_teacher($u->id);
-            $work_plan = DataGateway::get_work_plan_by_student($u->id);
-
-            $url = "/nirtest/works.php?std=" . $u->id;
-
-            $content .= html_writer::start_tag('li');
-            $content .= html_writer::start_tag('a', array('href' => $url));
-            $content .= html_writer::tag('span', $u->lastname . " " . $u->firstname);
-
-            if ($count->count > 0 || ($work_plan->is_sign_user == 1 && $work_plan->is_sign_teacher == 1 && $work_plan->is_sign_kaf == 0)) {
-                $content .= html_writer::start_tag('div', array('class' => 'sign_files_kaf_icon'));
-                $content .= html_writer::empty_tag('img', array('src' => 'img/report.png', 'height' => '25px', 'title' => 'Добавлен новый документ'));
-                $content .= html_writer::end_tag('div');
-            }
-            $content .= html_writer::end_tag('a');
-            $content .= html_writer::end_tag('li');
-        }
-
-        $content .= html_writer::end_tag('ul');
-        $content .= html_writer::end_tag('li');
-    }
-
-    $content .= html_writer::end_tag('ul');
-    $content .= html_writer::end_tag('div');
+    $content .= Render::render_list_of_groups_and_students($groups["not_active"], false);
 }
 else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACHER) { // Page for teacher
     // List of teacher's students
@@ -94,24 +62,26 @@ else if($USER->profile[Config::FIELD_USER_TYPE_NAME] === Config::USER_TYPE_TEACH
 
     $content .= html_writer::tag('h1', 'Студенты');
 
+    $all_groups = DataGateway::get_groups();
+    $groups = Helper::get_divided_groups_by_type($all_groups);
+
+    $active_groups = array_map("Helper::get_group_name", $groups["active"]);
+    $not_active_groups = array_map("Helper::get_group_name", $groups["not_active"]);
+
+    $content .= Render::render_filter_block();
+
+    $active_users = array();
+    $not_active_users = array();
+
     foreach ($users_of_teacher as $us) {
-        $count_n_f = DataGateway::get_number_new_files_uploaded_student($us->id, $USER->id);
-        $work_plan = DataGateway::get_work_plan_by_student_and_teacher($us->id, $USER->id);
-
-        $url = '/nirtest/works.php?std=' . $us->id;
-
-        $content .= html_writer::start_tag('a', array('href' => $url));
-        $content .= html_writer::start_tag('div', array('class' => 'users_list_el'));
-        $content .= html_writer::tag('span', $us->lastname . " " . $us->firstname, array('style' => 'float:left'));
-        $content .= $us->data;
-
-        if ($count_n_f->count > 0 || ($work_plan->is_sign_user == 1 && $work_plan->is_sign_teacher == 0 && $work_plan->is_sign_kaf == 0)) {
-            $content .= html_writer::empty_tag('img', array('src' => 'img/report.png', 'height' => '25px', 'title' => 'Добавлен новый документ'));
-        }
-
-        $content .= html_writer::end_tag('div');
-        $content .= html_writer::end_tag('a');
+        if (in_array($us->data, $active_groups))
+            array_push($active_users, $us);
+        else
+            array_push($not_active_users, $us);
     }
+
+    $content .= Render::render_list_of_students($active_users, $USER->id);
+    $content .= Render::render_list_of_students($not_active_users, $USER->id, false);
 }
 else{ // Page for student with list of his works
     $works = DataGateway::get_list_nir_by_student($USER->id);

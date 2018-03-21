@@ -29,6 +29,11 @@
     border-bottom: 2px solid rgba(255,255,255, 0.85);
     text-transform: uppercase;
 }
+
+.list_for_switch_not_active > ul > li > a {
+    background-color: rgba(204,204,204, 0.9) !important;
+}
+
 #cssmenu > ul > li > a > span {
     background-color: #46b6ac;
     color: rgba(255,255,255,0.85) !important;
@@ -37,6 +42,7 @@
     font-size: 21px;
     font-weight: 300;
 }
+
 #cssmenu > ul > li > a:hover {
     text-decoration: none;
 }
@@ -58,6 +64,7 @@
     margin: 0;
     background: none;
 }
+
 /* Sub menu */
 #cssmenu ul ul {
     display: none;
