@@ -5,8 +5,10 @@ $(document).ready(function() {
         var content = '<span class="cnt">' + count + '</span>';
         $(e).closest('li').children('a').append(content);
     });
+
     $('#cssmenu ul ul li:odd').addClass('odd');
     $('#cssmenu ul ul li:even').addClass('even');
+
     $('#cssmenu > ul > li > a').click(function() {
         $('#cssmenu li').removeClass('act');
         $(this).closest('li').addClass('act');
@@ -25,4 +27,4 @@ $(document).ready(function() {
             return false;
         }
     });
-})
+});

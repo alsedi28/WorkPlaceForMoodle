@@ -13,22 +13,6 @@ $(document).ready(function(){
         "type": document.getElementById("h_work_type_3") ? document.getElementById("h_work_type_3").value : null,
     };
 
-    // Set the height of blocks
-    if($(".work_block").length > 0){
-        var max_height = 0;
-
-        $(".work_block").each(function(index, item) {
-            var element_height = $(item).height();
-
-            if(element_height > max_height)
-                max_height = element_height;
-        });
-
-        $(".work_block").each(function(index, item) {
-            $(item).height(max_height);
-        });
-    }
-
     $(document).on("click",".block_file_prev", function(){
         var img_n = this.querySelector('.img_new');
 
@@ -70,8 +54,6 @@ $(document).ready(function(){
         $("#tab2 .sign_button_teacher").on("click", sign_nir_teacher);
     }
 
-    $("#region-main").on('click', '.button_delete_work', delete_work);
-
     $(".tab").on('click', '.cancel_kaf_button', cancel_sign_nir_kaf);
 
     $(".block_work_plan").on('click', '.work_info_block .plus_input', add_point);
@@ -111,17 +93,6 @@ $(document).ready(function(){
 
     $(".block_work_plan").on('submit', '#form_plan_edit', send_edit_work_plan);
     $(".block_work_plan").on('click', '#form_plan_edit #submit_edit_work_plan', set_action_edit_work_plan);
-
-    $(".switch_active_groups").click(function () {
-        if($(this).is(':checked')){
-            $(".list_for_switch_active").show();
-            $(".list_for_switch_not_active").hide();
-        }
-        else{
-            $(".list_for_switch_active").hide();
-            $(".list_for_switch_not_active").show();
-        }
-    });
 
     function set_action_edit_work_plan(event) {
         var action_type = $(event.target).attr('action_type');
@@ -714,32 +685,13 @@ $(document).ready(function(){
 
     $("#send_message_tab1").click(send_comment);
 
-    $("#send_message_tab3").click( send_comment);
+    $("#send_message_tab3").click(send_comment);
 
     function finish_work(){
         var isSignYes = confirm(loc.AnswerDoYouWantToFinishWork);
 
         if(isSignYes)
             window.location.hash = "win1";
-    }
-
-    function delete_work(event){
-        var isSignYes = confirm(loc.AnswerDoYouWantToDeleteWork);
-
-        if(isSignYes)
-        {
-            var work_id = event.target.querySelector("input").value;
-            var params_obj = {'work_id' : work_id};
-
-            $.ajax({
-                url: 'ajax/delete_work.php',
-                type: 'POST',
-                data: $.param(params_obj),
-                success: function(data){
-                    window.location = "/nirtest/index.php";
-                }
-            });
-        }
     }
 
     function get_obj_settings_download_file(data, extensions){

@@ -22,9 +22,9 @@ $PAGE->requires->css('/nirtest/material/jquery.filer.css');
 $PAGE->requires->css('/nirtest/material/jquery.filer-dragdropbox-theme.css');
 $PAGE->requires->js('/nirtest/js/jquery-3.2.0.min.js', true);
 $PAGE->requires->js('/nirtest/material/jquery.filer.min.js', true);
-$PAGE->requires->js('/nirtest/js/MessageArea.js', true);
+$PAGE->requires->js('/nirtest/js/messageArea.js', true);
 $PAGE->requires->js('/nirtest/js/resource.js', true);
-$PAGE->requires->js('/nirtest/js/main.js', true);
+$PAGE->requires->js('/nirtest/js/workPage.js', true);
 
 if ($CFG->forcelogin) {
     require_login();
