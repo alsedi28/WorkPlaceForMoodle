@@ -92,7 +92,14 @@ $(document).ready(function(){
     $(".block_work_plan").on('submit', '#form_plan', send_form_work_plan);
 
     $(".block_work_plan").on('submit', '#form_plan_edit', send_edit_work_plan);
+
     $(".block_work_plan").on('click', '#form_plan_edit #submit_edit_work_plan', set_action_edit_work_plan);
+
+    $("#send_message_tab2").click(send_comment);
+
+    $("#send_message_tab1").click(send_comment);
+
+    $("#send_message_tab3").click(send_comment);
 
     function set_action_edit_work_plan(event) {
         var action_type = $(event.target).attr('action_type');
@@ -680,12 +687,6 @@ $(document).ready(function(){
         if(value.length === 0)
             event.target.value = "";
     }
-
-    $("#send_message_tab2").click(send_comment);
-
-    $("#send_message_tab1").click(send_comment);
-
-    $("#send_message_tab3").click(send_comment);
 
     function finish_work(){
         var isSignYes = confirm(loc.AnswerDoYouWantToFinishWork);

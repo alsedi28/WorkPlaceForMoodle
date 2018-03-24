@@ -24,7 +24,7 @@ function delete_work(event){
 
     if(isSignYes)
     {
-        var work_id = event.target.querySelector("input").value;
+        var work_id = $(event.target).find("input").val();
         var params_obj = {'work_id' : work_id};
 
         $.ajax({

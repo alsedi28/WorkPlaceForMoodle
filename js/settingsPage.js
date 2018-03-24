@@ -4,7 +4,7 @@ $(document).ready(function() {
         $.ajax({
             url: 'ajax/set_group_status.php',
             type: 'POST',
-            data: {'status': $(this).is(':checked'), 'id': $(this)[0].id}
+            data: {'status': $(this).is(':checked'), 'id': $(this).attr('id')}
         });
     });
 });
