@@ -525,7 +525,7 @@ class DataGateway
     public static function get_students_by_group($group){
         global $DB;
 
-        $sql_users = "SELECT mdl_user.firstname, mdl_user.lastname, mdl_user.id FROM {user}, {user_info_data} 
+        $sql_users = "SELECT mdl_user.id, mdl_user.firstname, mdl_user.lastname FROM {user}, {user_info_data} 
                                     WHERE mdl_user.id = mdl_user_info_data.userid AND mdl_user_info_data.data = ? ORDER BY mdl_user.lastname";
 
         $users = $DB->get_records_sql($sql_users, array($group));
